@@ -2,260 +2,824 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hızlı 3D Karakter Galerisi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nisan için - Made by Talha</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
         
-        body { margin: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background: #020617; color: white; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-        
-        /* Modern Glass UI */
-        .ui-container {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; display: flex; align-items: center; justify-content: flex-start;
-            padding-left: 5%;
+        :root {
+            --toy-pink-light: #ffb3c6;
+            --toy-pink-dark: #ff85a2;
+            --toy-white: rgba(255, 255, 255, 0.9);
+            --glass-soft: rgba(255, 255, 255, 0.5);
         }
 
-        .selection-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 35px;
-            padding: 2rem;
-            pointer-events: auto;
-            width: 340px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; gap: 15px;
+        body { 
+            margin: 0; 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #ffc2d1;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 255, 255, 0.05) 35px, rgba(255, 255, 255, 0.05) 70px);
+            color: #4a1d2e;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            transition: background-color 0.8s ease;
+        }
+
+        .bg-hearts {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .hidden-screen {
             opacity: 0;
-            transform: scale(0.9);
+            pointer-events: none;
+            transform: scale(0.95);
+            z-index: 0;
+        }
+
+        .soft-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border: 6px solid #ffffff;
+            border-radius: 50px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
             transition: all 0.5s ease;
         }
 
-        .selection-panel.active { opacity: 1; transform: scale(1); }
-
-        .char-option {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid transparent;
-            border-radius: 20px;
-            padding: 12px;
-            cursor: pointer;
+        .char-btn {
+            background: rgba(255, 255, 255, 0.6);
+            border: 3px solid transparent;
+            border-radius: 35px;
             transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 12px;
+            color: #4a1d2e;
         }
 
-        .char-option.selected {
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.1);
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
+        .char-btn.selected {
+            background: #ff85a2;
+            color: white !important;
+            border-color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .avatar-box {
-            width: 45px; height: 45px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-            background: rgba(255,255,255,0.05);
+        .room-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        #loader {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-weight: bold; letter-spacing: 3px; color: #38bdf8; text-transform: uppercase;
+        /* Akşam Vibe Overlay */
+        .night-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(10, 10, 50, 0.45), rgba(5, 5, 30, 0.75));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            z-index: 25;
+        }
+        .night-active { opacity: 1; }
+
+        .footer-credit {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #ff5c8d;
+            text-shadow: 2px 2px 0px white;
+            letter-spacing: 1px;
+            z-index: 100;
+            transition: color 0.5s ease;
+        }
+
+        .soft-btn {
+            background: linear-gradient(135deg, #ff85a2, #ff5c8d);
+            color: white;
+            padding: 18px 50px;
+            border-radius: 40px;
+            font-weight: 800;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            border: 4px solid white;
+        }
+
+        .soft-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: rise 1s ease-out forwards;
+            box-shadow: 0 0 10px white;
+        }
+        @keyframes rise {
+            to { transform: translateY(-120px) scale(2); opacity: 0; }
+        }
+
+        /* Konuşma Balonu */
+        .speech-bubble {
+            position: absolute;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: #ff5c8d;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 4px solid #ffc2d1;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 110;
+            display: none;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+
+        @keyframes popIn {
+            from { transform: translateX(-50%) scale(0); opacity: 0; }
+            to { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+
+        .draggable {
+            cursor: grab;
+            position: absolute;
+            z-index: 100;
+        }
+        .draggable:active { cursor: grabbing; }
+
+        .char-container {
+            width: 250px;
+            height: 250px;
+            transition: transform 0.2s ease, filter 0.8s ease;
+            position: relative;
+        }
+
+        .dirty-effect {
+            filter: sepia(0.5) contrast(0.7) brightness(0.7) drop-shadow(0 0 8px rgba(100, 100, 50, 0.4));
+        }
+
+        .item-icon {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 4px solid #ffc2d1;
+        }
+
+        .sleeping-state {
+            filter: brightness(0.25) grayscale(0.4) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) !important;
+            transform: scale(0.8) rotate(-15deg) !important;
+        }
+
+        .hud-bar {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 3px solid #ffc2d1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .bed-target {
+            position: absolute;
+            right: 10%;
+            bottom: 10%;
+            width: 320px;
+            height: 220px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+        .bounce-char { animation: jump 2.5s ease-in-out infinite; }
+
+        .letter-btn {
+            margin-top: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid #ffc2d1;
+            transition: 0.3s;
+        }
+        .letter-btn:hover { transform: scale(1.1); }
+        
+        .secret-code-hint {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: black;
+            font-weight: 800;
+            font-size: 14px;
+            z-index: 60;
+            pointer-events: none;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
 
-<div id="loader">BAŞLATILIYOR...</div>
+<div class="bg-hearts">
+    <svg width="100%" height="100%" opacity="0.3">
+        <defs>
+            <pattern id="heart-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                <path id="heart-path" d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="#ff5c8d"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#heart-pattern)" />
+    </svg>
+</div>
 
-<div class="ui-container">
-    <div class="selection-panel" id="ui-panel">
-        <div>
-            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 uppercase">Avatar Seç</h1>
-            <p class="text-gray-400 text-xs">2026 Ultra-Hızlı Render</p>
+<!-- 1. GİRİŞ EKRANI -->
+<div id="welcome-screen" class="screen items-center justify-center">
+    <div class="text-center z-10 p-16 soft-panel max-w-2xl mx-4">
+        <h1 id="welcome-title" class="text-5xl md:text-7xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">
+            Nisan için
+        </h1>
+        <p id="welcome-sub" class="text-[#a64d79] text-xl mb-12 tracking-[0.2em] font-bold uppercase">Our world</p>
+        <button onclick="changeScreen('selection-screen')" class="soft-btn text-2xl uppercase tracking-widest">
+            Giriş Yap
+        </button>
+    </div>
+    <div class="footer-credit">Made by Talha <3</div>
+</div>
+
+<!-- 2. SEÇİM EKRANI -->
+<div id="selection-screen" class="screen hidden-screen px-8 md:px-20 py-10">
+    <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-12 max-w-7xl mx-auto w-full">
+        <div class="soft-panel w-full max-w-md p-10 z-20">
+            <h2 id="selection-title" class="text-3xl font-black mb-8 text-[#ff5c8d] tracking-tight uppercase text-center">Arkadaşını Seç</h2>
+            <div class="flex flex-col gap-4" id="char-list">
+                <button onclick="updateSelection('kitty')" id="opt-kitty" class="char-btn flex items-center gap-6 p-4 text-left w-full">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm">🎀</div>
+                    <div><h3 class="font-bold text-xl">Hello Kitty</h3><p class="text-xs uppercase font-bold opacity-70">Beyaz & Tatlı</p></div>
+                </button>
+                <button onclick="updateSelection('stitch')" id="opt-stitch" class="char-btn flex items-center gap-6 p-4 text-left w-full">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm">🌀</div>
+                    <div><h3 class="font-bold text-xl">Stitch</h3><p class="text-xs uppercase font-bold opacity-70">Mavi Haylaz</p></div>
+                </button>
+                <button onclick="updateSelection('chick')" id="opt-chick" class="char-btn flex items-center gap-6 p-4 text-left w-full">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm">🐣</div>
+                    <div><h3 class="font-bold text-xl">Civcik</h3><p class="text-xs uppercase font-bold opacity-70">Pofuduk & Konuşkan</p></div>
+                </button>
+                <button onclick="updateSelection('alien')" id="opt-alien" class="char-btn flex items-center gap-6 p-4 text-left w-full">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm">👽</div>
+                    <div><h3 class="font-bold text-xl">Uzaylı</h3><p class="text-xs uppercase font-bold opacity-70">Zeki Ziyaretçi</p></div>
+                </button>
+            </div>
+            
+            <div onclick="openSecretLetter()" class="letter-btn">
+                <span id="letter-icon" class="text-3xl">🔒 ✉️</span>
+            </div>
+
+            <button onclick="enterWorld()" class="w-full mt-6 soft-btn text-xl">Dünyaya Git</button>
+        </div>
+        <div class="flex-1 flex items-center justify-center">
+            <div id="selection-preview" class="w-[350px] aspect-square"></div>
+        </div>
+    </div>
+    <div class="footer-credit">Made by Talha <3</div>
+</div>
+
+<!-- 3. OYUN DÜNYASI -->
+<div id="world-screen" class="screen hidden-screen">
+    <div class="h-24 w-full flex items-center justify-between px-10 bg-white/90 backdrop-blur-md border-b-4 border-[#ffc2d1] z-50">
+        <div class="flex gap-4">
+            <div class="hud-bar flex flex-col items-center">
+                <span class="text-[10px] font-black text-[#ff5c8d] uppercase mb-1">Açlık</span>
+                <div class="w-20 h-4 bg-[#fff0f3] rounded-full overflow-hidden border-2 border-[#ffc2d1]">
+                    <div id="bar-hunger" class="h-full bg-[#ff85a2]" style="width: 80%"></div>
+                </div>
+            </div>
+            <div class="hud-bar flex flex-col items-center">
+                <span class="text-[10px] font-black text-[#3b82f6] uppercase mb-1">Temizlik</span>
+                <div class="w-20 h-4 bg-[#f0f7ff] rounded-full overflow-hidden border-2 border-[#bae6fd]">
+                    <div id="bar-hygiene" class="h-full bg-[#3b82f6]" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="hud-bar flex flex-col items-center">
+                <span class="text-[10px] font-black text-[#f59e0b] uppercase mb-1">Enerji</span>
+                <div class="w-20 h-4 bg-[#fffbeb] rounded-full overflow-hidden border-2 border-[#fef3c7]">
+                    <div id="bar-energy" class="h-full bg-gradient-to-r from-[#fbbf24] to-[#f59e0b]" style="width: 70%"></div>
+                </div>
+            </div>
+        </div>
+        <div id="school-info" class="hidden px-8 py-3 bg-[#ff5c8d] border-4 border-white text-white rounded-full font-black text-sm animate-pulse shadow-lg">
+            OKULDA: <span id="school-timer">03:00:00</span>
+        </div>
+        <button onclick="changeScreen('selection-screen')" class="bg-white px-5 py-2 rounded-full border-2 border-[#ffc2d1] text-[10px] font-black uppercase text-[#ff5c8d] shadow-sm">DEĞİŞTİR</button>
+    </div>
+
+    <div id="main-area" class="flex-1 relative overflow-hidden">
+        <div id="room-bg-layer" class="room-bg"></div>
+        <div id="night-vibe" class="night-overlay"></div>
+        <div id="bed-target" class="bed-target hidden"></div>
+        <div id="secret-hint" class="secret-code-hint hidden">nisan<3123</div>
+        
+        <!-- KARAKTER -->
+        <div id="char-draggable" class="draggable" style="left: 45%; bottom: 120px;">
+            <div id="char-container" class="char-container">
+                <div id="char-svg-wrap"></div>
+                <!-- Civcik için konuşma balonu -->
+                <div id="speech-bubble" class="speech-bubble">Merhaba!</div>
+            </div>
         </div>
 
-        <div class="flex flex-col gap-3">
-            <div class="char-option selected" onclick="updateView('kitty', this)">
-                <div class="avatar-box">🎀</div>
-                <div>
-                    <div class="font-bold text-sm">Hello Kitty</div>
-                    <div class="text-[10px] text-gray-500 font-bold uppercase">Pürüzsüz Beyaz</div>
-                </div>
-            </div>
+        <div id="interaction-layer" class="absolute inset-0 z-40 pointer-events-none"></div>
+    </div>
 
-            <div class="char-option" onclick="updateView('stitch', this)">
-                <div class="avatar-box">🌀</div>
-                <div>
-                    <div class="font-bold text-sm">Stitch</div>
-                    <div class="text-[10px] text-gray-500 font-bold uppercase">Mavi Galaktik</div>
-                </div>
-            </div>
+    <div class="h-28 w-full bg-white/95 backdrop-blur-md border-t-4 border-[#ffc2d1] flex items-center justify-around z-50">
+        <button onclick="goRoom('kitchen')" class="flex flex-col items-center gap-1 group">
+            <div class="w-14 h-14 bg-[#ffe5ec] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm border-2 border-white">🧁</div>
+            <span class="text-[10px] font-black uppercase text-[#ff5c8d]">Mutfak</span>
+        </button>
+        <button onclick="goRoom('bathroom')" class="flex flex-col items-center gap-1 group">
+            <div class="w-14 h-14 bg-[#e0f2fe] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm border-2 border-white">🧼</div>
+            <span class="text-[10px] font-black uppercase text-[#3b82f6]">Banyo</span>
+        </button>
+        <button onclick="goRoom('bedroom')" class="flex flex-col items-center gap-1 group">
+            <div class="w-14 h-14 bg-[#f3e8ff] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm border-2 border-white">🛌</div>
+            <span class="text-[10px] font-black uppercase text-[#a855f7]">Uyku</span>
+        </button>
+        <button onclick="goRoom('garden')" class="flex flex-col items-center gap-1 group">
+            <div class="w-14 h-14 bg-[#f0fdf4] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm border-2 border-white">🌲</div>
+            <span class="text-[10px] font-black uppercase text-[#22c55e]">Bahçe</span>
+        </button>
+        <button onclick="goRoom('school')" class="flex flex-col items-center gap-1 group">
+            <div class="w-14 h-14 bg-[#fffbeb] rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-sm border-2 border-white">🎓</div>
+            <span class="text-[10px] font-black uppercase text-[#f59e0b]">Okul</span>
+        </button>
+    </div>
+</div>
 
-            <div class="char-option" onclick="updateView('chick', this)">
-                <div class="avatar-box">🐥</div>
-                <div>
-                    <div class="font-bold text-sm">Pembe Civciv</div>
-                    <div class="text-[10px] text-gray-500 font-bold uppercase">Pofuduk Pembe</div>
-                </div>
-            </div>
-
-            <div class="char-option" onclick="updateView('alien', this)">
-                <div class="avatar-box">👽</div>
-                <div>
-                    <div class="font-bold text-sm">Uzaylı</div>
-                    <div class="text-[10px] text-gray-500 font-bold uppercase">Küçük Dost</div>
-                </div>
-            </div>
+<!-- Şifre Giriş Modal -->
+<div id="password-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center">
+    <div class="soft-panel p-10 max-w-sm w-full text-center">
+        <h3 class="text-2xl font-black text-[#ff5c8d] mb-4 uppercase">GİZLİ MEKTUP</h3>
+        <p class="text-sm text-gray-500 mb-6 font-bold">Açmak için şifreyi gir:</p>
+        <input type="text" id="secret-input" class="w-full p-4 rounded-2xl border-4 border-[#ffc2d1] mb-6 text-center font-bold" placeholder="Şifre...">
+        <div class="flex gap-4">
+            <button onclick="checkLetterCode()" class="flex-1 soft-btn py-3">AÇ</button>
+            <button onclick="closeModal()" class="flex-1 bg-gray-200 text-gray-600 rounded-full font-bold py-3">İPTAL</button>
         </div>
     </div>
 </div>
 
 <script>
-    let scene, camera, renderer, currentModel;
-    let isPressed = false;
-    let lastX = 0, rotY = 0, rotX = 0;
+    const foods = ['🧁', '🍝', '🍰', '🍕', '🥞'];
+    let currentFoodIdx = 0;
 
-    const stats = {
-        kitty: { main: 0xffffff, accent: 0xef4444, dress: 0x3b82f6 },
-        stitch: { main: 0x2563eb, accent: 0x1e40af, detail: 0x93c5fd },
-        chick: { main: 0xf472b6, accent: 0xf97316 },
-        alien: { main: 0x4ade80, accent: 0x2563eb }
+    const nisanQuotes = [
+        "Talha seni çok ama çok seviyor! 💖",
+        "Nisan, bu dünyanın en güzel çiçeğisin. 🌸",
+        "Our world... Sadece ikiniz için! ✨",
+        "Talha ve Nisan sonsuza dek! 💑",
+        "Gülüşün tüm dünyayı aydınlatıyor Nisan. 😊",
+        "Siz birbiriniz için yaratılmışsınız! ❤️",
+        "Aşkınız yıldızlar kadar parlak! 🌟",
+        "Nisan, Talha seninle olduğu için çok şanslı!"
+    ];
+
+    const charData = {
+        kitty: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <rect x="75" y="140" width="50" height="45" rx="15" fill="#3b82f6" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="65" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/><ellipse cx="135" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="100" cy="90" rx="75" ry="60" fill="white" stroke="#000" stroke-width="3"/>
+                <path d="M50 50 L30 15 L80 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M150 50 L170 15 L120 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="160" cy="55" r="15" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="145" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="175" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/>
+                <ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000" stroke-width="1.5"/>
+                <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="100" x2="15" y2="95"/><line x1="45" y1="110" x2="15" y2="115"/><line x1="155" y1="100" x2="185" y2="95"/><line x1="155" y1="110" x2="185" y2="115"/></g>
+                <ellipse cx="85" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/><ellipse cx="115" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/>
+            </svg>`,
+        stitch: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/>
+                <path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="3"/>
+                <ellipse cx="100" cy="165" rx="35" ry="35" fill="#93c5fd" opacity="0.7"/>
+                <path d="M55 145 Q30 145 35 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
+                <path d="M145 145 Q170 145 165 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
+                <ellipse cx="70" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="130" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/>
+                <ellipse cx="70" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(15, 70, 95)"/>
+                <ellipse cx="130" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(-15, 130, 95)"/>
+                <ellipse cx="72" cy="100" rx="15" ry="22" fill="black"/><ellipse cx="128" cy="100" rx="15" ry="22" fill="black"/>
+                <circle cx="76" cy="90" r="5" fill="white" opacity="0.9"/><circle cx="124" cy="90" r="5" fill="white" opacity="0.9"/>
+                <ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>
+            </svg>`,
+        chick: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/>
+                <circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/>
+                <path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2.5"/>
+                <ellipse cx="85" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/><ellipse cx="115" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
+            </svg>`,
+        alien: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <path d="M75 40 L65 15 L90 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/>
+                <path d="M125 40 L140 10 L110 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/>
+                <ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="3"/>
+                <rect x="82" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect x="106" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/>
+                <ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="4"/>
+                <g>
+                    <path d="M60 80 Q75 60 75 90 Q75 120 60 100 Q45 120 45 90 Q45 60 60 80" fill="black" stroke="#000" stroke-width="1"/>
+                    <path d="M140 80 Q155 60 155 90 Q155 120 140 100 Q125 120 125 90 Q125 60 140 80" fill="black" stroke="#000" stroke-width="1"/>
+                </g>
+                <circle cx="100" cy="135" r="5" fill="black"/>
+            </svg>`
     };
 
-    function init() {
-        if (!window.THREE) return;
-        
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('ui-panel').classList.add('active');
+    const roomConfigs = {
+        kitty: {
+            kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg?semt=ais_hybrid&w=740&q=80",
+            bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg",
+            bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg?semt=ais_hybrid&w=740&q=80",
+            garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu-2d-cizgi-film-manzarasi-kirsal-kesim-gayrimenkul-banliyo-yasam-tarzi_151150-2631.jpg?w=360",
+            school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480"
+        },
+        stitch: {
+            kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg?1632078565",
+            bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg",
+            bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg",
+            garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg",
+            school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480"
+        },
+        alien: {
+            kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp",
+            bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg",
+            bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg?w=360",
+            garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg?itok=9KrqDtdN",
+            school: "https://static.wikia.nocookie.net/theregularshow/images/6/60/S8E06.011_Space_Tree_and_Space_Bush.png/revision/latest?cb=20161013131802"
+        }
+    };
 
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020617);
-        
-        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1, 7);
+    const themes = {
+        kitty: { bg: "#ffc2d1", heart: "#ff5c8d" },
+        stitch: { bg: "#0f172a", heart: "#000000" },
+        chick: { bg: "#2d1b33", heart: "#ffb3c6" },
+        alien: { bg: "#166534", heart: "#064e3b" }
+    };
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        document.body.appendChild(renderer.domElement);
+    let state = {
+        selectedChar: 'kitty',
+        room: 'kitchen',
+        stats: { hunger: 80, hygiene: 100, energy: 70 },
+        isSleeping: false,
+        atSchool: false,
+        schoolTimeLeft: 0,
+        lastCleaned: Date.now(),
+        isDirty: false,
+        letterUnlocked: false
+    };
 
-        // Aydınlatma - Doku derinliği için Rim Light eklendi
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 10, 7);
-        scene.add(dirLight);
-
-        const rimLight = new THREE.PointLight(0x38bdf8, 1);
-        rimLight.position.set(-5, 2, -5);
-        scene.add(rimLight);
-
-        loadCharacter('kitty');
-
-        // Mouse & Touch
-        const start = (x) => { isPressed = true; lastX = x; };
-        const move = (x) => { if(isPressed) { rotY += (x - lastX) * 0.01; lastX = x; } };
-        
-        window.onmousedown = e => start(e.clientX);
-        window.onmousemove = e => move(e.clientX);
-        window.onmouseup = () => isPressed = false;
-        
-        window.ontouchstart = e => start(e.touches[0].clientX);
-        window.ontouchmove = e => move(e.touches[0].clientX);
-        window.ontouchend = () => isPressed = false;
-
-        window.onresize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        };
-
-        animate();
+    function changeScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen'));
+        document.getElementById(id).classList.remove('hidden-screen');
     }
 
-    function loadCharacter(type) {
-        if(currentModel) scene.remove(currentModel);
-        currentModel = new THREE.Group();
-        const c = stats[type];
-        
-        // Yüksek kalite doku hissi veren materyal
-        const mat = new THREE.MeshStandardMaterial({ 
-            color: c.main, 
-            roughness: 0.1, // Pürüzsüz doku
-            metalness: 0.2
-        });
+    function updateSelection(char) {
+        state.selectedChar = char;
+        const theme = themes[char];
+        document.body.style.backgroundColor = theme.bg;
+        document.getElementById('heart-path').setAttribute('fill', theme.heart);
+        document.querySelectorAll('#char-list button').forEach(b => b.classList.remove('selected'));
+        document.getElementById('opt-' + char).classList.add('selected');
+        document.getElementById('selection-preview').innerHTML = charData[char];
+    }
 
-        if(type === 'kitty') {
-            const head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), mat);
-            head.scale.set(1.3, 0.95, 1.1); head.position.y = 1.3;
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.7, 1, 4, 16), new THREE.MeshStandardMaterial({color: c.dress, roughness: 0.2}));
-            body.position.y = -0.1;
-            const bow = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.08, 8, 16), new THREE.MeshStandardMaterial({color: c.accent}));
-            bow.position.set(0.7, 1.8, 0.5);
-            currentModel.add(head, body, bow);
-            // Whisker
-            for(let i=-1; i<=1; i+=2) {
-                for(let j=0; j<2; j++) {
-                    const w = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.03, 0.03), new THREE.MeshStandardMaterial({color: 0}));
-                    w.position.set(1.1 * i, 1.3 + (j*0.15), 0.6); currentModel.add(w);
+    function openSecretLetter() {
+        if(state.letterUnlocked) {
+            showMessage("Nisan, seni çok seviyorum! ❤️ - Talha");
+        } else {
+            document.getElementById('password-modal').classList.remove('hidden');
+            document.getElementById('password-modal').classList.add('flex');
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('password-modal').classList.add('hidden');
+    }
+
+    function checkLetterCode() {
+        const input = document.getElementById('secret-input').value;
+        if(input === "nisan<3123") {
+            state.letterUnlocked = true;
+            document.getElementById('letter-icon').innerText = "💖 ✉️";
+            showMessage("Şifre Doğru! Mektup Açıldı.");
+            closeModal();
+        } else {
+            showMessage("Yanlış Şifre! Stitch'in bahçesine bak.");
+        }
+    }
+
+    function enterWorld() {
+        changeScreen('world-screen');
+        document.getElementById('char-svg-wrap').innerHTML = charData[state.selectedChar];
+        goRoom('kitchen');
+        startLoop();
+        makeElementDraggable(document.getElementById('char-draggable'), checkCollisions);
+    }
+
+    function startLoop() {
+        setInterval(() => {
+            if (Date.now() - state.lastCleaned > 600000) { state.isDirty = true; }
+            if (!state.isSleeping && !state.atSchool) {
+                state.stats.hunger = Math.max(0, state.stats.hunger - 0.05);
+                state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.03);
+                state.stats.energy = Math.max(0, state.stats.energy - 0.02);
+                updateUI();
+            }
+            if (state.atSchool) handleSchoolTimer();
+
+            // Civcik Konuşma Mantığı
+            if(state.selectedChar === 'chick' && !state.isSleeping && !state.atSchool) {
+                if(Math.random() > 0.95) {
+                    showCivcikSpeech();
                 }
             }
-        } else if(type === 'stitch') {
-            const head = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 18), mat);
-            head.position.y = 1.1;
-            const earL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.4), new THREE.MeshStandardMaterial({color: c.accent}));
-            earL.position.set(-1.3, 1.8, 0); earL.rotation.z = 1;
-            const earR = earL.clone(); earR.position.x = 1.3; earR.rotation.z = -1;
-            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.25), new THREE.MeshStandardMaterial({color: 0}));
-            eye.position.set(-0.5, 1.2, 0.9);
-            const eyeR = eye.clone(); eyeR.position.x = 0.5;
-            currentModel.add(head, earL, earR, eye, eyeR);
-        } else if(type === 'chick') {
-            const body = new THREE.Mesh(new THREE.SphereGeometry(1.4, 24, 18), mat);
-            const beak = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.6, 4), new THREE.MeshStandardMaterial({color: c.accent}));
-            beak.rotation.x = Math.PI/2; beak.position.set(0, 0.3, 1.3);
-            currentModel.add(body, beak);
-        } else if(type === 'alien') {
-            const head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), mat);
-            head.scale.x = 1.6; head.position.y = 1.2;
-            const suit = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 1.4), new THREE.MeshStandardMaterial({color: c.accent}));
-            suit.position.y = -0.3;
-            currentModel.add(head, suit);
-            for(let i=-1; i<=1; i++) {
-                const eye = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshStandardMaterial({color: 0xffffff}));
-                eye.position.set(i*0.6, 1.4, 0.8);
-                currentModel.add(eye);
+        }, 1000);
+    }
+
+    function showCivcikSpeech() {
+        const bubble = document.getElementById('speech-bubble');
+        const quote = nisanQuotes[Math.floor(Math.random() * nisanQuotes.length)];
+        bubble.innerText = quote;
+        bubble.style.display = 'block';
+        setTimeout(() => { bubble.style.display = 'none'; }, 4000);
+    }
+
+    function updateUI() {
+        document.getElementById('bar-hunger').style.width = state.stats.hunger + '%';
+        document.getElementById('bar-hygiene').style.width = state.stats.hygiene + '%';
+        document.getElementById('bar-energy').style.width = state.stats.energy + '%';
+        const char = document.getElementById('char-container');
+        const night = document.getElementById('night-vibe');
+        
+        if (state.isSleeping) {
+            char.classList.add('sleeping-state');
+            night.classList.add('night-active');
+        } else {
+            char.classList.remove('sleeping-state');
+            night.classList.remove('night-active');
+            if (state.isDirty || state.stats.hygiene < 30) char.classList.add('dirty-effect');
+            else char.classList.remove('dirty-effect');
+        }
+    }
+
+    function goRoom(roomName) {
+        if (state.atSchool && roomName !== 'school') { showMessage("Okuldan kaçamazsın!"); return; }
+        state.room = roomName;
+        
+        const charConfig = roomConfigs[state.selectedChar] || roomConfigs['kitty'];
+        const bgUrl = charConfig[roomName] || roomConfigs['kitty'][roomName];
+        document.getElementById('room-bg-layer').style.backgroundImage = `url('${bgUrl}')`;
+        
+        const layer = document.getElementById('interaction-layer');
+        const bed = document.getElementById('bed-target');
+        const charWrap = document.getElementById('char-draggable');
+        const hint = document.getElementById('secret-hint');
+        
+        layer.innerHTML = '';
+        layer.classList.add('pointer-events-none');
+        bed.classList.add('hidden');
+        hint.classList.add('hidden');
+        
+        if(roomName === 'garden' && state.selectedChar === 'stitch') {
+            hint.classList.remove('hidden');
+        }
+
+        if(roomName === 'school') {
+            charWrap.style.left = "45%"; charWrap.style.bottom = "120px"; charWrap.style.top = "auto";
+        }
+
+        if (roomName === 'kitchen') {
+            layer.classList.remove('pointer-events-none');
+            layer.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 70%; bottom: 30%; top: auto;">${foods[currentFoodIdx]}</div>`;
+            makeElementDraggable(document.getElementById('food-item'), checkCollisions);
+        }
+        if (roomName === 'bathroom') {
+            layer.classList.remove('pointer-events-none');
+            layer.innerHTML = `<div id="soap-item" class="draggable item-icon" style="left: 70%; bottom: 30%; top: auto;">🧼</div>`;
+            makeElementDraggable(document.getElementById('soap-item'), checkCollisions);
+        }
+        if (roomName === 'bedroom') { bed.classList.remove('hidden'); }
+        
+        if (roomName === 'garden') {
+            layer.classList.remove('pointer-events-none');
+            const gardenText = (state.selectedChar === 'alien') ? 'Mordecai ve Rigby ile eğlen!' : 'KOŞTUR! 🏃‍♂️';
+            const gardenAction = (state.selectedChar === 'alien') ? 'funWithRegularShow()' : 'runInGarden()';
+            layer.innerHTML = `<div class="absolute left-1/2 bottom-10 -translate-x-1/2"><button onclick="${gardenAction}" class="soft-btn text-lg bg-green-500 border-green-200 shadow-md">${gardenText}</button></div>`;
+        }
+        
+        if (roomName === 'school' && !state.atSchool) {
+            layer.classList.remove('pointer-events-none');
+            layer.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 soft-panel p-10 text-center"><button onclick="startSchool()" class="soft-btn">DERSE GİR</button></div>`;
+        }
+        updateUI();
+    }
+
+    function makeElementDraggable(el, onDrag) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        el.onmousedown = dragMouseDown;
+        el.ontouchstart = dragMouseDown;
+        function dragMouseDown(e) {
+            if(state.atSchool && el.id === 'char-draggable') return;
+            e = e || window.event;
+            pos3 = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            pos4 = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            document.onmouseup = closeDragElement;
+            document.ontouchend = closeDragElement;
+            document.onmousemove = elementDrag;
+            document.ontouchmove = elementDrag;
+        }
+        function elementDrag(e) {
+            e = e || window.event;
+            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            pos1 = pos3 - cx; pos2 = pos4 - cy; pos3 = cx; pos4 = cy;
+            el.style.top = (el.offsetTop - pos2) + "px";
+            el.style.left = (el.offsetLeft - pos1) + "px";
+            if (onDrag) onDrag(el);
+        }
+        function closeDragElement() {
+            document.onmouseup = null; document.onmousemove = null;
+            document.ontouchend = null; document.ontouchmove = null;
+        }
+    }
+
+    function checkCollisions(draggedEl) {
+        const char = document.getElementById('char-draggable');
+        const rect1 = draggedEl.getBoundingClientRect();
+        const rectChar = char.getBoundingClientRect();
+        const isOverChar = !(rect1.right < rectChar.left || rect1.left > rectChar.right || rect1.bottom < rectChar.top || rect1.top > rectChar.bottom);
+
+        if (draggedEl.id === 'food-item' && isOverChar) {
+            if (state.stats.hunger < 100) {
+                state.stats.hunger = Math.min(100, state.stats.hunger + 3);
+                updateUI();
+                if(state.stats.hunger > 99 || Math.random() > 0.94) {
+                    currentFoodIdx = (currentFoodIdx + 1) % foods.length;
+                    draggedEl.innerText = foods[currentFoodIdx];
+                    draggedEl.style.left = "70%"; draggedEl.style.bottom = "30%"; draggedEl.style.top = "auto";
+                    showMessage("Mmm, harika! 😋");
+                }
             }
         }
-
-        scene.add(currentModel);
-        rotY = 0;
-    }
-
-    function updateView(type, el) {
-        document.querySelectorAll('.char-option').forEach(o => o.classList.remove('selected'));
-        el.classList.add('selected');
-        loadCharacter(type);
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        if(currentModel) {
-            currentModel.rotation.y += (rotY - currentModel.rotation.y) * 0.1;
-            currentModel.position.y = Math.sin(Date.now() * 0.002) * 0.1;
+        if (draggedEl.id === 'soap-item' && isOverChar) {
+            if (state.stats.hygiene < 100 || state.isDirty) {
+                state.stats.hygiene = Math.min(100, state.stats.hygiene + 2.5);
+                state.isDirty = false; state.lastCleaned = Date.now();
+                updateUI(); createBubble(rect1.left + 50, rect1.top + 50);
+            }
         }
-        renderer.render(scene, camera);
+        if (draggedEl.id === 'char-draggable' && state.room === 'bedroom') {
+            const bed = document.getElementById('bed-target').getBoundingClientRect();
+            const isOverBed = !(rectChar.right < bed.left || rectChar.left > bed.right || rectChar.bottom < bed.top || rectChar.top > bed.bottom);
+            if (isOverBed && !state.isSleeping) {
+                state.isSleeping = true; state.stats.energy = 100; updateUI(); showMessage("Tatlı rüyalar... 💤");
+            } else if (!isOverBed && state.isSleeping) {
+                state.isSleeping = false; updateUI(); showMessage("Yeni bir gün! ☀️");
+            }
+        }
     }
 
-    // Anında başlatma kontrolü (Agresif)
-    const check = setInterval(() => {
-        if (window.THREE) {
-            clearInterval(check);
-            init();
+    function runInGarden() {
+        const char = document.getElementById('char-draggable');
+        char.style.transition = "all 0.5s ease-in-out";
+        let count = 0;
+        let runInterval = setInterval(() => {
+            char.style.left = (30 + Math.random() * 40) + "%";
+            char.style.bottom = (100 + Math.random() * 50) + "px";
+            count++;
+            if(count > 8) {
+                clearInterval(runInterval); char.style.transition = "none";
+                state.stats.energy = Math.max(0, state.stats.energy - 20);
+                state.stats.hunger = Math.max(0, state.stats.hunger - 15);
+                state.stats.hygiene = Math.max(0, state.stats.hygiene - 25);
+                state.isDirty = true; updateUI(); showMessage("Çok yoruldum! 🥵");
+            }
+        }, 300);
+    }
+
+    function funWithRegularShow() {
+        const mainArea = document.getElementById('main-area');
+        mainArea.classList.add('shaking');
+        showMessage("UZAYDA EĞLENCE BAŞLIYOR! 🚀");
+        setTimeout(() => {
+            mainArea.classList.remove('shaking');
+            state.isDirty = true;
+            state.stats.hunger = Math.max(0, state.stats.hunger - 25);
+            state.stats.energy = Math.max(0, state.stats.energy - 10);
+            updateUI();
+            showMessage("Heryer toz oldu ve acıktım! 🌌");
+        }, 1500);
+    }
+
+    function createBubble(x, y) {
+        const b = document.createElement('div');
+        b.className = 'bubble'; b.style.left = x + 'px'; b.style.top = y + 'px';
+        b.style.width = b.style.height = (25 + Math.random() * 25) + 'px';
+        document.body.appendChild(b);
+        setTimeout(() => b.remove(), 1000);
+    }
+
+    function startSchool() {
+        state.atSchool = true; state.schoolTimeLeft = 10;
+        document.getElementById('school-info').classList.remove('hidden');
+        goRoom('school');
+    }
+
+    function handleSchoolTimer() {
+        if (state.schoolTimeLeft > 0) {
+            state.schoolTimeLeft--;
+            const h = Math.floor(state.schoolTimeLeft / 3600);
+            const m = Math.floor((state.schoolTimeLeft % 3600) / 60);
+            const s = state.schoolTimeLeft % 60;
+            document.getElementById('school-timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        } else {
+            state.atSchool = false; state.stats.hunger = 15;
+            document.getElementById('school-info').classList.add('hidden');
+            updateUI(); goRoom('school'); showQuiz();
         }
-    }, 10);
+    }
+
+    function showQuiz() {
+        const questions = [
+            { q: "Dünyanın en soğuk yeri neresidir?", a: ["Kuzey Kutbu", "Antarktika", "Sibirya"], c: 1 },
+            { q: "Güneş sistemindeki en büyük gezegen?", a: ["Mars", "Dünya", "Jüpiter"], c: 2 }
+        ];
+        const q = questions[Math.floor(Math.random() * questions.length)];
+        const overlay = document.getElementById('quiz-overlay');
+        document.getElementById('question-text').innerText = q.q;
+        const grid = document.getElementById('answers-grid');
+        grid.innerHTML = '';
+        q.a.forEach((ans, i) => {
+            const b = document.createElement('button');
+            b.className = "soft-btn bg-white !text-[#ff5c8d]";
+            b.innerText = ans;
+            b.onclick = () => {
+                if(i === q.c) { showMessage("Dahisin!"); overlay.classList.add('hidden'); }
+                else showMessage("Maalesef yanlış!");
+            };
+            grid.appendChild(b);
+        });
+        overlay.classList.remove('hidden'); overlay.classList.add('flex');
+    }
+
+    function showMessage(txt) {
+        const m = document.createElement('div');
+        m.className = "fixed top-32 left-1/2 -translate-x-1/2 bg-white text-[#ff5c8d] px-10 py-4 rounded-full font-black shadow-2xl z-[300] animate-bounce border-4 border-[#ffc2d1]";
+        m.innerText = txt;
+        document.body.appendChild(m);
+        setTimeout(() => m.remove(), 2500);
+    }
+
+    window.onload = () => updateSelection('kitty');
 </script>
 </body>
 </html>
