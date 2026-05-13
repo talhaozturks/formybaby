@@ -2,545 +2,260 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vişne Dünyası 🍒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hızlı 3D Karakter Galerisi</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap');
-
-        :root {
-            --cherry-dark: #4c0519;
-            --cherry-bright: #be123c;
-            --cherry-pink: #fbcfe8;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--cherry-dark);
-            color: white;
-            overflow: hidden;
-            height: 100vh;
-            margin: 0;
-            user-select: none;
-        }
-
-        .cursive { font-family: 'Dancing Script', cursive; }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-        }
-
-        .hidden-screen { display: none !important; }
-
-        #side-menu {
-            transition: transform 0.3s ease-in-out;
-            z-index: 1000;
-        }
-
-        canvas {
-            background: #fff5f7;
-            border-radius: 15px;
-            touch-action: none;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .falling-emoji {
-            position: absolute;
-            pointer-events: none;
-            z-index: 0;
-            animation: fall linear forwards;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); }
-        }
-
-        .counter-box {
-            background: linear-gradient(135deg, rgba(190, 18, 60, 0.3), rgba(76, 5, 25, 0.3));
-        }
-
-        iframe {
-            max-width: 100%;
-            border-radius: 12px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
         
-        .oguz-gradient {
-            background: linear-gradient(135deg, #1e3a8a, #4c0519);
+        body { margin: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background: #020617; color: white; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        
+        /* Modern Glass UI */
+        .ui-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: flex; align-items: center; justify-content: flex-start;
+            padding-left: 5%;
+        }
+
+        .selection-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            padding: 2rem;
+            pointer-events: auto;
+            width: 340px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 15px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s ease;
+        }
+
+        .selection-panel.active { opacity: 1; transform: scale(1); }
+
+        .char-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .char-option.selected {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
+        }
+
+        .avatar-box {
+            width: 45px; height: 45px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        #loader {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-weight: bold; letter-spacing: 3px; color: #38bdf8; text-transform: uppercase;
         }
     </style>
 </head>
-<body class="relative">
+<body>
 
-    <!-- GİRİŞ EKRANI -->
-    <div id="login-screen" class="fixed inset-0 flex items-center justify-center p-6 bg-[#4c0519] z-[2000]">
-        <div class="glass p-8 w-full max-w-sm text-center shadow-2xl border-pink-500/30 border-2">
-            <div class="text-6xl mb-4 animate-bounce">🍒</div>
-            <h1 id="login-welcome" class="cursive text-3xl text-pink-100 mb-2 leading-tight">Bilmeni istiyorum talha seni çoooook seviyor</h1>
-            
-            <div class="space-y-4 mt-6">
-                <input type="text" id="username" placeholder="İsminizi giriniz" 
-                    class="w-full bg-white/10 border border-white/20 rounded-xl p-3 outline-none text-white">
-                <input type="password" id="password" placeholder="Şifre" 
-                    class="w-full bg-white/10 border border-white/20 rounded-xl p-3 outline-none text-white">
-                
-                <div id="error-box" class="hidden-screen text-red-300 text-xs font-bold bg-red-900/30 p-2 rounded">
-                    şifreyi yanlış girdin aşkım hehehe
+<div id="loader">BAŞLATILIYOR...</div>
+
+<div class="ui-container">
+    <div class="selection-panel" id="ui-panel">
+        <div>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 uppercase">Avatar Seç</h1>
+            <p class="text-gray-400 text-xs">2026 Ultra-Hızlı Render</p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <div class="char-option selected" onclick="updateView('kitty', this)">
+                <div class="avatar-box">🎀</div>
+                <div>
+                    <div class="font-bold text-sm">Hello Kitty</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase">Pürüzsüz Beyaz</div>
                 </div>
+            </div>
 
-                <button onclick="checkLogin()" class="w-full bg-pink-600 hover:bg-pink-500 py-3 rounded-xl font-bold transition-all shadow-lg">
-                    Giriş Yap
-                </button>
+            <div class="char-option" onclick="updateView('stitch', this)">
+                <div class="avatar-box">🌀</div>
+                <div>
+                    <div class="font-bold text-sm">Stitch</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase">Mavi Galaktik</div>
+                </div>
+            </div>
+
+            <div class="char-option" onclick="updateView('chick', this)">
+                <div class="avatar-box">🐥</div>
+                <div>
+                    <div class="font-bold text-sm">Pembe Civciv</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase">Pofuduk Pembe</div>
+                </div>
+            </div>
+
+            <div class="char-option" onclick="updateView('alien', this)">
+                <div class="avatar-box">👽</div>
+                <div>
+                    <div class="font-bold text-sm">Uzaylı</div>
+                    <div class="text-[10px] text-gray-500 font-bold uppercase">Küçük Dost</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- ANA UYGULAMA -->
-    <div id="main-app" class="hidden-screen h-full flex flex-col relative">
+<script>
+    let scene, camera, renderer, currentModel;
+    let isPressed = false;
+    let lastX = 0, rotY = 0, rotX = 0;
+
+    const stats = {
+        kitty: { main: 0xffffff, accent: 0xef4444, dress: 0x3b82f6 },
+        stitch: { main: 0x2563eb, accent: 0x1e40af, detail: 0x93c5fd },
+        chick: { main: 0xf472b6, accent: 0xf97316 },
+        alien: { main: 0x4ade80, accent: 0x2563eb }
+    };
+
+    function init() {
+        if (!window.THREE) return;
         
-        <header class="p-4 flex justify-between items-center glass m-2 rounded-2xl z-[600]">
-            <button onclick="toggleMenu()" class="text-2xl p-2 hover:scale-110 transition-transform">☰</button>
-            <h1 id="app-title" class="cursive text-2xl text-pink-100">Vişne Dünyası</h1>
-            <div class="flex items-center gap-3 bg-black/20 p-1 pr-3 rounded-full border border-white/10">
-                <img id="user-avatar" src="image_2d8b99.jpg" class="w-10 h-10 rounded-full border-2 border-pink-400 object-cover bg-gray-800" onerror="this.src='https://ui-avatars.com/api/?name=User&background=be123c&color=fff'">
-                <div class="flex flex-col leading-tight">
-                    <span id="nav-user-name" class="text-[10px] font-bold uppercase tracking-wider text-white">Yükleniyor</span>
-                    <span class="text-sm font-bold text-pink-300">🍒 <span class="puan-val">0</span></span>
-                </div>
-            </div>
-        </header>
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('ui-panel').classList.add('active');
 
-        <!-- YAN MENÜ -->
-        <div id="side-menu" class="fixed inset-y-0 left-0 w-64 bg-[#3a0413] shadow-2xl -translate-x-full flex flex-col p-6 border-r border-white/10">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
-                <span id="menu-title" class="cursive text-2xl">Vişne Menü</span>
-                <button onclick="toggleMenu()" class="text-3xl">&times;</button>
-            </div>
-            
-            <nav class="flex flex-col space-y-2 flex-grow overflow-y-auto">
-                <button onclick="showTab('home')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all">🏠 Ana Sayfa</button>
-                <button onclick="showTab('counter')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all"><span id="menu-counter-icon">⏱️</span> <span id="menu-counter-text">Aşk Sayacı</span></button>
-                <button onclick="showTab('games')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all font-bold text-pink-300">🎮 Oyun Odası</button>
-                <button onclick="showTab('shop')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all">🛒 Mağaza</button>
-                <button id="menu-daily-song" onclick="showTab('daily-song')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all">🎵 Günlük Şarkı</button>
-                <button onclick="showTab('dreams')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all">☁️ Hayallerimiz</button>
-                <button onclick="showTab('biz')" class="text-left p-4 hover:bg-white/10 rounded-xl flex items-center gap-3 transition-all">💑 Biz</button>
-            </nav>
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020617);
+        
+        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1, 7);
 
-            <div class="mt-auto pt-6 border-t border-white/10">
-                <p id="menu-note" class="text-[11px] text-pink-300 italic text-center mb-4 px-2 opacity-80">
-                    "aşkım daha geliştiriyorum siteyi hehehe <3"
-                </p>
-                <button onclick="location.reload()" class="w-full text-center p-2 text-xs opacity-40">Oturumu Kapat</button>
-            </div>
-        </div>
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
 
-        <main class="flex-grow overflow-y-auto p-4 relative pb-20">
-            
-            <!-- Ana Sayfa -->
-            <section id="tab-home" class="app-screen space-y-6">
-                <div id="home-card" class="glass p-6 text-center border-t-4 border-pink-500 transition-all duration-500">
-                    <h2 id="home-greeting" class="cursive text-3xl mb-4 text-pink-200">Hoş Geldin Sevgilim!</h2>
-                    
-                    <div id="home-note-container" class="bg-black/20 p-4 rounded-2xl italic text-sm leading-relaxed text-pink-100 mb-6 shadow-inner">
-                        "Sevgilim, bu siteyi her gün güncelleyip daha çok yenilikler ekleyeceğim seni çok seviyorum umarım bu site bizim için sonsuza kadar bir anı olarak kalır <3 en mutlu en kötü zamanlarımızda bile beraberiz seni çok seviyorum..."
-                    </div>
-                    
-                    <p id="home-signature" class="font-bold text-lg text-pink-400 mb-6 text-center uppercase tracking-widest">civcik</p>
-                    
-                    <div id="spotify-player" class="mt-4">
-                        <p class="text-xs uppercase font-bold opacity-50 mb-3 tracking-widest text-white">Favori Albümümüz</p>
-                        <iframe src="https://open.spotify.com/embed/album/3ELwjLdlTIbBH401F0j7kR?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </section>
+        // Aydınlatma - Doku derinliği için Rim Light eklendi
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
 
-            <!-- Sayaç -->
-            <section id="tab-counter" class="app-screen hidden-screen space-y-4">
-                <div class="glass p-6 text-center">
-                    <h3 id="counter-title" class="cursive text-3xl text-pink-200 mb-6">İyi ki Varsın...</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="counter-box p-4 rounded-2xl border border-white/10">
-                            <span id="c-days" class="text-3xl font-bold text-pink-300 block">0</span>
-                            <span class="text-[10px] uppercase opacity-60">Gün</span>
-                        </div>
-                        <div class="counter-box p-4 rounded-2xl border border-white/10">
-                            <span id="c-hours" class="text-3xl font-bold text-pink-300 block">0</span>
-                            <span class="text-[10px] uppercase opacity-60">Saat</span>
-                        </div>
-                        <div class="counter-box p-4 rounded-2xl border border-white/10">
-                            <span id="c-mins" class="text-3xl font-bold text-pink-300 block">0</span>
-                            <span class="text-[10px] uppercase opacity-60">Dakika</span>
-                        </div>
-                        <div class="counter-box p-4 rounded-2xl border border-white/10">
-                            <span id="c-secs" class="text-3xl font-bold text-pink-300 block">0</span>
-                            <span class="text-[10px] uppercase opacity-60">Saniye</span>
-                        </div>
-                    </div>
-                    <p id="counter-start-text" class="mt-6 text-xs italic opacity-60">Sonsuzluğun başlangıcı: 07.02.2026 ❤️</p>
-                </div>
-            </section>
+        const rimLight = new THREE.PointLight(0x38bdf8, 1);
+        rimLight.position.set(-5, 2, -5);
+        scene.add(rimLight);
 
-            <!-- Günlük Şarkı -->
-            <section id="tab-daily-song" class="app-screen hidden-screen space-y-4">
-                <div class="glass p-6 text-center">
-                    <h3 class="cursive text-3xl text-pink-200 mb-6 text-white">Günün Şarkısı 🎵</h3>
-                    <div class="aspect-video w-full rounded-xl overflow-hidden shadow-2xl">
-                        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/-PSdo6mfgwQ?si=iWY0o54PnW9Ky_ae" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </section>
+        loadCharacter('kitty');
 
-            <!-- Hayallerimiz -->
-            <section id="tab-dreams" class="app-screen hidden-screen space-y-4">
-                <div class="glass p-6">
-                    <h3 class="cursive text-3xl text-center text-pink-200 mb-4 text-white">Hayallerimiz ✨</h3>
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="dream-input" placeholder="Bir hayal yaz aşkım..." class="flex-grow bg-white/10 rounded-xl p-3 text-sm outline-none border border-white/10 focus:border-pink-500 text-white">
-                        <button onclick="addDream()" class="bg-pink-600 px-4 rounded-xl font-bold text-xl">+</button>
-                    </div>
-                    <div id="dreams-list" class="space-y-3 max-h-80 overflow-y-auto pr-2"></div>
-                </div>
-            </section>
+        // Mouse & Touch
+        const start = (x) => { isPressed = true; lastX = x; };
+        const move = (x) => { if(isPressed) { rotY += (x - lastX) * 0.01; lastX = x; } };
+        
+        window.onmousedown = e => start(e.clientX);
+        window.onmousemove = e => move(e.clientX);
+        window.onmouseup = () => isPressed = false;
+        
+        window.ontouchstart = e => start(e.touches[0].clientX);
+        window.ontouchmove = e => move(e.touches[0].clientX);
+        window.ontouchend = () => isPressed = false;
 
-            <!-- Oyun Odası -->
-            <section id="tab-games" class="app-screen hidden-screen space-y-4">
-                <h3 class="font-bold text-pink-200 uppercase text-xs tracking-widest pl-2">Oyun Odası</h3>
-                <div class="grid gap-3">
-                    <button onclick="launchGame('hearts')" class="glass p-5 flex items-center justify-between rounded-2xl border-l-4 border-red-500">
-                        <div class="flex items-center gap-4"><span>❤️</span><div><p class="font-bold text-sm text-pink-100">Aşk Avcısı</p><p class="text-[10px] opacity-60">Kalpleri yakala!</p></div></div>
-                        <span class="text-pink-400 text-xs font-bold uppercase">Oyna</span>
-                    </button>
-                    <button onclick="launchGame('dino')" class="glass p-5 flex items-center justify-between rounded-2xl border-l-4 border-green-500">
-                        <div class="flex items-center gap-4"><span>🦖</span><div><p class="font-bold text-sm text-pink-100">Dino & Tilki</p><p class="text-[10px] opacity-60">Tilkiyi kurtar!</p></div></div>
-                        <span class="text-pink-400 text-xs font-bold uppercase">Oyna</span>
-                    </button>
-                    <button onclick="launchGame('rain')" class="glass p-5 flex items-center justify-between rounded-2xl border-l-4 border-purple-500">
-                        <div class="flex items-center gap-4"><span>🍒</span><div><p class="font-bold text-sm text-pink-100">Vişne Hasadı</p><p class="text-[10px] opacity-60">Düşenleri topla!</p></div></div>
-                        <span class="text-pink-400 text-xs font-bold uppercase">Oyna</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Mağaza -->
-            <section id="tab-shop" class="app-screen hidden-screen space-y-4">
-                <div id="shop-container" class="grid gap-3"></div>
-                <div class="mt-6 p-4 glass rounded-xl">
-                    <h4 class="text-xs font-bold opacity-50 mb-3 uppercase tracking-tighter">Envanter</h4>
-                    <div id="inventory-list" class="flex flex-wrap gap-2 text-xs"></div>
-                </div>
-            </section>
-
-            <!-- Biz -->
-            <section id="tab-biz" class="app-screen hidden-screen text-center">
-                <div class="glass p-8 space-y-6">
-                    <img id="biz-image" src="image_2d8b99.jpg" class="w-40 h-40 mx-auto rounded-full border-4 border-pink-500 object-cover shadow-2xl">
-                    <h2 id="biz-title" class="cursive text-4xl text-pink-100">Nisan & Talha</h2>
-                    <p id="biz-desc" class="text-sm italic opacity-70 text-white">"Dünyanın en güzel hikayesi burada yazılıyor."</p>
-                </div>
-            </section>
-
-            <!-- Admin -->
-            <section id="tab-admin" class="app-screen hidden-screen space-y-4">
-                <div class="glass p-6 border-2 border-yellow-500/50">
-                    <h2 class="font-bold text-xl mb-4">👑 Yönetici Paneli</h2>
-                    <p id="admin-nisan-status" class="mb-4 text-sm text-pink-200 italic"></p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="updatePoints(500)" class="bg-green-700 p-3 rounded-xl text-xs font-bold">+500 🍒</button>
-                        <button onclick="updatePoints(-100)" class="bg-red-800 p-3 rounded-xl text-xs font-bold">-100 🍒</button>
-                        <button onclick="showTab('home')" class="bg-blue-700 p-3 rounded-xl text-xs font-bold col-span-2">Kullanıcı Olarak Bak</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- OYUN MOTORU -->
-            <section id="tab-engine" class="app-screen hidden-screen absolute inset-0 bg-black/95 z-[500] flex flex-col">
-                <div class="p-4 flex justify-between items-center glass">
-                    <button onclick="showTab('games')" class="text-xs bg-white/10 px-4 py-2 rounded-lg font-bold">VAZGEÇ</button>
-                    <div class="text-pink-300 font-bold">SKOR: <span id="game-live-score">0</span></div>
-                    <div class="text-xs">SÜRE: <span id="game-live-timer">0</span>s</div>
-                </div>
-                <div class="flex-grow flex items-center justify-center relative overflow-hidden">
-                    <div id="hearts-area" class="relative w-full h-full hidden-screen"></div>
-                    <div id="rain-area" class="relative w-full h-full hidden-screen overflow-hidden"></div>
-                    <div id="dino-container" class="hidden-screen w-full max-w-sm flex flex-col items-center p-4">
-                        <canvas id="dino-canvas" width="400" height="200"></canvas>
-                        <p class="text-center text-xs mt-4 text-pink-300 font-bold">Zıplamak için tıkla! 🦖</p>
-                        <p class="text-[11px] text-pink-200 mt-2 italic text-center">''baaak ikiside kurtuldu ve çok mutlular birtanem <3''</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- CHAT -->
-        <div id="chat-container" class="fixed bottom-4 right-4 flex flex-col items-end z-[700]">
-            <div id="chat-window" class="hidden-screen w-72 h-80 glass rounded-3xl mb-4 flex flex-col overflow-hidden shadow-2xl border border-pink-500/30">
-                <div id="chat-header" class="bg-pink-900/60 p-3 text-center border-b border-white/10 font-bold text-xs text-pink-100 italic">Vişne Sohbet 🍒</div>
-                <div id="chat-messages" class="flex-grow overflow-y-auto p-3 space-y-2 text-[11px] flex flex-col bg-black/10"></div>
-                <div class="p-2 bg-black/40 flex gap-1 border-t border-white/5">
-                    <input type="text" id="chat-input" placeholder="Yaz buraya..." class="flex-grow bg-white/5 p-2 rounded-lg outline-none text-xs border border-white/5 focus:border-pink-500 text-white">
-                    <button onclick="sendChatMessage()" class="bg-pink-600 px-3 py-1 rounded-lg">➜</button>
-                </div>
-            </div>
-            <button onclick="document.getElementById('chat-window').classList.toggle('hidden-screen')" class="w-14 h-14 bg-pink-600 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition-all border-2 border-white/20">💬</button>
-        </div>
-    </div>
-
-    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 glass px-6 py-2 text-xs font-bold text-pink-100 opacity-0 pointer-events-none transition-all z-[3000]"></div>
-
-    <script>
-        let currentUser = null;
-        let userData = {
-            puan: parseInt(localStorage.getItem('cherry_puan')) || 0,
-            inventory: JSON.parse(localStorage.getItem('cherry_inv')) || [],
-            chat: JSON.parse(localStorage.getItem('cherry_chat')) || [],
-            dreams: JSON.parse(localStorage.getItem('cherry_dreams')) || [],
-            startDate: "2026-02-07",
-            friendshipDate: "2025-12-28"
+        window.onresize = () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
-        const SHOP_ITEMS = [
-            { name: "Sanal Öpücük", price: 50, icon: "💋" },
-            { name: "Sıcak Sarılma", price: 150, icon: "🫂" },
-            { name: "Sinema Bileti", price: 600, icon: "🎬" },
-            { name: "Pizza Gecesi", price: 1000, icon: "🍕" }
-        ];
+        animate();
+    }
 
-        function checkLogin() {
-            const u = document.getElementById('username').value.trim().toLowerCase();
-            const p = document.getElementById('password').value.trim();
-            
-            if (u === 'nisan' && p === 'M()()odŞebnemvejeteryan') {
-                loginSuccess('nisan', 'NİSAN', 'home');
-            } else if (u === 'talha' && p === '200837!') {
-                loginSuccess('talha', 'TALHA', 'admin');
-            } else if (u === 'oguzbabapro123' && p === 'oguzum123') {
-                loginSuccess('oguz', 'OGUZ PRO', 'home');
-            } else {
-                document.getElementById('error-box').classList.remove('hidden-screen');
+    function loadCharacter(type) {
+        if(currentModel) scene.remove(currentModel);
+        currentModel = new THREE.Group();
+        const c = stats[type];
+        
+        // Yüksek kalite doku hissi veren materyal
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: c.main, 
+            roughness: 0.1, // Pürüzsüz doku
+            metalness: 0.2
+        });
+
+        if(type === 'kitty') {
+            const head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), mat);
+            head.scale.set(1.3, 0.95, 1.1); head.position.y = 1.3;
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.7, 1, 4, 16), new THREE.MeshStandardMaterial({color: c.dress, roughness: 0.2}));
+            body.position.y = -0.1;
+            const bow = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.08, 8, 16), new THREE.MeshStandardMaterial({color: c.accent}));
+            bow.position.set(0.7, 1.8, 0.5);
+            currentModel.add(head, body, bow);
+            // Whisker
+            for(let i=-1; i<=1; i+=2) {
+                for(let j=0; j<2; j++) {
+                    const w = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.03, 0.03), new THREE.MeshStandardMaterial({color: 0}));
+                    w.position.set(1.1 * i, 1.3 + (j*0.15), 0.6); currentModel.add(w);
+                }
+            }
+        } else if(type === 'stitch') {
+            const head = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 18), mat);
+            head.position.y = 1.1;
+            const earL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2, 0.4), new THREE.MeshStandardMaterial({color: c.accent}));
+            earL.position.set(-1.3, 1.8, 0); earL.rotation.z = 1;
+            const earR = earL.clone(); earR.position.x = 1.3; earR.rotation.z = -1;
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.25), new THREE.MeshStandardMaterial({color: 0}));
+            eye.position.set(-0.5, 1.2, 0.9);
+            const eyeR = eye.clone(); eyeR.position.x = 0.5;
+            currentModel.add(head, earL, earR, eye, eyeR);
+        } else if(type === 'chick') {
+            const body = new THREE.Mesh(new THREE.SphereGeometry(1.4, 24, 18), mat);
+            const beak = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.6, 4), new THREE.MeshStandardMaterial({color: c.accent}));
+            beak.rotation.x = Math.PI/2; beak.position.set(0, 0.3, 1.3);
+            currentModel.add(body, beak);
+        } else if(type === 'alien') {
+            const head = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), mat);
+            head.scale.x = 1.6; head.position.y = 1.2;
+            const suit = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 1.4), new THREE.MeshStandardMaterial({color: c.accent}));
+            suit.position.y = -0.3;
+            currentModel.add(head, suit);
+            for(let i=-1; i<=1; i++) {
+                const eye = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshStandardMaterial({color: 0xffffff}));
+                eye.position.set(i*0.6, 1.4, 0.8);
+                currentModel.add(eye);
             }
         }
 
-        let counterInterval = null;
-        function loginSuccess(role, name, startTab) {
-            currentUser = role;
-            document.getElementById('nav-user-name').innerText = name;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app').classList.remove('hidden-screen');
-            
-            if(role === 'oguz') {
-                document.getElementById('app-title').innerText = "Oğuz'un Mekanı 🕶️";
-                document.getElementById('home-greeting').innerText = "N'aber Oğuz Reis! 😎";
-                document.getElementById('home-note-container').innerText = "kumam napıyon la \n-nisan";
-                document.getElementById('home-signature').innerText = "oguzbabapro123";
-                document.getElementById('menu-title').innerText = "Oğuz Menü";
-                document.getElementById('user-avatar').src = "https://ui-avatars.com/api/?name=Oguz&background=1e3a8a&color=fff";
-                document.getElementById('biz-title').innerText = "Kankalar";
-                document.getElementById('biz-desc').innerText = "Adamın dibi gelmiş hoşgelmiş.";
-                document.getElementById('home-card').classList.add('oguz-gradient');
-                document.getElementById('chat-header').innerText = "Oğuz Sohbet 🍒";
-                document.getElementById('menu-counter-text').innerText = "Dostluk Sayacı";
-                document.getElementById('menu-counter-icon').innerText = "🤜🤛";
-                document.getElementById('counter-title').innerText = "Efsane Dostluk...";
-                document.getElementById('counter-start-text').innerText = "Yol arkadaşlığı: 28.12.2025 🤜🤛";
-                document.getElementById('login-welcome').innerText = "Selamlar Oğuz Babapro!";
-            } else if (role === 'nisan') {
-                document.getElementById('user-avatar').src = "image_2d8b99.jpg";
-            }
+        scene.add(currentModel);
+        rotY = 0;
+    }
 
-            showTab(startTab);
-            syncUI();
-            loadChat();
-            startLoveCounter(role === 'oguz' ? userData.friendshipDate : userData.startDate);
-            renderDreams();
-            setInterval(createFallingCherry, 1000);
+    function updateView(type, el) {
+        document.querySelectorAll('.char-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        loadCharacter(type);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if(currentModel) {
+            currentModel.rotation.y += (rotY - currentModel.rotation.y) * 0.1;
+            currentModel.position.y = Math.sin(Date.now() * 0.002) * 0.1;
         }
+        renderer.render(scene, camera);
+    }
 
-        function syncUI() {
-            document.querySelectorAll('.puan-val').forEach(el => el.innerText = userData.puan);
-            localStorage.setItem('cherry_puan', userData.puan);
-            localStorage.setItem('cherry_inv', JSON.stringify(userData.inventory));
-            localStorage.setItem('cherry_dreams', JSON.stringify(userData.dreams));
-            
-            const admStatus = document.getElementById('admin-nisan-status');
-            if(admStatus) admStatus.innerText = `Nisan'ın Bakiyesi: ${userData.puan} 🍒`;
-
-            const inv = document.getElementById('inventory-list');
-            if(inv) {
-                inv.innerHTML = userData.inventory.length > 0 
-                    ? userData.inventory.map(i => `<span class="bg-pink-500/30 p-1 px-2 rounded border border-white/10 text-[10px]">${i}</span>`).join('')
-                    : 'Bomboş buralar...';
-            }
+    // Anında başlatma kontrolü (Agresif)
+    const check = setInterval(() => {
+        if (window.THREE) {
+            clearInterval(check);
+            init();
         }
-
-        function showTab(id) {
-            document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden-screen'));
-            const target = document.getElementById('tab-' + id);
-            if(target) target.classList.remove('hidden-screen');
-            document.getElementById('side-menu').classList.add('-translate-x-full');
-            if(id === 'shop') renderShop();
-            stopAllGames();
-        }
-
-        function toggleMenu() { document.getElementById('side-menu').classList.toggle('-translate-x-full'); }
-
-        function startLoveCounter(dateStr) {
-            if(counterInterval) clearInterval(counterInterval);
-            const start = new Date(dateStr);
-            counterInterval = setInterval(() => {
-                const diff = new Date() - start;
-                if(isNaN(diff)) return;
-                document.getElementById('c-days').innerText = Math.floor(diff / (1000*60*60*24));
-                document.getElementById('c-hours').innerText = Math.floor((diff / (1000*60*60)) % 24);
-                document.getElementById('c-mins').innerText = Math.floor((diff / 1000 / 60) % 60);
-                document.getElementById('c-secs').innerText = Math.floor((diff / 1000) % 60);
-            }, 1000);
-        }
-
-        function renderDreams() {
-            const list = document.getElementById('dreams-list');
-            list.innerHTML = userData.dreams.map((d, i) => `
-                <div class="bg-white/5 p-3 rounded-xl border border-white/10 flex justify-between items-center">
-                    <span class="text-sm">${d}</span>
-                    <button onclick="removeDream(${i})" class="opacity-30 text-xs px-2 hover:opacity-100">✕</button>
-                </div>
-            `).join('');
-        }
-
-        window.addDream = () => {
-            const inp = document.getElementById('dream-input');
-            if(!inp.value.trim()) return;
-            userData.dreams.push(inp.value.trim());
-            inp.value = '';
-            syncUI(); renderDreams(); showToast("Hayalin eklendi! ✨");
-        };
-
-        window.removeDream = (i) => {
-            userData.dreams.splice(i, 1);
-            syncUI(); renderDreams();
-        };
-
-        function renderShop() {
-            let items = [...SHOP_ITEMS];
-            if(currentUser === 'oguz') {
-                items.push({ name: "Talha'yı Nisan'dan Kurtar", price: 100000, icon: "⚔️" });
-            }
-            document.getElementById('shop-container').innerHTML = items.map(i => `
-                <div class="glass p-4 flex justify-between items-center rounded-2xl border-l-4 border-pink-500">
-                    <div class="flex items-center gap-3"><span class="text-3xl">${i.icon}</span><div><p class="font-bold text-sm text-pink-100">${i.name}</p><p class="text-[10px] text-pink-300 font-bold">${i.price} 🍒</p></div></div>
-                    <button onclick="buyItem('${i.name}', ${i.price})" class="bg-green-600 px-4 py-2 rounded-xl text-xs font-bold active:scale-90 transition-all uppercase">Al</button>
-                </div>
-            `).join('');
-        }
-
-        window.buyItem = (name, price) => {
-            if(userData.puan >= price) {
-                userData.puan -= price; userData.inventory.push(name); syncUI(); showToast(name + " alındı!");
-            } else showToast("Vişne yetersiz reis! 🍒");
-        };
-
-        window.updatePoints = (n) => { userData.puan += n; if(userData.puan<0)userData.puan=0; syncUI(); showToast("Güncellendi."); };
-
-        window.sendChatMessage = () => {
-            const inp = document.getElementById('chat-input');
-            if(!inp.value.trim()) return;
-            userData.chat.push({ from: currentUser, text: inp.value.trim(), time: Date.now() });
-            localStorage.setItem('cherry_chat', JSON.stringify(userData.chat));
-            inp.value = ''; loadChat();
-        }
-
-        function loadChat() {
-            const cont = document.getElementById('chat-messages');
-            cont.innerHTML = userData.chat.slice(-50).map(m => `
-                <div class="flex flex-col ${m.from === currentUser ? 'items-end' : 'items-start'} mb-2 px-1">
-                    <span class="text-[7px] opacity-40 uppercase font-bold px-1">${m.from}</span>
-                    <div class="${m.from === currentUser ? 'bg-pink-600' : 'bg-white/10'} p-2 rounded-xl max-w-[85%] break-words shadow-md text-white">${m.text}</div>
-                </div>
-            `).join('');
-            cont.scrollTop = cont.scrollHeight;
-        }
-
-        let gameActive = false, intervals = [];
-        function stopAllGames() {
-            gameActive = false; intervals.forEach(clearInterval); intervals = [];
-            ['hearts-area', 'rain-area', 'dino-container'].forEach(id => document.getElementById(id).classList.add('hidden-screen'));
-        }
-
-        window.launchGame = (type) => {
-            showTab('engine'); stopAllGames(); gameActive = true; document.getElementById('game-live-score').innerText = '0';
-            if(type === 'hearts') startHearts(); if(type === 'rain') startRain(); if(type === 'dino') startDino();
-        }
-
-        function startHearts() {
-            const area = document.getElementById('hearts-area'); area.classList.remove('hidden-screen');
-            let s = 0, t = 15;
-            const timer = setInterval(() => {
-                t--; document.getElementById('game-live-timer').innerText = t;
-                if(t <= 0) { stopAllGames(); updatePoints(s); showTab('games'); }
-            }, 1000);
-            const spawn = setInterval(() => {
-                const h = document.createElement('div'); h.innerHTML = '❤️'; h.className = 'absolute cursor-pointer text-4xl';
-                h.style.left = Math.random()*85+'%'; h.style.top = Math.random()*85+'%';
-                h.onclick = (e) => { e.stopPropagation(); s += 10; h.remove(); document.getElementById('game-live-score').innerText = s; };
-                area.appendChild(h); setTimeout(() => { if(h.parentNode) h.remove(); }, 800);
-            }, 600);
-            intervals.push(timer, spawn);
-        }
-
-        function startRain() {
-            const area = document.getElementById('rain-area'); area.classList.remove('hidden-screen');
-            let s = 0, t = 15;
-            const timer = setInterval(() => {
-                t--; document.getElementById('game-live-timer').innerText = t;
-                if(t <= 0) { stopAllGames(); updatePoints(s); showTab('games'); }
-            }, 1000);
-            const rain = setInterval(() => {
-                const c = document.createElement('div'); c.innerHTML = '🍒'; c.className = 'absolute cursor-pointer text-3xl';
-                c.style.left = Math.random()*90+'%'; c.style.top = '-40px';
-                c.onclick = (e) => { e.stopPropagation(); s += 5; c.remove(); document.getElementById('game-live-score').innerText = s; };
-                area.appendChild(c);
-                let y = -40; const fall = setInterval(() => { y+=5; c.style.top = y+'px'; if(y>450){clearInterval(fall); if(c.parentNode) c.remove();} }, 20);
-                intervals.push(fall);
-            }, 400);
-            intervals.push(timer, rain);
-        }
-
-        function startDino() {
-            const cont = document.getElementById('dino-container'); cont.classList.remove('hidden-screen');
-            const canvas = document.getElementById('dino-canvas'); const ctx = canvas.getContext('2d');
-            let dino = { x: 50, y: 150, dy: 0, g: 150 }, obs = [], dist = 0, frame = 0;
-            function loop() {
-                if(!gameActive) return; ctx.clearRect(0,0,400,200);
-                ctx.fillStyle = '#be123c'; ctx.fillRect(0, 180, 400, 20);
-                ctx.font = '30px Arial'; ctx.fillText('Rex', dino.x, dino.y); // Dino 2D
-                ctx.font = '30px Arial'; ctx.fillText('🦖', dino.x, dino.y);
-                dino.dy += 0.6; dino.y += dino.dy; if(dino.y > dino.g) { dino.y = dino.g; dino.dy = 0; }
-                if(frame % 90 === 0 && dist < 600) obs.push({ x: 400 });
-                obs.forEach((o, i) => {
-                    o.x -= 5; ctx.fillText('🪨', o.x, 175);
-                    if(o.x < dino.x + 20 && o.x > dino.x - 10 && dino.y > 140) { gameActive = false; showToast("Baştan deneyelim! 🦖"); showTab('games'); }
-                });
-                dist++; if(dist > 500) ctx.fillText('🦊🆘', 330, 175);
-                if(dist > 650) { gameActive = false; showToast("Tilki Kurtuldu! +100 🍒"); updatePoints(100); showTab('games'); }
-                frame++; if(gameActive) requestAnimationFrame(loop);
-            }
-            canvas.onpointerdown = (e) => { if(dino.y === dino.g) dino.dy = -12; }; loop();
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = '1';
-            setTimeout(() => t.style.opacity = '0', 3000);
-        }
-
-        function createFallingCherry() {
-            const e = document.createElement('div'); e.innerHTML = '🍒'; e.className = 'falling-emoji text-xl opacity-20 fixed';
-            e.style.left = Math.random() * 100 + 'vw'; e.style.top = '-20px';
-            e.style.animationDuration = (Math.random() * 3 + 4) + 's';
-            document.body.appendChild(e); setTimeout(() => e.remove(), 7000);
-        }
-    </script>
+    }, 10);
+</script>
 </body>
 </html>
