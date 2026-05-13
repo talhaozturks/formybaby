@@ -68,6 +68,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: background-color 0.5s ease;
         }
 
         .loading-heart {
@@ -132,6 +133,8 @@
             border-radius: 20px;
             transition: all 0.3s ease;
             color: #4a1d2e;
+            position: relative;
+            overflow: hidden;
         }
 
         .char-btn.selected {
@@ -139,6 +142,19 @@
             color: white !important;
             border-color: #ffffff;
             transform: scale(1.02);
+        }
+
+        .lock-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 20;
+            backdrop-filter: blur(2px);
         }
 
         .room-bg {
@@ -214,7 +230,7 @@
         .char-container {
             width: 180px;
             height: 180px;
-            transition: filter 0.8s ease;
+            transition: all 0.8s ease;
             position: relative;
             z-index: 50;
         }
@@ -272,7 +288,6 @@
             z-index: 10;
         }
 
-        /* Gardırop Hedefi - Güncellenmiş Stil */
         .closet-target {
             position: absolute;
             left: 2%; bottom: 15%;
@@ -323,27 +338,47 @@
         }
         .bounce-char { animation: bounce-anim 2.5s ease-in-out infinite; }
         
-        /* Gardırop Modal stilleri */
-        .outfit-card {
-            background: white;
-            border: 3px solid #ffc2d1;
-            border-radius: 20px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
-        .outfit-card:hover { transform: scale(1.05); border-color: #ff85a2; }
+        .shaking { animation: shake 0.5s; animation-iteration-count: infinite; }
+
+        #cherry-hud {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 2px solid #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            color: #ef4444;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .garden-cherry {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .garden-cherry:hover { transform: scale(1.2); }
     </style>
 </head>
 <body>
 
 <div id="loading-overlay">
     <div class="loading-heart">💖</div>
-    <p class="mt-4 font-bold text-[#ff5c8d] uppercase tracking-widest">Nisan'ın Dünyası Yükleniyor...</p>
+    <p id="loading-text" class="mt-4 font-bold uppercase tracking-widest text-center px-4">Nisan'ın Dünyası Yükleniyor...</p>
 </div>
 
 <div class="bg-hearts">
@@ -357,31 +392,26 @@
     </svg>
 </div>
 
-<!-- 1. GİRİŞ EKRANI -->
+<!-- GİRİŞ EKRANI -->
 <div id="welcome-screen" class="screen items-center justify-center p-4">
     <div class="pinned-note">
         <p>Birlikte</p>
         <p id="day-counter">0</p>
         <p>gün...</p>
     </div>
-
     <div class="text-center z-10 p-8 md:p-16 soft-panel w-full max-w-2xl relative">
-        <h1 id="welcome-title" class="text-5xl md:text-7xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">
-            Nisan için
-        </h1>
-        <p id="welcome-sub" class="text-[#a64d79] text-base md:text-xl mb-8 md:mb-12 tracking-[0.2em] font-bold uppercase">Our world</p>
-        <button onclick="changeScreen('selection-screen')" class="soft-btn text-xl md:text-2xl uppercase tracking-widest">
-            Giriş Yap
-        </button>
+        <h1 class="text-5xl md:text-7xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">Nisan için</h1>
+        <p class="text-[#a64d79] text-base md:text-xl mb-8 md:mb-12 tracking-[0.2em] font-bold uppercase">Our world</p>
+        <button onclick="changeScreen('selection-screen')" class="soft-btn text-xl md:text-2xl uppercase tracking-widest">Giriş Yap</button>
     </div>
     <div class="footer-credit">Made by Talha <3</div>
 </div>
 
-<!-- 2. SEÇİM EKRANI -->
+<!-- SEÇİM EKRANI -->
 <div id="selection-screen" class="screen hidden-screen p-4 md:p-10">
     <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-6 md:gap-12 max-w-7xl mx-auto w-full overflow-y-auto">
         <div class="soft-panel w-full max-w-sm p-6 md:p-10 z-20">
-            <h2 id="selection-title" class="text-2xl md:text-3xl font-black mb-6 text-[#ff5c8d] tracking-tight uppercase text-center">Arkadaşını Seç</h2>
+            <h2 class="text-2xl md:text-3xl font-black mb-6 text-[#ff5c8d] tracking-tight uppercase text-center">Arkadaşını Seç</h2>
             <div class="flex flex-col gap-3" id="char-list">
                 <button onclick="updateSelection('kitty')" id="opt-kitty" class="char-btn flex items-center gap-4 p-3 text-left w-full">
                     <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">🎀</div>
@@ -392,6 +422,10 @@
                     <div><h3 class="font-bold text-base md:text-xl">Stitch</h3><p class="text-[10px] uppercase font-bold opacity-70">Mavi Haylaz</p></div>
                 </button>
                 <button onclick="updateSelection('chick')" id="opt-chick" class="char-btn flex items-center gap-4 p-3 text-left w-full">
+                    <div id="chick-lock-ui" class="lock-overlay">
+                        <span class="text-xl animate-bounce">🍒</span>
+                        <span id="cherry-needed-text" class="text-[10px] font-black uppercase">0/50 Vişne</span>
+                    </div>
                     <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">🐣</div>
                     <div><h3 class="font-bold text-base md:text-xl">Civcik</h3><p class="text-[10px] uppercase font-bold opacity-70">Aşk Elçisi</p></div>
                 </button>
@@ -400,11 +434,9 @@
                     <div><h3 class="font-bold text-base md:text-xl">Uzaylı</h3><p class="text-[10px] uppercase font-bold opacity-70">Zeki Ziyaretçi</p></div>
                 </button>
             </div>
-            
             <div onclick="openSecretLetter()" class="letter-btn shadow-sm">
                 <span id="letter-icon" class="text-2xl md:text-3xl">🔒 ✉️</span>
             </div>
-
             <button onclick="enterWorldWithLoading()" class="w-full mt-6 soft-btn text-lg md:text-xl">Dünyaya Git</button>
         </div>
         <div class="flex-shrink-0 flex items-center justify-center w-full max-w-[200px] md:max-w-[400px]">
@@ -414,10 +446,10 @@
     <div class="footer-credit">Made by Talha <3</div>
 </div>
 
-<!-- 3. OYUN DÜNYASI -->
+<!-- OYUN DÜNYASI -->
 <div id="world-screen" class="screen hidden-screen">
     <div class="h-20 md:h-24 w-full flex items-center justify-between px-4 md:px-10 bg-white/90 backdrop-blur-md border-b-2 md:border-b-4 border-[#ffc2d1] z-50">
-        <div class="flex gap-2 md:gap-4 scale-90 md:scale-100 origin-left">
+        <div class="flex gap-2 md:gap-4 scale-75 md:scale-90 origin-left">
             <div class="hud-bar">
                 <span class="text-[8px] md:text-[10px] font-black text-[#ff5c8d] uppercase mb-1">Açlık</span>
                 <div class="w-14 md:w-20 h-2 md:h-4 bg-[#fff0f3] rounded-full overflow-hidden border-1 border-[#ffc2d1]">
@@ -436,8 +468,11 @@
                     <div id="bar-energy" class="h-full bg-gradient-to-r from-[#fbbf24] to-[#f59e0b]" style="width: 70%"></div>
                 </div>
             </div>
+            <div id="cherry-hud">
+                <span class="text-xl">🍒</span>
+                <span id="cherry-count-hud">0</span>
+            </div>
         </div>
-        
         <div class="flex gap-2">
             <button onclick="changeScreen('welcome-screen')" class="bg-white px-3 md:px-5 py-1 md:py-2 rounded-full border-2 border-[#ffc2d1] text-[8px] md:text-[10px] font-black uppercase text-[#ff5c8d] shadow-sm">🏠 ANA MENÜ</button>
             <button onclick="changeScreen('selection-screen')" class="bg-white px-3 md:px-5 py-1 md:py-2 rounded-full border-2 border-[#ffc2d1] text-[8px] md:text-[10px] font-black uppercase text-[#ff5c8d] shadow-sm">DEĞİŞTİR</button>
@@ -450,15 +485,12 @@
         <div id="bed-target" class="bed-target hidden"></div>
         <div id="closet-target" class="closet-target hidden"><span>👗</span><p>Gardırop</p></div>
         <div id="secret-hint" class="secret-code-hint hidden">nisan<3123</div>
-        
-        <!-- KARAKTER -->
         <div id="char-draggable" class="draggable" style="left: 45%; bottom: 120px;">
             <div id="char-container" class="char-container bounce-char">
                 <div id="char-svg-wrap"></div>
                 <div id="speech-bubble" class="speech-bubble">Merhaba!</div>
             </div>
         </div>
-
         <div id="interaction-layer" class="absolute inset-0 z-150"></div>
     </div>
 
@@ -486,7 +518,6 @@
     </div>
 </div>
 
-<!-- Şifre Giriş Modal -->
 <div id="password-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
     <div class="soft-panel p-8 md:p-10 max-w-sm w-full text-center">
         <h3 class="text-xl md:text-2xl font-black text-[#ff5c8d] mb-4 uppercase">GİZLİ MEKTUP</h3>
@@ -499,32 +530,17 @@
     </div>
 </div>
 
-<!-- Gardırop Modal -->
 <div id="closet-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-    <div class="soft-panel p-8 md:p-10 max-w-lg w-full text-center">
+    <div class="soft-panel p-8 md:p-10 max-lg w-full text-center">
         <h3 class="text-xl md:text-2xl font-black text-[#ff5c8d] mb-4 uppercase">Hello Kitty Gardırobu</h3>
         <p class="text-xs md:text-sm text-gray-500 mb-6 font-bold">Bugün ne giymek istersin?</p>
-        
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div onclick="changeOutfit('default')" class="outfit-card">
-                <div class="w-12 h-12 bg-blue-500 rounded-lg"></div>
-                <span class="text-[10px] font-bold">Orijinal</span>
-            </div>
-            <div onclick="changeOutfit('black')" class="outfit-card">
-                <div class="w-12 h-12 bg-black rounded-lg"></div>
-                <span class="text-[10px] font-bold">Asil Siyah</span>
-            </div>
-            <div onclick="changeOutfit('nisan')" class="outfit-card">
-                <div class="w-12 h-12 bg-[#ff85a2] rounded-lg flex items-center justify-center text-[8px] text-white font-black">Nisan</div>
-                <span class="text-[10px] font-bold">Nisan Özel</span>
-            </div>
-            <div onclick="changeOutfit('dress')" class="outfit-card">
-                <div class="w-12 h-12 flex items-center justify-center text-2xl">👗</div>
-                <span class="text-[10px] font-bold">Pembe Elbise</span>
-            </div>
+            <div onclick="changeOutfit('default')" class="outfit-card"><div class="w-12 h-12 bg-blue-500 rounded-lg"></div><span class="text-[10px] font-bold">Orijinal</span></div>
+            <div onclick="changeOutfit('black')" class="outfit-card"><div class="w-12 h-12 bg-black rounded-lg"></div><span class="text-[10px] font-bold">Asil Siyah</span></div>
+            <div onclick="changeOutfit('nisan')" class="outfit-card"><div class="w-12 h-12 bg-[#ff85a2] rounded-lg flex items-center justify-center text-[8px] text-white font-black">Nisan</div><span class="text-[10px] font-bold">Nisan Özel</span></div>
+            <div onclick="changeOutfit('dress')" class="outfit-card"><div class="w-12 h-12 flex items-center justify-center text-2xl">👗</div><span class="text-[10px] font-bold">Pembe Elbise</span></div>
         </div>
-
-        <button onclick="document.getElementById('closet-modal').classList.add('hidden')" class="soft-btn w-full">KAPAT</button>
+        <button onclick="closeCloset()" class="soft-btn w-full">KAPAT</button>
     </div>
 </div>
 
@@ -537,10 +553,9 @@
     const kittyQuotes = ["Anne, ödevlerim birikti! 🎒", "Annecim bugün parka gidelim mi? 🌲", "Talha babam nerede? Özledim! ❤️"];
 
     function getKittySvg(outfit = 'default') {
-        let clothColor = "#3b82f6"; // default blue
+        let clothColor = "#3b82f6";
         let extra = "";
         let clothShape = `<rect x="75" y="140" width="50" height="45" rx="15" fill="${clothColor}" stroke="#000" stroke-width="2.5"/>`;
-
         if (outfit === 'black') {
             clothColor = "#000000";
             clothShape = `<rect x="75" y="140" width="50" height="45" rx="15" fill="${clothColor}" stroke="#000" stroke-width="2.5"/>`;
@@ -553,126 +568,68 @@
             clothShape = `<path d="M75 140 L125 140 L140 185 L60 185 Z" fill="${clothColor}" stroke="#000" stroke-width="2.5" />`;
             extra = `<circle cx="100" cy="140" r="5" fill="#ff85a2" />`;
         }
-
-        return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                ${clothShape}
-                ${extra}
-                <ellipse class="limb limb-arm-l" cx="65" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/>
-                <ellipse class="limb limb-arm-r" cx="135" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="100" cy="90" rx="75" ry="60" fill="white" stroke="#000" stroke-width="3"/>
-                <path d="M50 50 L30 15 L80 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
-                <path d="M150 50 L170 15 L120 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
-                <circle cx="160" cy="55" r="15" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="145" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="175" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/>
-                <ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000" stroke-width="1.5"/>
-                <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="100" x2="15" y2="95"/><line x1="45" y1="110" x2="15" y2="115"/><line x1="155" y1="100" x2="185" y2="95"/><line x1="155" y1="110" x2="185" y2="115"/></g>
-                <ellipse class="limb limb-leg-l" cx="85" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/>
-                <ellipse class="limb limb-leg-r" cx="115" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/>
-            </svg>`;
+        return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${clothShape}${extra}<ellipse class="limb limb-arm-l" cx="65" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="90" rx="75" ry="60" fill="white" stroke="#000" stroke-width="3"/><path d="M50 50 L30 15 L80 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="M150 50 L170 15 L120 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/><circle cx="160" cy="55" r="15" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="145" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="175" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000" stroke-width="1.5"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="100" x2="15" y2="95"/><line x1="45" y1="110" x2="15" y2="115"/><line x1="155" y1="100" x2="185" y2="95"/><line x1="155" y1="110" x2="185" y2="115"/></g><ellipse class="limb limb-leg-l" cx="85" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/></svg>`;
     }
 
     const charData = {
         kitty: getKittySvg(),
-        stitch: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/>
-                <path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="3"/>
-                <ellipse cx="100" cy="165" rx="35" ry="35" fill="#93c5fd" opacity="0.7"/>
-                <path class="limb limb-arm-l" d="M55 145 Q30 145 35 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
-                <path class="limb limb-arm-r" d="M145 145 Q170 145 165 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
-                <ellipse class="limb limb-leg-l" cx="70" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/>
-                <ellipse class="limb limb-leg-r" cx="130" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/>
-                <ellipse cx="70" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(15, 70, 95)"/>
-                <ellipse cx="130" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(-15, 130, 95)"/>
-                <ellipse cx="72" cy="100" rx="15" ry="22" fill="black"/><ellipse cx="128" cy="100" rx="15" ry="22" fill="black"/>
-                <circle cx="76" cy="90" r="5" fill="white" opacity="0.9"/><circle cx="124" cy="90" r="5" fill="white" opacity="0.9"/>
-                <ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>
-            </svg>`,
-        chick: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/>
-                <path class="limb limb-arm-l" d="M35 110 Q10 90 35 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/>
-                <path class="limb limb-arm-r" d="M165 110 Q195 90 165 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/>
-                <circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/>
-                <path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2.5"/>
-                <ellipse class="limb limb-leg-l" cx="85" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
-                <ellipse class="limb limb-leg-r" cx="115" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
-            </svg>`,
-        alien: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                <path d="M75 40 L65 15 L90 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/>
-                <path d="M125 40 L135 15 L110 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/>
-                <ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="3"/>
-                <rect class="limb limb-arm-l" x="52" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/>
-                <rect class="limb limb-arm-r" x="138" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/>
-                <rect class="limb limb-leg-l" x="82" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/>
-                <rect class="limb limb-leg-r" x="106" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/>
-                <ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="4"/>
-                <g>
-                    <path d="M60 80 Q75 60 75 90 Q75 120 60 100 Q45 120 45 90 Q45 60 60 80" fill="black" stroke="#000" stroke-width="1"/>
-                    <path d="M140 80 Q155 60 155 90 Q155 120 140 100 Q125 120 125 90 Q125 60 140 80" fill="black" stroke="#000" stroke-width="1"/>
-                </g>
-                <circle cx="100" cy="135" r="5" fill="black"/>
-            </svg>`
+        stitch: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="100" cy="165" rx="35" ry="35" fill="#93c5fd" opacity="0.7"/><path class="limb limb-arm-l" d="M55 145 Q30 145 35 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/><path class="limb limb-arm-r" d="M145 145 Q170 145 165 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/><ellipse class="limb limb-leg-l" cx="70" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="130" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(15, 70, 95)"/><ellipse cx="130" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(-15, 130, 95)"/><ellipse cx="72" cy="100" rx="15" ry="22" fill="black"/><ellipse cx="128" cy="100" rx="15" ry="22" fill="black"/><circle cx="76" cy="90" r="5" fill="white" opacity="0.9"/><circle cx="124" cy="90" r="5" fill="white" opacity="0.9"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/></svg>`,
+        chick: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><path class="limb limb-arm-l" d="M35 110 Q10 90 35 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/><path class="limb limb-arm-r" d="M165 110 Q195 90 165 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2.5"/><ellipse class="limb limb-leg-l" cx="85" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/><ellipse class="limb limb-leg-r" cx="115" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/></svg>`,
+        alien: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><path d="M75 40 L65 15 L90 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><path d="M125 40 L135 15 L110 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="3"/><rect class="limb limb-arm-l" x="52" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-arm-r" x="138" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-leg-l" x="82" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-leg-r" x="106" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="4"/><g><path d="M60 80 Q75 60 75 90 Q75 120 60 100 Q45 120 45 90 Q45 60 60 80" fill="black" stroke="#000" stroke-width="1"/><path d="M140 80 Q155 60 155 90 Q155 120 140 100 Q125 120 125 90 Q125 60 140 80" fill="black" stroke="#000" stroke-width="1"/></g><circle cx="100" cy="135" r="5" fill="black"/></svg>`
     };
 
     const roomConfigs = {
-        kitty: {
-            kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg?semt=ais_hybrid&w=740&q=80",
-            bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg",
-            bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg?semt=ais_hybrid&w=740&q=80",
-            garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu-2d-cizgi-film-manzarasi-kirsal-kesim-gayrimenkul-banliyo-yasam-tarzi_151150-2631.jpg?w=360",
-            school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480"
-        },
-        stitch: {
-            kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg?1632078565",
-            bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg",
-            bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg",
-            garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg",
-            school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480"
-        },
-        alien: {
-            kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp",
-            bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg",
-            bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg?w=360",
-            garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg?itok=9KrqDtdN",
-            school: "https://static.wikia.nocookie.net/theregularshow/images/6/60/S8E06.011_Space_Tree_and_Space_Bush.png/revision/latest?cb=20161013131802"
-        }
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg?semt=ais_hybrid&w=740&q=80", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg?semt=ais_hybrid&w=740&q=80", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu-2d-cizgi-film-manzarasi-kirsal-kesim-gayrimenkul-banliyo-yasam-tarzi_151150-2631.jpg?w=360", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480" },
+        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg?1632078565", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480" },
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg?w=360", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg?itok=9KrqDtdN", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png/revision/latest?cb=20150410153258" }
     };
 
     const themes = {
         kitty: { bg: "#ffc2d1", heart: "#ff5c8d" },
-        stitch: { bg: "#0f172a", heart: "#000000" },
-        chick: { bg: "#2d1b33", heart: "#ffb3c6" },
-        alien: { bg: "#166534", heart: "#064e3b" }
+        stitch: { bg: "#0f172a", heart: "#2563eb" },
+        chick: { bg: "#f472b6", heart: "#db2777" },
+        alien: { bg: "#166534", heart: "#4ade80" }
     };
 
     let state = {
-        selectedChar: 'kitty',
-        room: 'kitchen',
-        stats: { hunger: 80, hygiene: 100, energy: 70 },
-        isSleeping: false,
-        atSchool: false,
-        schoolTimeLeft: 0,
-        lastCleaned: Date.now(),
-        isDirty: false,
-        letterUnlocked: false,
-        kittyOutfit: 'default'
+        selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, hygiene: 100, energy: 70 },
+        isSleeping: false, atSchool: false, schoolTimeLeft: 0, lastCleaned: Date.now(), isDirty: false,
+        letterUnlocked: false, kittyOutfit: 'default', isClosetZoneActive: false,
+        cherries: 0, isChickUnlocked: false, isHunting: false, huntTimeLeft: 0,
+        // Vişne Dalları State'i
+        gardenCherries: [true, true, true],
+        lastCherryRegen: Date.now()
     };
 
     function calculateDays() {
         const start = new Date("2026-02-02");
-        const today = new Date();
-        const diff = today - start;
+        const diff = new Date() - start;
         return Math.floor(diff / (1000 * 60 * 60 * 24));
     }
 
     function changeScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen'));
         document.getElementById(id).classList.remove('hidden-screen');
+        if(id === 'selection-screen') updateLockUI();
+    }
+
+    function updateLockUI() {
+        const lockUI = document.getElementById('chick-lock-ui');
+        const counter = document.getElementById('cherry-needed-text');
+        if(state.isChickUnlocked || state.cherries >= 50) {
+            state.isChickUnlocked = true;
+            lockUI.classList.add('hidden');
+        } else {
+            lockUI.classList.remove('hidden');
+            counter.innerText = `${state.cherries}/50 VİŞNE`;
+        }
     }
 
     function updateSelection(char) {
+        if(char === 'chick' && !state.isChickUnlocked) {
+            showMessage("Civcik kilitli! Uzaylı ile mutfakta vişne topla. 🍒");
+            return;
+        }
         state.selectedChar = char;
         const theme = themes[char];
         document.body.style.backgroundColor = theme.bg;
@@ -684,47 +641,39 @@
     }
 
     function openSecretLetter() {
-        if(state.letterUnlocked) {
-            showMessage("Nisan, seni çok seviyorum! ❤️ - Talha");
-        } else {
-            document.getElementById('password-modal').classList.remove('hidden');
-            document.getElementById('password-modal').classList.add('flex');
-        }
+        if(state.letterUnlocked) { showMessage("Nisan, seni çok seviyorum! ❤️ - Talha"); } 
+        else { document.getElementById('password-modal').classList.remove('hidden'); document.getElementById('password-modal').classList.add('flex'); }
     }
 
     function closeModal() { document.getElementById('password-modal').classList.add('hidden'); }
 
     function checkLetterCode() {
-        const input = document.getElementById('secret-input').value;
-        if(input === "nisan<3123") {
-            state.letterUnlocked = true;
-            document.getElementById('letter-icon').innerText = "💖 ✉️";
-            showMessage("Şifre Doğru! Mektup Açıldı.");
-            closeModal();
-        } else {
-            showMessage("Yanlış Şifre! Stitch'in bahçesine bak.");
-        }
+        if(document.getElementById('secret-input').value === "nisan<3123") {
+            state.letterUnlocked = true; document.getElementById('letter-icon').innerText = "💖 ✉️";
+            showMessage("Şifre Doğru! Mektup Açıldı."); closeModal();
+        } else { showMessage("Yanlış Şifre! Stitch'in bahçesine bak."); }
     }
 
     function enterWorldWithLoading() {
-        document.getElementById('loading-overlay').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('loading-overlay').style.display = 'none';
-            enterWorld();
-        }, 3000);
+        const overlay = document.getElementById('loading-overlay');
+        const text = document.getElementById('loading-text');
+        const theme = themes[state.selectedChar];
+        overlay.style.backgroundColor = theme.bg;
+        text.style.color = (state.selectedChar === 'stitch' || state.selectedChar === 'alien') ? '#ffffff' : '#ff5c8d';
+        overlay.style.display = 'flex';
+        setTimeout(() => { overlay.style.display = 'none'; enterWorld(); }, 3000);
     }
 
     function enterWorld() {
         changeScreen('world-screen');
         document.getElementById('char-svg-wrap').innerHTML = (state.selectedChar === 'kitty') ? getKittySvg(state.kittyOutfit) : charData[state.selectedChar];
-        goRoom('kitchen');
-        startLoop();
+        goRoom('kitchen'); startLoop();
         makeElementDraggable(document.getElementById('char-draggable'), checkCollisions);
     }
 
     function startLoop() {
         setInterval(() => {
-            if (Date.now() - state.lastCleaned > 600000) { state.isDirty = true; }
+            if (Date.now() - state.lastCleaned > 600000) state.isDirty = true;
             if (!state.isSleeping && !state.atSchool) {
                 state.stats.hunger = Math.max(0, state.stats.hunger - 0.05);
                 state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.03);
@@ -732,36 +681,84 @@
                 updateUI();
             }
             if (state.atSchool) handleSchoolTimer();
+            if (state.isHunting) handleHuntTimer();
 
-            if(!state.isSleeping && !state.atSchool) {
-                if(Math.random() > 0.96) {
-                    if(state.selectedChar === 'chick') showSpeech(nisanQuotes);
-                    if(state.selectedChar === 'kitty') showSpeech(kittyQuotes);
-                }
+            // Vişne Yenilenme Kontrolü (5 dakika = 300.000 ms)
+            if (Date.now() - state.lastCherryRegen > 300000) {
+                state.gardenCherries = [true, true, true];
+                state.lastCherryRegen = Date.now();
+                if(state.room === 'garden') goRoom('garden');
+            }
+
+            if(!state.isSleeping && !state.atSchool && !state.isHunting && Math.random() > 0.96) {
+                if(state.selectedChar === 'chick') showSpeech(nisanQuotes);
+                if(state.selectedChar === 'kitty') showSpeech(kittyQuotes);
             }
         }, 1000);
+    }
+
+    function handleHuntTimer() {
+        if(state.huntTimeLeft > 0) {
+            state.huntTimeLeft--;
+            if(state.room === 'kitchen') updateHuntButtonUI();
+        } else {
+            state.isHunting = false;
+            const amount = Math.floor(Math.random() * 16) + 15;
+            state.cherries += amount;
+            showMessage(`Uzaylı döndü! ${amount} vişne topladı! 🍒`);
+            checkChickUnlock();
+            updateUI();
+            if(state.room === 'kitchen') goRoom('kitchen');
+        }
+    }
+
+    function checkChickUnlock() {
+        if(state.cherries >= 50 && !state.isChickUnlocked) {
+            state.isChickUnlocked = true;
+            showMessage("TEBRİKLER! Civcik'in kilidi açıldı! 🐣✨");
+        }
+    }
+
+    function startVişneAvı() {
+        if(state.isHunting) return;
+        state.isHunting = true;
+        state.huntTimeLeft = 60;
+        updateUI();
+        goRoom('kitchen');
+    }
+
+    function updateHuntButtonUI() {
+        const btn = document.getElementById('hunt-btn-text');
+        if(btn) btn.innerText = `AVDA... (${state.huntTimeLeft}s)`;
     }
 
     function showSpeech(quotes) {
         const bubble = document.getElementById('speech-bubble');
         bubble.innerText = quotes[Math.floor(Math.random() * quotes.length)];
         bubble.style.display = 'block';
-        setTimeout(() => { bubble.style.display = 'none'; }, 4000);
+        setTimeout(() => { if(!state.isHunting) bubble.style.display = 'none'; }, 4000);
     }
 
     function updateUI() {
         document.getElementById('bar-hunger').style.width = state.stats.hunger + '%';
         document.getElementById('bar-hygiene').style.width = state.stats.hygiene + '%';
         document.getElementById('bar-energy').style.width = state.stats.energy + '%';
+        document.getElementById('cherry-count-hud').innerText = state.cherries;
         const char = document.getElementById('char-container');
+        const bubble = document.getElementById('speech-bubble');
         const night = document.getElementById('night-vibe');
         
-        if (state.isSleeping) {
-            char.classList.add('sleeping-state');
-            night.classList.add('night-active');
+        if (state.selectedChar === 'alien' && state.isHunting) {
+            char.style.opacity = "0.3";
+            bubble.innerText = "Ava gittim döncem vişne topluyom";
+            bubble.style.display = "block";
         } else {
-            char.classList.remove('sleeping-state');
-            night.classList.remove('night-active');
+            char.style.opacity = "1";
+            if (!state.isSleeping && bubble.innerText === "Ava gittim döncem vişne topluyom") bubble.style.display = "none";
+        }
+
+        if (state.isSleeping) { char.classList.add('sleeping-state'); night.classList.add('night-active'); } 
+        else { char.classList.remove('sleeping-state'); night.classList.remove('night-active'); 
             if (state.isDirty || state.stats.hygiene < 30) char.classList.add('dirty-effect');
             else char.classList.remove('dirty-effect');
         }
@@ -770,96 +767,88 @@
     function goRoom(roomName) {
         if (state.atSchool && roomName !== 'school') { showMessage("Okuldan kaçamazsın!"); return; }
         state.room = roomName;
-        
         const charConfig = roomConfigs[state.selectedChar] || roomConfigs['kitty'];
         const bgUrl = charConfig[roomName] || roomConfigs['kitty'][roomName];
         document.getElementById('room-bg-layer').style.backgroundImage = `url('${bgUrl}')`;
-        
         const layer = document.getElementById('interaction-layer');
         const bed = document.getElementById('bed-target');
         const closet = document.getElementById('closet-target');
         const charWrap = document.getElementById('char-draggable');
         const hint = document.getElementById('secret-hint');
-        
-        layer.innerHTML = ''; 
-        bed.classList.add('hidden'); 
-        closet.classList.add('hidden');
-        hint.classList.add('hidden');
-        
+        layer.innerHTML = ''; bed.classList.add('hidden'); closet.classList.add('hidden'); hint.classList.add('hidden');
         if(roomName === 'garden' && state.selectedChar === 'stitch') hint.classList.remove('hidden');
-
-        if(roomName === 'school') {
-            charWrap.style.left = "50%"; charWrap.style.bottom = "30%"; charWrap.style.top = "auto";
-            charWrap.style.transform = "translateX(-50%)";
-        }
-
+        if(roomName === 'school') { charWrap.style.left = "50%"; charWrap.style.bottom = "30%"; charWrap.style.top = "auto"; charWrap.style.transform = "translateX(-50%)"; }
+        
         if (roomName === 'kitchen') {
             const list = state.selectedChar === 'alien' ? alienFoods : foods;
             layer.innerHTML = `<div id="food-item" class="draggable item-icon" style="right: 10%; bottom: 30%; top: auto; pointer-events: auto;">${list[currentFoodIdx]}</div>`;
+            if(state.selectedChar === 'alien') {
+                const huntContent = state.isHunting ? `AVDA... (${state.huntTimeLeft}s)` : "VİŞNE AVINA GÖNDER 🍒";
+                layer.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2" style="pointer-events: auto;"><button id="hunt-btn" onclick="startVişneAvı()" class="soft-btn text-xs bg-red-500 border-red-200"><span id="hunt-btn-text">${huntContent}</span></button></div>`;
+            }
             makeElementDraggable(document.getElementById('food-item'), checkCollisions);
         }
-        if (roomName === 'bathroom') {
-            layer.innerHTML = `<div id="soap-item" class="draggable item-icon" style="right: 10%; bottom: 30%; top: auto; pointer-events: auto;">🧼</div>`;
-            makeElementDraggable(document.getElementById('soap-item'), checkCollisions);
-        }
-        if (roomName === 'bedroom') {
-            bed.classList.remove('hidden');
-            if(state.selectedChar === 'kitty') closet.classList.remove('hidden');
-        }
+        if (roomName === 'bathroom') { layer.innerHTML = `<div id="soap-item" class="draggable item-icon" style="right: 10%; bottom: 30%; top: auto; pointer-events: auto;">🧼</div>`; makeElementDraggable(document.getElementById('soap-item'), checkCollisions); }
+        if (roomName === 'bedroom') { bed.classList.remove('hidden'); if(state.selectedChar === 'kitty') closet.classList.remove('hidden'); }
         
         if (roomName === 'garden') {
-            const gardenText = (state.selectedChar === 'alien') ? 'Mordecai & Rigby!' : 'KOŞTUR! 🏃‍♂️';
+            // Vişne Dalları
+            let cherryHtml = '<div class="absolute left-6 top-1/4 flex flex-col gap-10" style="pointer-events: auto;">';
+            state.gardenCherries.forEach((available, idx) => {
+                if(available) {
+                    cherryHtml += `<div onclick="collectGardenCherry(${idx})" class="garden-cherry text-4xl animate-bounce">🍒</div>`;
+                }
+            });
+            cherryHtml += '</div>';
+            layer.innerHTML += cherryHtml;
+
+            const gardenText = (state.selectedChar === 'alien') ? 'UZAYLI GÜCÜ! 🚀' : 'KOŞTUR! 🏃‍♂️';
             const gardenAction = (state.selectedChar === 'alien') ? 'funWithRegularShow()' : 'runInGarden()';
-            layer.innerHTML = `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="${gardenAction}" class="soft-btn text-xs md:text-lg bg-green-500 border-green-200 shadow-md">${gardenText}</button></div>`;
+            layer.innerHTML += `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="${gardenAction}" class="soft-btn text-xs md:text-lg bg-green-500 border-green-200 shadow-md">${gardenText}</button></div>`;
         }
         
-        if (roomName === 'school' && !state.atSchool) {
-            layer.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 soft-panel p-4 md:p-10 text-center" style="pointer-events: auto;"><button onclick="startSchool()" class="soft-btn">DERSE GİR</button></div>`;
-        }
+        if (roomName === 'school' && !state.atSchool) layer.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 soft-panel p-4 md:p-10 text-center" style="pointer-events: auto;"><button onclick="startSchool()" class="soft-btn">DERSE GİR</button></div>`;
         updateUI();
     }
 
-    function makeElementDraggable(el, onDrag) {
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        el.onmousedown = dragMouseDown;
-        el.ontouchstart = dragMouseDown;
-
-        function dragMouseDown(e) {
-            if(state.atSchool && el.id === 'char-draggable') return;
-            e = e || window.event;
-            pos3 = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            pos4 = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            if (el.id === 'char-draggable') el.classList.add('is-dragging');
-            document.onmouseup = closeDragElement;
-            document.ontouchend = closeDragElement;
-            document.onmousemove = elementDrag;
-            document.ontouchmove = elementDrag;
+    function collectGardenCherry(idx) {
+        if(state.gardenCherries[idx]) {
+            state.gardenCherries[idx] = false;
+            state.cherries += 5;
+            showMessage("+5 Vişne Topladın! 🍒");
+            checkChickUnlock();
+            updateUI();
+            goRoom('garden');
         }
+    }
 
-        function elementDrag(e) {
-            e = e || window.event;
+    function makeElementDraggable(el, onDrag) {
+        if(!el) return;
+        let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+        el.onmousedown = start; el.ontouchstart = start;
+        function start(e) {
+            if(state.atSchool && el.id === 'char-draggable') return;
+            p3 = e.clientX || e.touches[0].clientX; p4 = e.clientY || e.touches[0].clientY;
+            if (el.id === 'char-draggable') el.classList.add('is-dragging');
+            document.onmouseup = stop; document.ontouchend = stop;
+            document.onmousemove = drag; document.ontouchmove = drag;
+        }
+        function drag(e) {
             let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
             let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            pos1 = pos3 - cx; pos2 = pos4 - cy; pos3 = cx; pos4 = cy;
-            el.style.top = (el.offsetTop - pos2) + "px";
-            el.style.left = (el.offsetLeft - pos1) + "px";
+            p1 = p3 - cx; p2 = p4 - cy; p3 = cx; p4 = cy;
+            el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px";
             if (onDrag) onDrag(el);
         }
-
-        function closeDragElement() {
-            if (el.id === 'char-draggable') el.classList.remove('is-dragging');
-            document.onmouseup = null; document.onmousemove = null;
-            document.ontouchend = null; document.ontouchmove = null;
-        }
+        function stop() { if (el.id === 'char-draggable') el.classList.remove('is-dragging'); document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; }
     }
 
     function checkCollisions(draggedEl) {
         const char = document.getElementById('char-draggable');
         const rect1 = draggedEl.getBoundingClientRect();
         const rectChar = char.getBoundingClientRect();
-        const isOverChar = !(rect1.right < rectChar.left || rect1.left > rectChar.right || rect1.bottom < rectChar.top || rect1.top > rectChar.bottom);
-
-        if (draggedEl.id === 'food-item' && isOverChar) {
+        const isOver = !(rect1.right < rectChar.left || rect1.left > rectChar.right || rect1.bottom < rectChar.top || rect1.top > rectChar.bottom);
+        if (draggedEl.id === 'food-item' && isOver) {
             if (state.stats.hunger < 100) {
                 state.stats.hunger = Math.min(100, state.stats.hunger + 3); updateUI();
                 if(state.stats.hunger > 99 || Math.random() > 0.94) {
@@ -871,100 +860,53 @@
                 }
             }
         }
-        if (draggedEl.id === 'soap-item' && isOverChar) {
+        if (draggedEl.id === 'soap-item' && isOver) {
             if (state.stats.hygiene < 100 || state.isDirty) {
                 state.stats.hygiene = Math.min(100, state.stats.hygiene + 2.5);
-                state.isDirty = false; state.lastCleaned = Date.now();
-                updateUI(); createBubble(rect1.left + 30, rect1.top + 30);
+                state.isDirty = false; state.lastCleaned = Date.now(); updateUI(); createBubble(rect1.left + 30, rect1.top + 30);
             }
         }
         if (draggedEl.id === 'char-draggable' && state.room === 'bedroom') {
             const bed = document.getElementById('bed-target').getBoundingClientRect();
             const closet = document.getElementById('closet-target').getBoundingClientRect();
-            
             const isOverBed = !(rectChar.right < bed.left || rectChar.left > bed.right || rectChar.bottom < bed.top || rectChar.top > bed.bottom);
             const isOverCloset = !(rectChar.right < closet.left || rectChar.left > closet.right || rectChar.bottom < closet.top || rectChar.top > closet.bottom);
-
-            if (isOverBed && !state.isSleeping) {
-                state.isSleeping = true; state.stats.energy = 100; updateUI(); showMessage("Tatlı rüyalar... 💤");
-            } else if (!isOverBed && state.isSleeping) {
-                state.isSleeping = false; updateUI(); showMessage("Yeni bir gün! ☀️");
-            }
-
-            if (isOverCloset && state.selectedChar === 'kitty') {
-                document.getElementById('closet-modal').classList.remove('hidden');
-                document.getElementById('closet-modal').classList.add('flex');
-            }
+            if (isOverBed && !state.isSleeping) { state.isSleeping = true; state.stats.energy = 100; updateUI(); showMessage("Tatlı rüyalar... 💤"); } 
+            else if (!isOverBed && state.isSleeping) { state.isSleeping = false; updateUI(); showMessage("Yeni bir gün! ☀️"); }
+            if (isOverCloset && state.selectedChar === 'kitty' && !state.isClosetZoneActive) { state.isClosetZoneActive = true; document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); } 
+            else if(!isOverCloset) { state.isClosetZoneActive = false; }
         }
     }
 
-    function changeOutfit(outfit) {
-        state.kittyOutfit = outfit;
-        document.getElementById('char-svg-wrap').innerHTML = getKittySvg(outfit);
-        showMessage("Yeni kıyafet harika oldu! ✨");
-    }
-
+    function changeOutfit(o) { state.kittyOutfit = o; document.getElementById('char-svg-wrap').innerHTML = getKittySvg(o); showMessage("Yeni kıyafet harika oldu! ✨"); }
+    function closeCloset() { document.getElementById('closet-modal').classList.add('hidden'); document.getElementById('closet-modal').classList.remove('flex'); }
     function runInGarden() {
-        const char = document.getElementById('char-draggable');
-        char.style.transition = "all 0.5s ease-in-out";
+        const char = document.getElementById('char-draggable'); char.style.transition = "all 0.5s ease-in-out";
         let count = 0;
-        let runInterval = setInterval(() => {
-            char.style.left = (30 + Math.random() * 40) + "%";
-            char.style.bottom = (100 + Math.random() * 50) + "px";
-            count++;
-            if(count > 8) {
-                clearInterval(runInterval); char.style.transition = "none";
-                state.stats.energy = Math.max(0, state.stats.energy - 20);
-                state.stats.hunger = Math.max(0, state.stats.hunger - 15);
-                state.stats.hygiene = Math.max(0, state.stats.hygiene - 25);
-                state.isDirty = true; updateUI(); showMessage("Çok yoruldum! 🥵");
-            }
+        let runInterval = setInterval(() => { char.style.left = (30 + Math.random() * 40) + "%"; char.style.bottom = (100 + Math.random() * 50) + "px"; count++;
+            if(count > 8) { clearInterval(runInterval); char.style.transition = "none"; state.stats.energy = Math.max(0, state.stats.energy - 20); state.stats.hunger = Math.max(0, state.stats.hunger - 15); state.stats.hygiene = Math.max(0, state.stats.hygiene - 25); state.isDirty = true; updateUI(); showMessage("Çok yoruldum! 🥵"); }
         }, 300);
     }
 
     function funWithRegularShow() {
-        const mainArea = document.getElementById('main-area');
-        mainArea.classList.add('shaking'); showMessage("UZAYDA EĞLENCE BAŞLIYOR! 🚀");
-        setTimeout(() => {
-            mainArea.classList.remove('shaking');
-            state.isDirty = true; updateUI(); showMessage("Heryer toz oldu! 🌌");
-        }, 1500);
+        const mainArea = document.getElementById('world-screen'); mainArea.classList.add('shaking'); showMessage("BOOOOM! UZAY SALLANIYOR! 🚀🌌");
+        setTimeout(() => { mainArea.classList.remove('shaking'); state.isDirty = true; updateUI(); showMessage("Heryer toz oldu ama değdi! ✨"); }, 1500);
     }
 
     function createBubble(x, y) {
-        const b = document.createElement('div');
-        b.className = 'bubble'; b.style.left = x + 'px'; b.style.top = y + 'px';
-        b.style.width = b.style.height = (15 + Math.random() * 15) + 'px';
-        document.body.appendChild(b);
+        const b = document.createElement('div'); b.className = 'bubble'; b.style.left = x + 'px'; b.style.top = y + 'px';
+        b.style.width = b.style.height = (15 + Math.random() * 15) + 'px'; document.body.appendChild(b);
         setTimeout(() => b.remove(), 1000);
     }
 
-    function startSchool() {
-        state.atSchool = true; state.schoolTimeLeft = 10;
-        goRoom('school');
-    }
-
-    function handleSchoolTimer() {
-        if (state.schoolTimeLeft > 0) {
-            state.schoolTimeLeft--;
-        } else {
-            state.atSchool = false; 
-            updateUI(); goRoom('school');
-        }
-    }
-
+    function startSchool() { state.atSchool = true; state.schoolTimeLeft = 10; goRoom('school'); }
+    function handleSchoolTimer() { if (state.schoolTimeLeft > 0) state.schoolTimeLeft--; else { state.atSchool = false; updateUI(); goRoom('school'); } }
     function showMessage(txt) {
-        const m = document.createElement('div');
-        m.className = "fixed top-24 md:top-32 left-1/2 -translate-x-1/2 bg-white text-[#ff5c8d] px-6 md:px-10 py-2 md:py-4 rounded-full font-black shadow-2xl z-[300] animate-bounce border-2 md:border-4 border-[#ffc2d1] text-xs md:text-base text-center";
-        m.innerText = txt;
-        document.body.appendChild(m);
-        setTimeout(() => m.remove(), 2500);
+        const m = document.createElement('div'); m.className = "fixed top-24 md:top-32 left-1/2 -translate-x-1/2 bg-white text-[#ff5c8d] px-6 md:px-10 py-2 md:py-4 rounded-full font-black shadow-2xl z-[300] animate-bounce border-2 md:border-4 border-[#ffc2d1] text-xs md:text-base text-center";
+        m.innerText = txt; document.body.appendChild(m); setTimeout(() => m.remove(), 2500);
     }
 
-    window.onload = () => {
-        document.getElementById('day-counter').innerText = calculateDays();
-        updateSelection('kitty');
-    };
+    window.onload = () => { document.getElementById('day-counter').innerText = calculateDays(); updateSelection('kitty'); updateLockUI(); };
 </script>
 </body>
 </html>
