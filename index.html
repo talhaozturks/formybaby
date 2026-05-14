@@ -24,7 +24,6 @@
             --border-color: #4a1d2e;
             --hud-bg: #16213e;
             --nav-bg: #16213e;
-            --btn-grad: linear-gradient(135deg, #4a1d2e, #1a1a2e);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -66,11 +65,8 @@
 
         .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 1s; z-index: 200; }
 
-        /* Butonların yerleşimi düzeltildi */
         .top-btn { position: fixed; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); color: var(--text-color); transition: 0.3s; }
-        .dark-toggle { bottom: 110px; right: 20px; } /* Sağ Üstten Sağ Alta Taşındı */
-        .fullscreen-toggle { bottom: 110px; right: 75px; } /* Sağ Üstten Sağ Alta Taşındı */
-        @media (min-width: 1024px) { .fullscreen-toggle { display: none; } }
+        .dark-toggle { bottom: 110px; right: 20px; }
 
         .soft-btn { background: linear-gradient(135deg, #ff85a2, #ff5c8d); color: white !important; border: 3px solid white; border-radius: 30px; font-weight: 800; padding: 10px 20px; box-shadow: 0 6px 15px rgba(255, 92, 141, 0.2); transition: 0.3s; display: inline-block; text-align: center; cursor: pointer; }
         
@@ -123,11 +119,13 @@
         /* Modal Mobil Düzenlemeler */
         .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .shop-box { width: 130px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
+        .shop-box { width: 130px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
 
         .login-input { width: 100%; padding: 14px; border: 3px solid #ffc2d1; border-radius: 18px; margin-bottom: 12px; text-align: center; font-weight: 800; font-size: 16px; outline: none; background: var(--hud-bg); color: var(--text-color); }
         @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .is-somersaulting { animation: somersault 0.6s ease-in-out; }
+
+        #shop-timer { font-size: 10px; font-weight: 800; color: #ff5c8d; background: rgba(255, 92, 141, 0.1); padding: 4px 8px; border-radius: 10px; margin-top: 5px; }
     </style>
 </head>
 <body id="main-body">
@@ -142,7 +140,6 @@
 
 <div class="bg-hearts"></div>
 <div class="top-btn dark-toggle" id="mode-btn" onclick="window.toggleDarkMode()">🌓</div>
-<div class="top-btn fullscreen-toggle" id="fs-btn" onclick="window.toggleFullscreen()">⛶</div>
 
 <!-- LOGIN -->
 <div id="login-screen" class="screen items-center justify-center p-4 hidden-screen">
@@ -174,7 +171,10 @@
     <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-8 max-w-6xl mx-auto w-full overflow-y-auto">
         <div class="soft-panel w-full max-w-sm p-6 z-20">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
+                <div>
+                    <h2 class="text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
+                    <p class="text-[10px] font-black text-red-400 mt-1">🍒 Vişnen: <span id="cherry-count-selection">0</span></p>
+                </div>
                 <button onclick="window.openShop()" class="bg-[#ef4444] text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-lg">Mağaza</button>
             </div>
             <div class="flex flex-col gap-3" id="char-list">
@@ -248,10 +248,11 @@
 <!-- MODALLAR -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 z-[600] hidden items-center justify-center p-2">
     <div class="soft-panel p-6 max-w-lg w-full border-4 border-red-300 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-2">
             <h3 class="text-xl font-black text-red-500 uppercase">🍒 VişneMağaza</h3>
             <button onclick="window.closeShop()" class="bg-red-500 text-white w-8 h-8 rounded-full font-black">X</button>
         </div>
+        <div id="shop-timer" class="mb-4 text-center">Yenilenmesine: 00:00:00 kaldı</div>
         <div id="shop-items-container" class="modal-body grid-flex"></div>
     </div>
 </div>
@@ -284,7 +285,7 @@
     let isGuest = true;
     let currentUserId = "anonymous";
 
-    // --- TEMEL SİSTEM (EN ÜSTTE) ---
+    // --- TEMEL SİSTEM ---
     window.showMessage = (txt) => {
         const m = document.createElement('div');
         m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
@@ -312,6 +313,13 @@
         alien: ["hayirsiz evlat miyim", "cok tatlisin bugün annee", "uzayda hava nasil", "annemmm canım annem"],
         stitch: ["karnım acıktı", "anne biraz dışarı çıkalımmm", "ohana demek aile demek", "takla atayım mı"],
         chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"]
+    };
+
+    const roomConfigs = {
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
+        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
     };
 
     const itemSvgs = {
@@ -347,7 +355,7 @@
         if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
     };
 
-    // --- DATA SAVING (FIXED FOR PERSISTENCE) ---
+    // --- DATA SAVING ---
     window.saveProgress = async () => {
         if (!db || isGuest) return;
         try {
@@ -377,13 +385,28 @@
         } catch(e) {}
     }
 
+    // --- SHOP TIMER ---
+    function getNext1900() {
+        const now = new Date();
+        let next19 = new Date();
+        next19.setHours(19, 0, 0, 0);
+        if (now >= next19) {
+            next19.setDate(next19.getDate() + 1);
+        }
+        const diff = next19 - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
     // --- ACTIONS ---
     window.handleLogin = async () => {
         const u = document.getElementById('login-username').value.toLowerCase();
         const p = document.getElementById('login-password').value;
         if (u === 'nisan' && p === 'talha<3') {
             isGuest = false;
-            currentUserId = "nisan_user"; // Sabit ID ile kalıcı kayıt
+            currentUserId = "nisan_user";
             if (auth) await signInAnonymously(auth);
             window.changeScreen('welcome-screen');
         } else { showMessage("Hatalı Giriş!"); }
@@ -394,14 +417,6 @@
         if (auth) await signInAnonymously(auth);
         showMessage("Misafir Girdin, Kaydedilmez!");
         window.changeScreen('welcome-screen');
-    };
-
-    window.toggleFullscreen = () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => showMessage("Desteklenmiyor!"));
-        } else {
-            document.exitFullscreen();
-        }
     };
 
     window.toggleDarkMode = () => { 
@@ -444,9 +459,7 @@
             let food = state.selectedChar === 'alien' ? spaceFoods[currentFoodIdx % spaceFoods.length] : normalFoods[currentFoodIdx % normalFoods.length];
             interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">${food}</div>`;
             if(state.selectedChar === 'alien') {
-                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black shadow-lg">2X</button>` : ''}</div>`;
-                const sBtn = document.getElementById('hunt-speed-btn');
-                if(sBtn) sBtn.onclick = () => { state.huntSpeed = 2; showMessage("Hızlandı! ⚡"); };
+                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black">2X</button>` : ''}</div>`;
             }
             makeElementDraggable(document.getElementById('food-item'), checkCollisions);
         }
@@ -465,9 +478,7 @@
         }
         if(r === 'school') {
             if(!state.schoolActive) interact.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style="pointer-events: auto;"><button onclick="window.startSchool()" class="soft-btn px-8 uppercase">DERSE GİR</button></div>`;
-            else interact.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white font-black"><p class="text-xl mb-4">Ders... ${Math.ceil(state.schoolTimer)}s</p><button id="school-speed-btn" class="bg-yellow-500 px-6 py-2 rounded-xl text-xs uppercase shadow-xl" style="pointer-events: auto;">3X HIZLANDIR</button></div>`;
-            const sBtn = document.getElementById('school-speed-btn');
-            if(sBtn) sBtn.onclick = () => { state.schoolSpeed = 3; showMessage("⚡ Hızlandı!"); };
+            else interact.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white font-black"><p class="text-xl mb-4">Ders... ${Math.ceil(state.schoolTimer)}s</p><button id="school-speed-btn" class="bg-yellow-500 px-4 py-2 rounded-xl text-xs uppercase" style="pointer-events: auto;">3X HIZLANDIR</button></div>`;
         }
         window.updateUI();
     };
@@ -523,7 +534,12 @@
             state.schoolTimer = Math.max(0, state.schoolTimer - state.schoolSpeed);
             if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
-        // Speech logic
+        
+        // Shop Timer Update
+        const timerEl = document.getElementById('shop-timer');
+        if(timerEl) timerEl.innerText = `Yenilenmesine: ${getNext1900()} kaldı`;
+
+        // Speech
         state.lastSpeech++;
         if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
             state.lastSpeech = 0;
@@ -539,10 +555,13 @@
         const hyb = document.getElementById('bar-hygiene');
         const eb = document.getElementById('bar-energy');
         const cc = document.getElementById('cherry-count-hud');
+        const ccs = document.getElementById('cherry-count-selection');
         if(hb) hb.style.width = state.stats.hunger + '%';
         if(hyb) hyb.style.width = state.stats.hygiene + '%';
         if(eb) eb.style.width = state.stats.energy + '%';
         if(cc) cc.innerText = Math.floor(state.cherries);
+        if(ccs) ccs.innerText = Math.floor(state.cherries);
+
         const wrap = document.getElementById('char-svg-wrap');
         const bubble = document.getElementById('speech-bubble');
         const zzz = document.getElementById('zzz-emoji');
@@ -561,41 +580,33 @@
         if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     };
 
-    // --- MOBILE DRAG SYSTEM ---
+    // --- MOBILE DRAG ---
     function makeElementDraggable(el, onDrag) {
         if(!el) return;
         let startX, startY;
-        
         const dragStart = (e) => {
             const ev = e.touches ? e.touches[0] : e;
             startX = ev.clientX - el.offsetLeft;
             startY = ev.clientY - el.offsetTop;
             el.classList.add('is-dragging');
-            
             const moveEvent = e.touches ? 'touchmove' : 'mousemove';
             const endEvent = e.touches ? 'touchend' : 'mouseup';
-            
             const dragging = (me) => {
                 if (me.cancelable) me.preventDefault();
                 const mev = me.touches ? me.touches[0] : me;
-                let nx = mev.clientX - startX;
-                let ny = mev.clientY - startY;
-                el.style.left = nx + 'px';
-                el.style.top = ny + 'px';
+                el.style.left = (mev.clientX - startX) + 'px';
+                el.style.top = (mev.clientY - startY) + 'px';
                 if(onDrag) onDrag(el);
             };
-
             const dragEnd = () => {
                 el.classList.remove('is-dragging');
                 document.removeEventListener(moveEvent, dragging);
                 document.removeEventListener(endEvent, dragEnd);
                 if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "65%"; el.style.top = "60%"; }
             };
-
             document.addEventListener(moveEvent, dragging, { passive: false });
             document.addEventListener(endEvent, dragEnd);
         };
-
         el.addEventListener('mousedown', dragStart);
         el.addEventListener('touchstart', dragStart, { passive: false });
     }
@@ -618,13 +629,7 @@
         }
     }
 
-    if (auth) onAuthStateChanged(auth, (u) => { 
-        user = u; 
-        if (u && !isGuest) {
-            currentUserId = "nisan_user";
-            loadProgress(); 
-        }
-    });
+    if (auth) onAuthStateChanged(auth, (u) => { user = u; if (u && !isGuest) { currentUserId = "nisan_user"; loadProgress(); } });
 
     window.onload = () => {
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
