@@ -9,904 +9,528 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
         
         :root {
-            --toy-pink-light: #ffb3c6;
-            --toy-pink-dark: #ff85a2;
-            --toy-white: rgba(255, 255, 255, 0.9);
-            --glass-soft: rgba(255, 255, 255, 0.5);
+            --bg-main: #ffc2d1;
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #4a1d2e;
+            --border-color: #ffc2d1;
+            --hud-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        .dark-mode {
+            --bg-main: #1a1a2e;
+            --panel-bg: rgba(30, 30, 50, 0.98);
+            --text-color: #fce7f3;
+            --border-color: #4a1d2e;
+            --hud-bg: #16213e;
+            --nav-bg: #16213e;
+            --btn-grad: linear-gradient(135deg, #4a1d2e, #1a1a2e);
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            margin: 0; 
-            font-family: 'Outfit', sans-serif; 
-            background-color: #ffc2d1;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 255, 255, 0.05) 35px, rgba(255, 255, 255, 0.05) 70px);
-            color: #4a1d2e;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            user-select: none;
-            touch-action: none;
-            transition: background-color 0.8s ease;
+            margin: 0; font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-main); color: var(--text-color);
+            height: 100vh; width: 100vw; overflow: hidden;
+            user-select: none; touch-action: none; transition: all 0.6s ease;
         }
+
+        /* Başlangıç Yüklenme Ekranı */
+        #initial-loading {
+            position: fixed; inset: 0; background: #ffc2d1; z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loading-bar-container { width: 200px; height: 12px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 2px solid white; }
+        #loading-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #ff85a2, #ff5c8d); transition: width 0.3s; }
 
         .bg-hearts {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="%23ff5c8d" opacity="0.3"/></svg>');
+            background-size: 100px 100px; animation: moveHearts 25s linear infinite;
         }
+        @keyframes moveHearts { from { background-position: 0 0; } to { background-position: 500px 0; } }
 
-        .screen {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 10;
-            height: 100%;
-            width: 100%;
-        }
+        .screen { position: fixed; inset: 0; display: flex; flex-direction: column; transition: all 0.5s ease; z-index: 10; background-color: transparent; }
+        .hidden-screen { opacity: 0; pointer-events: none; transform: scale(0.98); }
 
-        .hidden-screen {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95);
-            z-index: 0;
-        }
+        .soft-panel { background: var(--panel-bg); border: 3px solid #ffffff; border-radius: 25px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); color: var(--text-color); }
 
-        #loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: #ffc2d1;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.5s ease;
-        }
+        .hud-bar { background: var(--hud-bg); padding: 4px 8px; border-radius: 12px; border: 2px solid var(--border-color); display: flex; flex-direction: column; align-items: center; min-width: 65px; transition: 0.3s; }
+        .hud-text { font-size: 7px; font-weight: 900; text-transform: uppercase; color: var(--text-color); margin-bottom: 2px; }
 
-        .loading-heart {
-            font-size: 60px;
-            animation: pulse-heart 1s infinite;
-        }
+        .draggable { cursor: grab; position: absolute; z-index: 100; touch-action: none; }
+        .char-container { width: 170px; height: 170px; position: relative; z-index: 50; }
 
-        @keyframes pulse-heart {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
+        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 0.8s; z-index: 200; }
 
-        .soft-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(15px);
-            border: 3px solid #ffffff;
-            border-radius: 25px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            transition: all 0.5s ease;
-        }
+        .dark-toggle { position: fixed; bottom: 120px; right: 20px; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s; color: var(--text-color); }
 
-        @media (min-width: 768px) {
-            .soft-panel { border-radius: 50px; border: 6px solid #ffffff; }
-        }
-
-        .pinned-note {
-            position: absolute;
-            top: 2%;
-            right: 5%;
-            width: 100px;
-            height: 100px;
-            background: #fff9c4;
-            padding: 10px 5px;
-            transform: rotate(5deg);
-            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
-            border-radius: 2px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 120;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .pinned-note::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            width: 10px;
-            height: 10px;
-            background: #ff5252;
-            border-radius: 50%;
-        }
-
-        .pinned-note p { font-weight: 800; color: #d84315; font-size: 10px; text-align: center; line-height: 1.2; margin: 0; }
-        #day-counter { font-size: 20px !important; margin: 2px 0; }
-
-        .char-btn {
-            background: rgba(255, 255, 255, 0.6);
-            border: 2px solid transparent;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            color: #4a1d2e;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .char-btn.selected {
-            background: #ff85a2;
-            color: white !important;
-            border-color: #ffffff;
-            transform: scale(1.02);
-        }
-
-        .lock-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            z-index: 20;
-            backdrop-filter: blur(2px);
-        }
-
-        .room-bg {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .night-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(10, 10, 50, 0.45), rgba(5, 5, 30, 0.75));
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 1.2s ease;
-            z-index: 25;
-        }
-        .night-active { opacity: 1; }
-
-        .footer-credit {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: 800;
-            font-size: 0.9rem;
-            color: #ff5c8d;
-            text-shadow: 1px 1px 0px white;
-            z-index: 100;
-        }
-
-        .soft-btn {
-            background: linear-gradient(135deg, #ff85a2, #ff5c8d);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 800;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: 0.3s;
-            border: 3px solid white;
-        }
+        .soft-btn { background: linear-gradient(135deg, #ff85a2, #ff5c8d); color: white !important; border: 3px solid white; border-radius: 30px; font-weight: 800; padding: 8px 16px; box-shadow: 0 6px 15px rgba(255, 92, 141, 0.2); transition: 0.3s; display: inline-block; text-align: center; font-size: 12px; }
+        
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-color); transition: 0.3s; background: transparent; border: none; cursor: pointer; font-weight: 900; font-size: 10px; text-transform: uppercase; border-radius: 15px; margin: 2px; height: 85%; }
+        .nav-btn-active { background: #f97316 !important; color: white !important; transform: scale(1.05); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4); }
 
         .speech-bubble {
-            position: absolute;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            color: #ff5c8d;
-            font-weight: 800;
-            font-size: 13px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 3px solid #ffc2d1;
-            bottom: 105%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: max-content;
-            max-width: 180px;
-            z-index: 110;
-            display: none;
-            text-align: center;
+            position: absolute; background: white; padding: 10px 15px; border-radius: 20px; color: #ff5c8d; font-weight: 800;
+            font-size: 11px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid #ffc2d1; bottom: 115%; left: 50%;
+            transform: translateX(-50%); width: max-content; max-width: 160px; z-index: 110; display: block; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
 
-        .draggable {
-            cursor: grab;
-            position: absolute;
-            z-index: 100;
-            touch-action: none;
+        .sleep-zzz {
+            position: absolute; top: -30px; right: 10px; font-size: 26px; font-weight: 900; color: #3b82f6; 
+            display: none; pointer-events: none; z-index: 120;
+            animation: floatZzz 2s infinite ease-in-out;
+        }
+        @keyframes floatZzz {
+            0% { transform: translate(0, 0) scale(0.7); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(10px, -40px) scale(1.1); opacity: 0; }
         }
 
-        .char-container {
-            width: 180px;
-            height: 180px;
-            transition: all 0.8s ease;
-            position: relative;
-            z-index: 50;
+        .dust-overlay { 
+            position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s; 
+            background-image: radial-gradient(#8b5a2b 1.5px, transparent 1px); background-size: 10px 10px; 
+            border-radius: 50%; z-index: 60; 
         }
+        .is-dirty .dust-overlay { opacity: 0.8; }
+        .is-dirty #char-svg { filter: sepia(0.3) brightness(0.9); }
 
-        #interaction-layer {
-            position: absolute;
-            inset: 0;
-            z-index: 150;
-            pointer-events: none;
-        }
+        .limb { transform-box: fill-box; transition: transform 0.2s; }
+        .is-dragging .limb-arm-l { animation: limbSwing 0.3s infinite alternate; transform-origin: center top; }
+        .is-dragging .limb-arm-r { animation: limbSwing 0.3s infinite alternate-reverse; transform-origin: center top; }
+        .is-dragging .limb-leg-l { animation: limbSwing 0.4s infinite alternate; transform-origin: center top; }
+        .is-dragging .limb-leg-r { animation: limbSwing 0.4s infinite alternate-reverse; transform-origin: center top; }
+        @keyframes limbSwing { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
 
-        .limb { transform-box: fill-box; transition: transform 0.2s ease; }
-        .is-dragging .limb-arm-l { animation: armSwingL 0.3s infinite alternate ease-in-out; transform-origin: top center; }
-        .is-dragging .limb-arm-r { animation: armSwingR 0.3s infinite alternate ease-in-out; transform-origin: top center; }
-        .is-dragging .limb-leg-l { animation: legSwingL 0.3s infinite alternate ease-in-out; transform-origin: top center; }
-        .is-dragging .limb-leg-r { animation: legSwingR 0.3s infinite alternate ease-in-out; transform-origin: top center; }
+        .char-btn { background: rgba(255, 255, 255, 0.6); border: 2px solid transparent; border-radius: 20px; padding: 10px; transition: 0.3s; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; color: #4a1d2e; cursor: pointer; }
+        .char-btn-kitty.selected { background: #ff85a2 !important; color: white !important; }
+        .char-btn-stitch.selected { background: #1e3a8a !important; color: white !important; }
+        .char-btn-chick.selected { background: #ffc2d1 !important; color: #4a1d2e !important; border-color: #ff85a2 !important; }
+        .char-btn-alien.selected { background: #166534 !important; color: white !important; }
 
-        @keyframes armSwingL { from { transform: rotate(-25deg); } to { transform: rotate(25deg); } }
-        @keyframes armSwingR { from { transform: rotate(25deg); } to { transform: rotate(-25deg); } }
-        @keyframes legSwingL { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }
-        @keyframes legSwingR { from { transform: rotate(15deg); } to { transform: rotate(-15deg); } }
-
-        .item-icon {
-            width: 70px; height: 70px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 35px;
-            background: white; border-radius: 50%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 3px solid #ffc2d1;
-            pointer-events: auto;
-        }
-
-        .sleeping-state {
-            filter: brightness(0.25) grayscale(0.4) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) !important;
-            transform: scale(0.85) rotate(-15deg);
-        }
-
-        .dirty-effect { filter: sepia(0.5) contrast(0.7) brightness(0.7); }
-
-        .hud-bar {
-            background: white;
-            padding: 6px 10px;
-            border-radius: 18px;
-            border: 2px solid #ffc2d1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .bed-target {
-            position: absolute;
-            right: 5%; bottom: 10%;
-            width: 35%; height: 30%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .closet-target {
-            position: absolute;
-            left: 2%; bottom: 15%;
-            width: 60px; height: 180px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-            border: 4px dashed #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(255, 133, 162, 0.3);
-        }
-        .closet-target span { font-size: 30px; margin-bottom: 8px; }
-        .closet-target p { 
-            font-weight: 900; 
-            color: #ffffff; 
-            font-size: 8px; 
-            text-transform: uppercase; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            letter-spacing: 2px;
-        }
-
-        .letter-btn {
-            margin-top: 10px;
-            padding: 8px;
-            background: white;
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 2px solid #ffc2d1;
-        }
+        .item-icon { width: 65px; height: 65px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 3px solid #ffc2d1; box-shadow: 0 5px 15px rgba(0,0,0,0.1); pointer-events: auto; }
         
-        .secret-code-hint {
-            position: absolute;
-            top: 10px; left: 10px;
-            color: black; font-weight: 800; font-size: 12px;
-            z-index: 60; opacity: 0.6;
-        }
+        @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .is-somersaulting { animation: somersault 0.6s ease-in-out; }
 
-        @keyframes bounce-anim {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-        .bounce-char { animation: bounce-anim 2.5s ease-in-out infinite; }
+        .bed-area { position: absolute; right: 0; top: 0; bottom: 0; width: 35%; background: rgba(255,255,255,0.01); z-index: 5; pointer-events: none; }
         
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        .poster-frame {
+            position: absolute; width: 80px; height: 110px;
+            background: #fff; border: 4px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: rotate(1deg); z-index: 5;
+            overflow: hidden;
         }
-        .shaking { animation: shake 0.5s; animation-iteration-count: infinite; }
+        .poster-frame img { width: 100%; height: 100%; object-fit: cover; }
 
-        #cherry-hud {
-            background: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 2px solid #ef4444;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 800;
-            color: #ef4444;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        .shop-item-box { background: white; border: 3px solid #eee; border-radius: 20px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+        .item-svg-box { width: 50px; height: 50px; }
+        
+        .lock-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; font-weight: 900; font-size: 10px; z-index: 20;
         }
-
-        .garden-cherry {
-            position: absolute;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .garden-cherry:hover { transform: scale(1.2); }
     </style>
 </head>
-<body>
+<body id="main-body">
 
-<div id="loading-overlay">
-    <div class="loading-heart">💖</div>
-    <p id="loading-text" class="mt-4 font-bold uppercase tracking-widest text-center px-4">Nisan'ın Dünyası Yükleniyor...</p>
-</div>
-
-<div class="bg-hearts">
-    <svg width="100%" height="100%" opacity="0.3">
-        <defs>
-            <pattern id="heart-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path id="heart-path" d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="#ff5c8d"/>
-            </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#heart-pattern)" />
-    </svg>
-</div>
-
-<!-- GİRİŞ EKRANI -->
-<div id="welcome-screen" class="screen items-center justify-center p-4">
-    <div class="pinned-note">
-        <p>Birlikte</p>
-        <p id="day-counter">0</p>
-        <p>gün...</p>
+<!-- 0. YÜKLENME EKRANI -->
+<div id="initial-loading">
+    <h2 class="text-xl font-extrabold text-[#ff5c8d] mb-2 text-center px-4">Talha tarafından ❤️ ile hazırlandı.</h2>
+    <p id="loading-text" class="text-xs font-bold uppercase opacity-70 text-pink-600">başlatılıyor...</p>
+    <div class="loading-bar-container">
+        <div id="loading-progress"></div>
     </div>
-    <div class="text-center z-10 p-8 md:p-16 soft-panel w-full max-w-2xl relative">
-        <h1 class="text-5xl md:text-7xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">Nisan için</h1>
-        <p class="text-[#a64d79] text-base md:text-xl mb-8 md:mb-12 tracking-[0.2em] font-bold uppercase">Our world</p>
-        <button onclick="changeScreen('selection-screen')" class="soft-btn text-xl md:text-2xl uppercase tracking-widest">Giriş Yap</button>
-    </div>
-    <div class="footer-credit">Made by Talha <3</div>
 </div>
 
-<!-- SEÇİM EKRANI -->
+<div class="bg-hearts"></div>
+<div class="dark-toggle" onclick="toggleDarkMode()">🌓</div>
+
+<!-- 1. GİRİŞ EKRANI -->
+<div id="welcome-screen" class="screen items-center justify-center p-4 hidden-screen">
+    <div class="pinned-note" style="position: absolute; top: 20px; left: 20px; width: 90px; height: 90px; background: #fff9c4; transform: rotate(-3deg); box-shadow: 3px 3px 10px rgba(0,0,0,0.1); border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 120;">
+        <p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">Birlikte</p>
+        <p id="day-counter" style="font-size: 20px; font-weight: 800; color: #d84315; margin: 0;">0</p>
+        <p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">gün...</p>
+    </div>
+    <div class="text-center z-10 p-12 soft-panel w-full max-w-xl relative">
+        <h1 class="text-5xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">Nisan için</h1>
+        <p class="text-[#a64d79] text-base mb-12 tracking-[0.2em] font-bold uppercase opacity-80">Our world</p>
+        <button onclick="changeScreen('selection-screen')" class="soft-btn text-xl uppercase tracking-widest px-10 py-4">Giriş Yap</button>
+    </div>
+</div>
+
+<!-- 2. SEÇİM EKRANI -->
 <div id="selection-screen" class="screen hidden-screen p-4 md:p-10">
-    <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-6 md:gap-12 max-w-7xl mx-auto w-full overflow-y-auto">
-        <div class="soft-panel w-full max-w-sm p-6 md:p-10 z-20">
-            <h2 class="text-2xl md:text-3xl font-black mb-6 text-[#ff5c8d] tracking-tight uppercase text-center">Arkadaşını Seç</h2>
+    <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-8 max-w-6xl mx-auto w-full overflow-y-auto">
+        <div class="soft-panel w-full max-w-sm p-8 z-20">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
+                <button onclick="openShop()" class="bg-[#ef4444] text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-lg active:translate-y-1 transition-all">🍒 Mağaza</button>
+            </div>
             <div class="flex flex-col gap-3" id="char-list">
-                <button onclick="updateSelection('kitty')" id="opt-kitty" class="char-btn flex items-center gap-4 p-3 text-left w-full">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">🎀</div>
-                    <div><h3 class="font-bold text-base md:text-xl">Hello Kitty</h3><p class="text-[10px] uppercase font-bold opacity-70">En Tatlı Evlat</p></div>
+                <button onclick="updateSelection('kitty')" id="opt-kitty" class="char-btn char-btn-kitty selected">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🎀</div>
+                    <div><h3 class="font-bold text-sm">Hello Kitty</h3><p class="text-[8px] uppercase opacity-70">En Tatlı Evlat</p></div>
                 </button>
-                <button onclick="updateSelection('stitch')" id="opt-stitch" class="char-btn flex items-center gap-4 p-3 text-left w-full">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">🌀</div>
-                    <div><h3 class="font-bold text-base md:text-xl">Stitch</h3><p class="text-[10px] uppercase font-bold opacity-70">Mavi Haylaz</p></div>
+                <button onclick="updateSelection('stitch')" id="opt-stitch" class="char-btn char-btn-stitch">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🌀</div>
+                    <div><h3 class="font-bold text-sm">Stitch</h3><p class="text-[8px] uppercase opacity-70">Mavi Dost</p></div>
                 </button>
-                <button onclick="updateSelection('chick')" id="opt-chick" class="char-btn flex items-center gap-4 p-3 text-left w-full">
-                    <div id="chick-lock-ui" class="lock-overlay">
-                        <span class="text-xl animate-bounce">🍒</span>
-                        <span id="cherry-needed-text" class="text-[10px] font-black uppercase">0/50 Vişne</span>
-                    </div>
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">🐣</div>
-                    <div><h3 class="font-bold text-base md:text-xl">Civcik</h3><p class="text-[10px] uppercase font-bold opacity-70">Aşk Elçisi</p></div>
+                <button onclick="updateSelection('chick')" id="opt-chick" class="char-btn char-btn-chick relative">
+                    <div id="chick-lock-ui" class="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-white font-black text-[10px] z-10">🍒 50</div>
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🐣</div>
+                    <div><h3 class="font-bold text-sm">Civcik</h3><p class="text-[8px] uppercase opacity-70">Minik Kuş</p></div>
                 </button>
-                <button onclick="updateSelection('alien')" id="opt-alien" class="char-btn flex items-center gap-4 p-3 text-left w-full">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">👽</div>
-                    <div><h3 class="font-bold text-base md:text-xl">Uzaylı</h3><p class="text-[10px] uppercase font-bold opacity-70">Zeki Ziyaretçi</p></div>
+                <button onclick="updateSelection('alien')" id="opt-alien" class="char-btn char-btn-alien">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">👽</div>
+                    <div><h3 class="font-bold text-sm">Prospectus</h3><p class="text-[8px] uppercase opacity-70">Zeki Ziyaretçi</p></div>
                 </button>
             </div>
-            <div onclick="openSecretLetter()" class="letter-btn shadow-sm">
-                <span id="letter-icon" class="text-2xl md:text-3xl">🔒 ✉️</span>
-            </div>
-            <button onclick="enterWorldWithLoading()" class="w-full mt-6 soft-btn text-lg md:text-xl">Dünyaya Git</button>
+            <button onclick="enterWorld()" class="w-full mt-6 soft-btn py-3">Dünyaya Git</button>
         </div>
-        <div class="flex-shrink-0 flex items-center justify-center w-full max-w-[200px] md:max-w-[400px]">
-            <div id="selection-preview" class="w-full aspect-square"></div>
-        </div>
+        <div id="selection-preview" class="w-full max-w-[250px] aspect-square flex items-center justify-center"></div>
     </div>
-    <div class="footer-credit">Made by Talha <3</div>
 </div>
 
-<!-- OYUN DÜNYASI -->
+<!-- 3. OYUN DÜNYASI -->
 <div id="world-screen" class="screen hidden-screen">
-    <div class="h-20 md:h-24 w-full flex items-center justify-between px-4 md:px-10 bg-white/90 backdrop-blur-md border-b-2 md:border-b-4 border-[#ffc2d1] z-50">
-        <div class="flex gap-2 md:gap-4 scale-75 md:scale-90 origin-left">
-            <div class="hud-bar">
-                <span class="text-[8px] md:text-[10px] font-black text-[#ff5c8d] uppercase mb-1">Açlık</span>
-                <div class="w-14 md:w-20 h-2 md:h-4 bg-[#fff0f3] rounded-full overflow-hidden border-1 border-[#ffc2d1]">
-                    <div id="bar-hunger" class="h-full bg-[#ff85a2]" style="width: 80%"></div>
-                </div>
-            </div>
-            <div class="hud-bar">
-                <span class="text-[8px] md:text-[10px] font-black text-[#3b82f6] uppercase mb-1">Temizlik</span>
-                <div class="w-14 md:w-20 h-2 md:h-4 bg-[#f0f7ff] rounded-full overflow-hidden border-1 border-[#bae6fd]">
-                    <div id="bar-hygiene" class="h-full bg-[#3b82f6]" style="width: 100%"></div>
-                </div>
-            </div>
-            <div class="hud-bar">
-                <span class="text-[8px] md:text-[10px] font-black text-[#f59e0b] uppercase mb-1">Enerji</span>
-                <div class="w-14 md:w-20 h-2 md:h-4 bg-[#fffbeb] rounded-full overflow-hidden border-1 border-[#fef3c7]">
-                    <div id="bar-energy" class="h-full bg-gradient-to-r from-[#fbbf24] to-[#f59e0b]" style="width: 70%"></div>
-                </div>
-            </div>
-            <div id="cherry-hud">
-                <span class="text-xl">🍒</span>
-                <span id="cherry-count-hud">0</span>
-            </div>
+    <div class="night-overlay" id="night-overlay"></div>
+    <div class="h-20 w-full flex items-center justify-between px-3 bg-white/95 backdrop-blur-md border-b-2 z-50 overflow-x-auto gap-4 shadow-sm" style="background: var(--nav-bg); border-color: var(--border-color);">
+        <div class="flex gap-2 flex-shrink-0">
+            <div class="hud-bar"><span class="hud-text">Açlık</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hunger" class="h-full bg-pink-400" style="width: 80%"></div></div></div>
+            <div class="hud-bar"><span class="hud-text">Hijyen</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hygiene" class="h-full bg-blue-400" style="width: 100%"></div></div></div>
+            <div class="hud-bar"><span class="hud-text">Uyku</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-energy" class="h-full bg-yellow-400" style="width: 100%"></div></div></div>
+            <div class="flex items-center gap-1 px-3 bg-white border-2 border-red-200 rounded-xl font-black text-red-500 text-sm shadow-sm">🍒 <span id="cherry-count-hud">0</span></div>
         </div>
-        <div class="flex gap-2">
-            <button onclick="changeScreen('welcome-screen')" class="bg-white px-3 md:px-5 py-1 md:py-2 rounded-full border-2 border-[#ffc2d1] text-[8px] md:text-[10px] font-black uppercase text-[#ff5c8d] shadow-sm">🏠 ANA MENÜ</button>
-            <button onclick="changeScreen('selection-screen')" class="bg-white px-3 md:px-5 py-1 md:py-2 rounded-full border-2 border-[#ffc2d1] text-[8px] md:text-[10px] font-black uppercase text-[#ff5c8d] shadow-sm">DEĞİŞTİR</button>
-        </div>
+        <button onclick="changeScreen('selection-screen')" class="bg-white/90 px-3 py-1.5 rounded-xl border border-pink-100 text-[8px] font-black uppercase text-pink-500">DEĞİŞTİR</button>
     </div>
 
     <div id="main-area" class="flex-1 relative overflow-hidden">
-        <div id="room-bg-layer" class="room-bg"></div>
-        <div id="night-vibe" class="night-overlay"></div>
-        <div id="bed-target" class="bed-target hidden"></div>
-        <div id="closet-target" class="closet-target hidden"><span>👗</span><p>Gardırop</p></div>
-        <div id="secret-hint" class="secret-code-hint hidden">nisan<3123</div>
-        <div id="char-draggable" class="draggable" style="left: 45%; bottom: 120px;">
-            <div id="char-container" class="char-container bounce-char">
+        <div id="room-bg-layer" class="absolute inset-0 bg-cover bg-center transition-all duration-700"></div>
+        <div id="bed-area-trigger" class="bed-area"></div>
+        
+        <div id="closet-target" class="hidden absolute left-4 bottom-[22%] z-[350] flex flex-col items-center justify-center w-16 h-40 bg-white/30 backdrop-blur-md border-2 border-dashed border-white rounded-2xl cursor-pointer" onclick="openCloset()">
+            <span class="text-3xl">👗</span><p class="text-[8px] font-black uppercase text-white mt-1 text-center">Dolap</p>
+        </div>
+        
+        <div id="char-draggable" class="draggable" style="left: 45%; bottom: 100px;">
+            <div id="char-container" class="char-container">
+                <div id="zzz-emoji" class="sleep-zzz">zZz</div>
+                <div class="dust-overlay"></div>
                 <div id="char-svg-wrap"></div>
                 <div id="speech-bubble" class="speech-bubble">Merhaba!</div>
             </div>
         </div>
-        <div id="interaction-layer" class="absolute inset-0 z-150"></div>
+        <div id="interaction-layer" class="absolute inset-0 z-[150] pointer-events-none"></div>
     </div>
 
-    <div class="h-24 md:h-28 w-full bg-white/95 backdrop-blur-md border-t-2 md:border-t-4 border-[#ffc2d1] flex items-center justify-around z-50 px-2">
-        <button onclick="goRoom('kitchen')" class="flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 md:w-14 md:h-14 bg-[#ffe5ec] rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-sm border-2 border-white">🧁</div>
-            <span class="text-[8px] md:text-[10px] font-black uppercase text-[#ff5c8d]">Mutfak</span>
-        </button>
-        <button onclick="goRoom('bathroom')" class="flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 md:w-14 md:h-14 bg-[#e0f2fe] rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-sm border-2 border-white">🧼</div>
-            <span class="text-[8px] md:text-[10px] font-black uppercase text-[#3b82f6]">Banyo</span>
-        </button>
-        <button onclick="goRoom('bedroom')" class="flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 md:w-14 md:h-14 bg-[#f3e8ff] rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-sm border-2 border-white">🛌</div>
-            <span class="text-[8px] md:text-[10px] font-black uppercase text-[#a855f7]">Uyku</span>
-        </button>
-        <button onclick="goRoom('garden')" class="flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 md:w-14 md:h-14 bg-[#f0fdf4] rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-sm border-2 border-white">🌲</div>
-            <span class="text-[8px] md:text-[10px] font-black uppercase text-[#22c55e]">Bahçe</span>
-        </button>
-        <button onclick="goRoom('school')" class="flex flex-col items-center gap-1 group">
-            <div class="w-12 h-12 md:w-14 md:h-14 bg-[#fffbeb] rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-3xl shadow-sm border-2 border-white">🎓</div>
-            <span class="text-[8px] md:text-[10px] font-black uppercase text-[#f59e0b]">Okul</span>
-        </button>
+    <div class="h-24 w-full backdrop-blur-md border-t-2 flex items-center justify-around z-[400] shadow-lg px-2" style="background: var(--nav-bg); border-top-color: var(--border-color);">
+        <button id="nav-kitchen" onclick="goRoom('kitchen')" class="nav-btn"><span>🧁</span><span>Mutfak</span></button>
+        <button id="nav-bathroom" onclick="goRoom('bathroom')" class="nav-btn"><span>🧼</span><span>Banyo</span></button>
+        <button id="nav-bedroom" onclick="goRoom('bedroom')" class="nav-btn"><span>🛌</span><span>Uyku</span></button>
+        <button id="nav-garden" onclick="goRoom('garden')" class="nav-btn"><span>🌲</span><span>Bahçe</span></button>
+        <button id="nav-school" onclick="goRoom('school')" class="nav-btn"><span>🎓</span><span>Okul</span></button>
     </div>
 </div>
 
-<div id="password-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-    <div class="soft-panel p-8 md:p-10 max-w-sm w-full text-center">
-        <h3 class="text-xl md:text-2xl font-black text-[#ff5c8d] mb-4 uppercase">GİZLİ MEKTUP</h3>
-        <p class="text-xs md:text-sm text-gray-500 mb-6 font-bold">Açmak için şifreyi gir:</p>
-        <input type="text" id="secret-input" class="w-full p-3 md:p-4 rounded-xl border-2 md:border-4 border-[#ffc2d1] mb-6 text-center font-bold" placeholder="Şifre...">
-        <div class="flex gap-4">
-            <button onclick="checkLetterCode()" class="flex-1 soft-btn py-2 md:py-3 text-sm">AÇ</button>
-            <button onclick="closeModal()" class="flex-1 bg-gray-200 text-gray-600 rounded-full font-bold py-2 md:py-3 text-sm">İPTAL</button>
-        </div>
+<!-- MODALLAR -->
+<div id="shop-modal" class="fixed inset-0 bg-black/85 z-[600] hidden items-center justify-center p-4">
+    <div class="soft-panel p-6 max-w-lg w-full text-center border-4 border-red-300">
+        <h3 class="text-xl font-black text-red-500 mb-4 uppercase">🍒 VişneMağaza 🍒</h3>
+        <div id="shop-items-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
+        <button onclick="closeShop()" class="soft-btn bg-red-500 w-full">KAPAT</button>
     </div>
 </div>
 
-<div id="closet-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-    <div class="soft-panel p-8 md:p-10 max-lg w-full text-center">
-        <h3 class="text-xl md:text-2xl font-black text-[#ff5c8d] mb-4 uppercase">Hello Kitty Gardırobu</h3>
-        <p class="text-xs md:text-sm text-gray-500 mb-6 font-bold">Bugün ne giymek istersin?</p>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div onclick="changeOutfit('default')" class="outfit-card"><div class="w-12 h-12 bg-blue-500 rounded-lg"></div><span class="text-[10px] font-bold">Orijinal</span></div>
-            <div onclick="changeOutfit('black')" class="outfit-card"><div class="w-12 h-12 bg-black rounded-lg"></div><span class="text-[10px] font-bold">Asil Siyah</span></div>
-            <div onclick="changeOutfit('nisan')" class="outfit-card"><div class="w-12 h-12 bg-[#ff85a2] rounded-lg flex items-center justify-center text-[8px] text-white font-black">Nisan</div><span class="text-[10px] font-bold">Nisan Özel</span></div>
-            <div onclick="changeOutfit('dress')" class="outfit-card"><div class="w-12 h-12 flex items-center justify-center text-2xl">👗</div><span class="text-[10px] font-bold">Pembe Elbise</span></div>
-        </div>
-        <button onclick="closeCloset()" class="soft-btn w-full">KAPAT</button>
+<div id="closet-modal" class="fixed inset-0 bg-black/75 z-[600] hidden items-center justify-center p-4">
+    <div class="soft-panel p-8 max-w-sm w-full text-center">
+        <h3 class="text-xl font-black text-pink-500 mb-6 uppercase text-center">Gardırop</h3>
+        <div id="closet-items" class="grid grid-cols-2 gap-4 mb-8"></div>
+        <button onclick="closeCloset()" class="soft-btn w-full py-3">KAPAT</button>
     </div>
 </div>
 
 <script>
-    const foods = ['🧁', '🍝', '🍰', '🍕', '🥞'];
-    const alienFoods = ['💎', '🪨', '☄️', '💍', '⛓️'];
-    let currentFoodIdx = 0;
-
-    const nisanQuotes = ["Talha seni çok seviyor! 💖", "Nisan, sen en güzelisin. 🌸", "Our world... Sadece ikiniz için! ✨", "Talha ve Nisan sonsuza dek! 💑"];
-    const kittyQuotes = ["Anne, ödevlerim birikti! 🎒", "Annecim bugün parka gidelim mi? 🌲", "Talha babam nerede? Özledim! ❤️"];
-
-    function getKittySvg(outfit = 'default') {
-        let clothColor = "#3b82f6";
-        let extra = "";
-        let clothShape = `<rect x="75" y="140" width="50" height="45" rx="15" fill="${clothColor}" stroke="#000" stroke-width="2.5"/>`;
-        if (outfit === 'black') {
-            clothColor = "#000000";
-            clothShape = `<rect x="75" y="140" width="50" height="45" rx="15" fill="${clothColor}" stroke="#000" stroke-width="2.5"/>`;
-        } else if (outfit === 'nisan') {
-            clothColor = "#ff85a2";
-            clothShape = `<rect x="75" y="140" width="50" height="45" rx="15" fill="${clothColor}" stroke="#000" stroke-width="2.5"/>`;
-            extra = `<text x="100" y="170" font-family="Outfit" font-weight="800" font-size="10" fill="white" text-anchor="middle">Nisan</text>`;
-        } else if (outfit === 'dress') {
-            clothColor = "#ffb3c6";
-            clothShape = `<path d="M75 140 L125 140 L140 185 L60 185 Z" fill="${clothColor}" stroke="#000" stroke-width="2.5" />`;
-            extra = `<circle cx="100" cy="140" r="5" fill="#ff85a2" />`;
-        }
-        return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${clothShape}${extra}<ellipse class="limb limb-arm-l" cx="65" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="12" ry="18" fill="white" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="90" rx="75" ry="60" fill="white" stroke="#000" stroke-width="3"/><path d="M50 50 L30 15 L80 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="M150 50 L170 15 L120 45" fill="white" stroke="#000" stroke-width="3" stroke-linejoin="round"/><circle cx="160" cy="55" r="15" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="145" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="175" cy="55" rx="12" ry="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000" stroke-width="1.5"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="100" x2="15" y2="95"/><line x1="45" y1="110" x2="15" y2="115"/><line x1="155" y1="100" x2="185" y2="95"/><line x1="155" y1="110" x2="185" y2="115"/></g><ellipse class="limb limb-leg-l" cx="85" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="190" rx="15" ry="10" fill="white" stroke="#000" stroke-width="2.5"/></svg>`;
+    // --- TEMEL SİSTEM ---
+    function showMessage(txt) {
+        const m = document.createElement('div');
+        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[2000] border-2 border-pink-100 text-xs text-center animate-bounce";
+        m.innerText = txt; document.body.appendChild(m);
+        setTimeout(() => m.remove(), 2500);
     }
 
-    const charData = {
-        kitty: getKittySvg(),
-        stitch: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="100" cy="165" rx="35" ry="35" fill="#93c5fd" opacity="0.7"/><path class="limb limb-arm-l" d="M55 145 Q30 145 35 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/><path class="limb limb-arm-r" d="M145 145 Q170 145 165 175" fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/><ellipse class="limb limb-leg-l" cx="70" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="130" cy="195" rx="20" ry="12" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(15, 70, 95)"/><ellipse cx="130" cy="95" rx="25" ry="32" fill="#93c5fd" opacity="0.4" transform="rotate(-15, 130, 95)"/><ellipse cx="72" cy="100" rx="15" ry="22" fill="black"/><ellipse cx="128" cy="100" rx="15" ry="22" fill="black"/><circle cx="76" cy="90" r="5" fill="white" opacity="0.9"/><circle cx="124" cy="90" r="5" fill="white" opacity="0.9"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/></svg>`,
-        chick: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><path class="limb limb-arm-l" d="M35 110 Q10 90 35 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/><path class="limb limb-arm-r" d="M165 110 Q195 90 165 70 Z" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2.5"/><ellipse class="limb limb-leg-l" cx="85" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/><ellipse class="limb limb-leg-r" cx="115" cy="195" rx="10" ry="15" fill="#fb923c" stroke="#c2410c" stroke-width="2"/></svg>`,
-        alien: `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><path d="M75 40 L65 15 L90 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><path d="M125 40 L135 15 L110 38 Z" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="3"/><rect class="limb limb-arm-l" x="52" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-arm-r" x="138" y="155" width="10" height="25" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-leg-l" x="82" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><rect class="limb limb-leg-r" x="106" y="195" width="12" height="15" rx="5" fill="#4ade80" stroke="#166534" stroke-width="2"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="4"/><g><path d="M60 80 Q75 60 75 90 Q75 120 60 100 Q45 120 45 90 Q45 60 60 80" fill="black" stroke="#000" stroke-width="1"/><path d="M140 80 Q155 60 155 90 Q155 120 140 100 Q125 120 125 90 Q125 60 140 80" fill="black" stroke="#000" stroke-width="1"/></g><circle cx="100" cy="135" r="5" fill="black"/></svg>`
+    const calculateDays = () => Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
+
+    const normalFoods = ['🍕', '🧁', '🍝'];
+    const spaceFoods = ['☄️', '💎', '💍'];
+    let currentFoodIdx = 0;
+
+    const quotes = {
+        kitty: ["anne ödevim birikti yaaa", "babamı özledimmm", "hava çok güzel anneee", "babamı çok seviyom"],
+        alien: ["hayirsiz evlat miyim", "cok tatlisin bugün annee", "uzayda hava nasil", "annemmm canım annem"],
+        stitch: ["karnım acıktı", "anne biraz dışarı çıkalımmm", "ohana demek aile demek", "takla atayım mı"],
+        chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"]
     };
 
     const roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg?semt=ais_hybrid&w=740&q=80", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg?semt=ais_hybrid&w=740&q=80", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu-2d-cizgi-film-manzarasi-kirsal-kesim-gayrimenkul-banliyo-yasam-tarzi_151150-2631.jpg?w=360", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480" },
-        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg?1632078565", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg?ip=x480" },
-        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg?w=360", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg?itok=9KrqDtdN", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png/revision/latest?cb=20150410153258" }
-    };
-
-    const themes = {
-        kitty: { bg: "#ffc2d1", heart: "#ff5c8d" },
-        stitch: { bg: "#0f172a", heart: "#2563eb" },
-        chick: { bg: "#f472b6", heart: "#db2777" },
-        alien: { bg: "#166534", heart: "#4ade80" }
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
+        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
     };
 
     let state = {
-        selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, hygiene: 100, energy: 70 },
-        isSleeping: false, atSchool: false, schoolTimeLeft: 0, lastCleaned: Date.now(), isDirty: false,
-        letterUnlocked: false, kittyOutfit: 'default', isClosetZoneActive: false,
-        cherries: 0, isChickUnlocked: false, isHunting: false, huntTimeLeft: 0,
-        // Vişne Dalları State'i
-        gardenCherries: [true, true, true],
-        lastCherryRegen: Date.now()
+        selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, energy: 70, hygiene: 100 },
+        isSleeping: false, outfit: 'default', cherries: 100, 
+        huntActive: false, huntTimer: 60, huntSpeed: 1,
+        isDarkMode: false, inventory: [], lastSpeech: 0
     };
 
-    function calculateDays() {
-        const start = new Date("2026-02-02");
-        const diff = new Date() - start;
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
+    const itemSvgs = {
+        hat: `<svg viewBox="0 0 100 100"><path d="M20 70 Q 50 60 80 70 L 85 80 Q 50 70 15 80 Z" fill="#333" stroke="#000"/><path d="M35 70 L 35 40 Q 50 30 65 40 L 65 70" fill="#333" stroke="#000"/><rect x="35" y="60" width="30" height="5" fill="#ff85a2"/><circle cx="50" cy="62" r="3" fill="#ffb3c6"/></svg>`,
+        tie: `<svg viewBox="0 0 100 100"><path d="M50 40 L 42 48 L 50 85 L 58 48 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><circle cx="50" cy="42" r="7" fill="#ff5c8d" stroke="#000"/></svg>`,
+        dress: `<svg viewBox="0 0 100 100"><path d="M35 40 L 65 40 L 80 85 L 20 85 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><path d="M20 85 Q 30 75 40 85 Q 50 75 60 85 Q 70 75 80 85" fill="#ffb3c6" stroke="#000" stroke-width="2"/></svg>`
+    };
+
+    function getLegs(color) {
+        return `<ellipse class="limb limb-leg-l" cx="85" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>`;
     }
 
-    function changeScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen'));
-        document.getElementById(id).classList.remove('hidden-screen');
-        if(id === 'selection-screen') updateLockUI();
+    function getKittySvg() {
+        let acc = "";
+        if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
+        if(state.outfit === 'tie') acc = `<g transform="translate(50, 110) scale(0.6)">${itemSvgs.tie}</g>`;
+        if(state.outfit === 'dress') acc = `<g transform="translate(50, 110) scale(1.1) translate(-50,-50)">${itemSvgs.dress}</g>`;
+        
+        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+            ${getLegs('white')}
+            <rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/>
+            ${acc}
+            <ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
+            <ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
+            <path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/>
+            <path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/>
+            <ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/>
+            <!-- Kurdele Çizimi -->
+            <g transform="translate(160, 55)">
+                <ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
+                <ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
+                <ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
+                <circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/>
+            </g>
+            <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/>
+            <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>
+        </svg>`;
     }
 
-    function updateLockUI() {
-        const lockUI = document.getElementById('chick-lock-ui');
-        const counter = document.getElementById('cherry-needed-text');
-        if(state.isChickUnlocked || state.cherries >= 50) {
-            state.isChickUnlocked = true;
-            lockUI.classList.add('hidden');
-        } else {
-            lockUI.classList.remove('hidden');
-            counter.innerText = `${state.cherries}/50 VİŞNE`;
-        }
+    function getOtherSvg(char) {
+        let color = char === 'stitch' ? '#2563eb' : (char === 'alien' ? '#4ade80' : '#fb923c');
+        let acc = "";
+        if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
+        if(state.outfit === 'tie') acc = `<g transform="translate(50, 115) scale(0.6)">${itemSvgs.tie}</g>`;
+
+        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/><ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>${acc}</svg>`;
+        if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>${acc}</svg>`;
+        if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
     }
+
+    // --- MANTIK ---
+    function changeScreen(id) { 
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen')); 
+        const el = document.getElementById(id); if(el) el.classList.remove('hidden-screen');
+        updateUI();
+    }
+    
+    function toggleDarkMode() { state.isDarkMode = !state.isDarkMode; document.body.classList.toggle('dark-mode', state.isDarkMode); }
 
     function updateSelection(char) {
-        if(char === 'chick' && !state.isChickUnlocked) {
-            showMessage("Civcik kilitli! Uzaylı ile mutfakta vişne topla. 🍒");
-            return;
-        }
+        if(char === 'chick' && state.cherries < 50) { showMessage("Vişne yetmiyor! 🍒"); return; }
         state.selectedChar = char;
-        const theme = themes[char];
-        document.body.style.backgroundColor = theme.bg;
-        const heartPath = document.getElementById('heart-path');
-        if(heartPath) heartPath.setAttribute('fill', theme.heart);
+        const charThemes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1" };
+        document.body.style.backgroundColor = charThemes[char];
         document.querySelectorAll('#char-list button').forEach(b => b.classList.remove('selected'));
-        document.getElementById('opt-' + char).classList.add('selected');
-        document.getElementById('selection-preview').innerHTML = (char === 'kitty') ? getKittySvg(state.kittyOutfit) : charData[char];
+        const btn = document.getElementById('opt-'+char); if(btn) btn.classList.add('selected');
+        const prev = document.getElementById('selection-preview'); if(prev) prev.innerHTML = (char==='kitty') ? getKittySvg() : getOtherSvg(char);
     }
 
-    function openSecretLetter() {
-        if(state.letterUnlocked) { showMessage("Nisan, seni çok seviyorum! ❤️ - Talha"); } 
-        else { document.getElementById('password-modal').classList.remove('hidden'); document.getElementById('password-modal').classList.add('flex'); }
-    }
+    function enterWorld() { changeScreen('world-screen'); goRoom('kitchen'); if(!window.loop) window.loop = setInterval(mainLoop, 1000); makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); }
 
-    function closeModal() { document.getElementById('password-modal').classList.add('hidden'); }
-
-    function checkLetterCode() {
-        if(document.getElementById('secret-input').value === "nisan<3123") {
-            state.letterUnlocked = true; document.getElementById('letter-icon').innerText = "💖 ✉️";
-            showMessage("Şifre Doğru! Mektup Açıldı."); closeModal();
-        } else { showMessage("Yanlış Şifre! Stitch'in bahçesine bak."); }
-    }
-
-    function enterWorldWithLoading() {
-        const overlay = document.getElementById('loading-overlay');
-        const text = document.getElementById('loading-text');
-        const theme = themes[state.selectedChar];
-        overlay.style.backgroundColor = theme.bg;
-        text.style.color = (state.selectedChar === 'stitch' || state.selectedChar === 'alien') ? '#ffffff' : '#ff5c8d';
-        overlay.style.display = 'flex';
-        setTimeout(() => { overlay.style.display = 'none'; enterWorld(); }, 3000);
-    }
-
-    function enterWorld() {
-        changeScreen('world-screen');
-        document.getElementById('char-svg-wrap').innerHTML = (state.selectedChar === 'kitty') ? getKittySvg(state.kittyOutfit) : charData[state.selectedChar];
-        goRoom('kitchen'); startLoop();
-        makeElementDraggable(document.getElementById('char-draggable'), checkCollisions);
-    }
-
-    function startLoop() {
-        setInterval(() => {
-            if (Date.now() - state.lastCleaned > 600000) state.isDirty = true;
-            if (!state.isSleeping && !state.atSchool) {
-                state.stats.hunger = Math.max(0, state.stats.hunger - 0.05);
-                state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.03);
-                state.stats.energy = Math.max(0, state.stats.energy - 0.02);
-                updateUI();
-            }
-            if (state.atSchool) handleSchoolTimer();
-            if (state.isHunting) handleHuntTimer();
-
-            // Vişne Yenilenme Kontrolü (5 dakika = 300.000 ms)
-            if (Date.now() - state.lastCherryRegen > 300000) {
-                state.gardenCherries = [true, true, true];
-                state.lastCherryRegen = Date.now();
-                if(state.room === 'garden') goRoom('garden');
-            }
-
-            if(!state.isSleeping && !state.atSchool && !state.isHunting && Math.random() > 0.96) {
-                if(state.selectedChar === 'chick') showSpeech(nisanQuotes);
-                if(state.selectedChar === 'kitty') showSpeech(kittyQuotes);
-            }
-        }, 1000);
-    }
-
-    function handleHuntTimer() {
-        if(state.huntTimeLeft > 0) {
-            state.huntTimeLeft--;
-            if(state.room === 'kitchen') updateHuntButtonUI();
-        } else {
-            state.isHunting = false;
-            const amount = Math.floor(Math.random() * 16) + 15;
-            state.cherries += amount;
-            showMessage(`Uzaylı döndü! ${amount} vişne topladı! 🍒`);
-            checkChickUnlock();
-            updateUI();
-            if(state.room === 'kitchen') goRoom('kitchen');
+    function mainLoop() {
+        if(!state.isSleeping && !state.huntActive) { 
+            state.stats.hunger = Math.max(0, state.stats.hunger - 0.05); 
+            state.stats.energy = Math.max(0, state.stats.energy - 0.03); 
+            state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.04);
         }
-    }
-
-    function checkChickUnlock() {
-        if(state.cherries >= 50 && !state.isChickUnlocked) {
-            state.isChickUnlocked = true;
-            showMessage("TEBRİKLER! Civcik'in kilidi açıldı! 🐣✨");
+        if(state.isSleeping) state.stats.energy = Math.min(100, state.stats.energy + 1.8);
+        
+        if(state.huntActive) {
+            state.huntTimer = Math.max(0, state.huntTimer - state.huntSpeed);
+            if(state.huntTimer <= 0) { state.huntActive = false; state.cherries += 25; showMessage("Av Tamam! +25 🍒"); goRoom('kitchen'); }
         }
-    }
 
-    function startVişneAvı() {
-        if(state.isHunting) return;
-        state.isHunting = true;
-        state.huntTimeLeft = 60;
+        state.lastSpeech++;
+        if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
+            state.lastSpeech = 0;
+            const bubble = document.getElementById('speech-bubble');
+            let text = "";
+            if(state.stats.energy < 30) text = "anne uykum geldi";
+            else if(state.stats.hunger < 30) text = "anne çok açımmm";
+            else if(state.stats.hygiene < 30) text = "anne duş almam gerek";
+            else text = quotes[state.selectedChar][Math.floor(Math.random()*quotes[state.selectedChar].length)];
+            
+            bubble.innerText = text; bubble.style.opacity = "1";
+            setTimeout(() => bubble.style.opacity = "0", 3500);
+        }
         updateUI();
-        goRoom('kitchen');
-    }
-
-    function updateHuntButtonUI() {
-        const btn = document.getElementById('hunt-btn-text');
-        if(btn) btn.innerText = `AVDA... (${state.huntTimeLeft}s)`;
-    }
-
-    function showSpeech(quotes) {
-        const bubble = document.getElementById('speech-bubble');
-        bubble.innerText = quotes[Math.floor(Math.random() * quotes.length)];
-        bubble.style.display = 'block';
-        setTimeout(() => { if(!state.isHunting) bubble.style.display = 'none'; }, 4000);
     }
 
     function updateUI() {
         document.getElementById('bar-hunger').style.width = state.stats.hunger + '%';
         document.getElementById('bar-hygiene').style.width = state.stats.hygiene + '%';
         document.getElementById('bar-energy').style.width = state.stats.energy + '%';
-        document.getElementById('cherry-count-hud').innerText = state.cherries;
-        const char = document.getElementById('char-container');
-        const bubble = document.getElementById('speech-bubble');
-        const night = document.getElementById('night-vibe');
+        document.getElementById('cherry-count-hud').innerText = Math.floor(state.cherries);
         
-        if (state.selectedChar === 'alien' && state.isHunting) {
-            char.style.opacity = "0.3";
-            bubble.innerText = "Ava gittim döncem vişne topluyom";
-            bubble.style.display = "block";
-        } else {
-            char.style.opacity = "1";
-            if (!state.isSleeping && bubble.innerText === "Ava gittim döncem vişne topluyom") bubble.style.display = "none";
+        const wrap = document.getElementById('char-svg-wrap');
+        const bubble = document.getElementById('speech-bubble');
+        const zzz = document.getElementById('zzz-emoji');
+        const cont = document.getElementById('char-container');
+        
+        if(wrap) wrap.innerHTML = (state.selectedChar === 'kitty') ? getKittySvg(state.outfit) : getOtherSvg(state.selectedChar);
+        if(zzz) zzz.style.display = state.isSleeping ? "block" : "none";
+        
+        if(cont) {
+            cont.classList.toggle('is-dirty', state.stats.hygiene < 50);
+            if(state.selectedChar === 'alien' && state.huntActive) {
+                cont.style.opacity = "0.4"; bubble.style.opacity = "1"; 
+                bubble.innerText = `vişne topluyorum döncem yaa (${Math.ceil(state.huntTimer)}s)`;
+            } else {
+                cont.style.opacity = "1";
+                // Eğer avda değilsek ve konuşma balonunun içeriği av yazısıysa temizleyelim
+                if(bubble.innerText.includes("vişne topluyorum")) bubble.style.opacity = "0";
+            }
         }
-
-        if (state.isSleeping) { char.classList.add('sleeping-state'); night.classList.add('night-active'); } 
-        else { char.classList.remove('sleeping-state'); night.classList.remove('night-active'); 
-            if (state.isDirty || state.stats.hygiene < 30) char.classList.add('dirty-effect');
-            else char.classList.remove('dirty-effect');
-        }
+        document.getElementById('night-overlay').style.opacity = state.isSleeping ? "0.8" : "0";
+        const lock = document.getElementById('chick-lock-ui');
+        if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     }
 
-    function goRoom(roomName) {
-        if (state.atSchool && roomName !== 'school') { showMessage("Okuldan kaçamazsın!"); return; }
-        state.room = roomName;
-        const charConfig = roomConfigs[state.selectedChar] || roomConfigs['kitty'];
-        const bgUrl = charConfig[roomName] || roomConfigs['kitty'][roomName];
-        document.getElementById('room-bg-layer').style.backgroundImage = `url('${bgUrl}')`;
-        const layer = document.getElementById('interaction-layer');
-        const bed = document.getElementById('bed-target');
-        const closet = document.getElementById('closet-target');
-        const charWrap = document.getElementById('char-draggable');
-        const hint = document.getElementById('secret-hint');
-        layer.innerHTML = ''; bed.classList.add('hidden'); closet.classList.add('hidden'); hint.classList.add('hidden');
-        if(roomName === 'garden' && state.selectedChar === 'stitch') hint.classList.remove('hidden');
-        if(roomName === 'school') { charWrap.style.left = "50%"; charWrap.style.bottom = "30%"; charWrap.style.top = "auto"; charWrap.style.transform = "translateX(-50%)"; }
+    function goRoom(r) {
+        state.room = r;
+        if(r !== 'bedroom') state.isSleeping = false;
         
-        if (roomName === 'kitchen') {
-            const list = state.selectedChar === 'alien' ? alienFoods : foods;
-            layer.innerHTML = `<div id="food-item" class="draggable item-icon" style="right: 10%; bottom: 30%; top: auto; pointer-events: auto;">${list[currentFoodIdx]}</div>`;
+        const config = roomConfigs[state.selectedChar] || roomConfigs['kitty'];
+        document.getElementById('room-bg-layer').style.backgroundImage = `url('${config[r]}')`;
+        const interact = document.getElementById('interaction-layer'); interact.innerHTML = '';
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('nav-btn-active', btn.id === 'nav-'+r));
+        document.getElementById('closet-target').classList.toggle('hidden', r !== 'bedroom');
+
+        if(r === 'kitchen') {
+            let food = state.selectedChar === 'alien' ? spaceFoods[currentFoodIdx % spaceFoods.length] : normalFoods[currentFoodIdx % normalFoods.length];
+            interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 70%; top: 60%; pointer-events: auto;">${food}</div>`;
             if(state.selectedChar === 'alien') {
-                const huntContent = state.isHunting ? `AVDA... (${state.huntTimeLeft}s)` : "VİŞNE AVINA GÖNDER 🍒";
-                layer.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2" style="pointer-events: auto;"><button id="hunt-btn" onclick="startVişneAvı()" class="soft-btn text-xs bg-red-500 border-red-200"><span id="hunt-btn-text">${huntContent}</span></button></div>`;
+                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="startHunt()" class="soft-btn">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button onclick="state.huntSpeed=2" class="bg-yellow-500 text-white px-3 py-2 rounded-xl text-[10px] font-black">2X</button>` : ''}</div>`;
             }
             makeElementDraggable(document.getElementById('food-item'), checkCollisions);
         }
-        if (roomName === 'bathroom') { layer.innerHTML = `<div id="soap-item" class="draggable item-icon" style="right: 10%; bottom: 30%; top: auto; pointer-events: auto;">🧼</div>`; makeElementDraggable(document.getElementById('soap-item'), checkCollisions); }
-        if (roomName === 'bedroom') { bed.classList.remove('hidden'); if(state.selectedChar === 'kitty') closet.classList.remove('hidden'); }
-        
-        if (roomName === 'garden') {
-            // Vişne Dalları
-            let cherryHtml = '<div class="absolute left-6 top-1/4 flex flex-col gap-10" style="pointer-events: auto;">';
-            state.gardenCherries.forEach((available, idx) => {
-                if(available) {
-                    cherryHtml += `<div onclick="collectGardenCherry(${idx})" class="garden-cherry text-4xl animate-bounce">🍒</div>`;
-                }
-            });
-            cherryHtml += '</div>';
-            layer.innerHTML += cherryHtml;
-
-            const gardenText = (state.selectedChar === 'alien') ? 'UZAYLI GÜCÜ! 🚀' : 'KOŞTUR! 🏃‍♂️';
-            const gardenAction = (state.selectedChar === 'alien') ? 'funWithRegularShow()' : 'runInGarden()';
-            layer.innerHTML += `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="${gardenAction}" class="soft-btn text-xs md:text-lg bg-green-500 border-green-200 shadow-md">${gardenText}</button></div>`;
+        if(r === 'bathroom') {
+            interact.innerHTML = `<div id="soap-item" class="draggable item-icon" style="left: 70%; top: 60%; pointer-events: auto;">🧼</div>`;
+            makeElementDraggable(document.getElementById('soap-item'), checkCollisions);
         }
-        
-        if (roomName === 'school' && !state.atSchool) layer.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 soft-panel p-4 md:p-10 text-center" style="pointer-events: auto;"><button onclick="startSchool()" class="soft-btn">DERSE GİR</button></div>`;
+        if(r === 'bedroom') {
+            if(state.selectedChar === 'kitty') {
+                interact.innerHTML += `<div class="poster-frame" style="right: 15%; top: 15%; pointer-events: none;"><img src="https://cdn-images.dzcdn.net/images/artist/c926bdf25de4c5051216bd8bf3d10758/1900x1900-000000-80-0-0.jpg"></div>`;
+            }
+        }
+        if(r === 'garden') {
+            interact.innerHTML = `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="runInGarden()" class="soft-btn">KOŞTUR!</button></div>`;
+            for(let i=0; i<3; i++) { interact.innerHTML += `<div onclick="collectCherry(this)" class="text-4xl animate-bounce cursor-pointer absolute" style="left: ${20+i*25}%; top: 30%; pointer-events: auto;">🍒</div>`; }
+        }
         updateUI();
     }
 
-    function collectGardenCherry(idx) {
-        if(state.gardenCherries[idx]) {
-            state.gardenCherries[idx] = false;
-            state.cherries += 5;
-            showMessage("+5 Vişne Topladın! 🍒");
-            checkChickUnlock();
-            updateUI();
-            goRoom('garden');
+    function buyItem(item, price) {
+        if(state.cherries < price) { showMessage("Vişnen yetmiyor! 🍒"); return; }
+        if(state.inventory.includes(item)) { showMessage("Zaten sende var! ✨"); return; }
+        state.cherries -= price; state.inventory.push(item); showMessage("Hayırlı olsun! 🛍️"); openShop();
+    }
+
+    function openShop() { 
+        const cont = document.getElementById('shop-items-container');
+        cont.innerHTML = `
+            <div class="shop-item-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="item-svg-box">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Fiyonk Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="buyItem('hat', 150)" class="soft-btn scale-75">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-item-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="item-svg-box">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Pembe Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="buyItem('tie', 20)" class="soft-btn scale-75">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-item-box opacity-60"><span class="bg-purple-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Özel</span><div class="item-svg-box animate-pulse"><svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" fill="#a855f7" rx="5"/><rect x="25" y="55" width="50" height="10" fill="#facc15"/></svg></div><p class="text-[9px] font-bold">Sürpriz Kutu</p><p class="text-red-500 font-black text-xs">50 🍒</p><button class="soft-btn scale-75 opacity-50 cursor-not-allowed">KİLİTLİ</button></div>
+        `;
+        document.getElementById('shop-modal').classList.remove('hidden'); document.getElementById('shop-modal').classList.add('flex'); 
+    }
+    function closeShop() { document.getElementById('shop-modal').classList.add('hidden'); }
+    function openCloset() { 
+        const cont = document.getElementById('closet-items');
+        cont.innerHTML = `<div onclick="state.outfit='default'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase">Orijinal</span></div>`;
+        if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="state.outfit='dress'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase">Fırfırlı</span></div>`;
+        state.inventory.forEach(item => { cont.innerHTML += `<div onclick="state.outfit='${item}'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase">${item}</span></div>`; });
+        document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); 
+    }
+    function closeCloset() { document.getElementById('closet-modal').classList.add('hidden'); }
+
+    function startHunt() { if(state.huntActive) return; state.huntActive = true; state.huntTimer = 60; state.huntSpeed = 1; goRoom('kitchen'); }
+    function collectCherry(el) { el.remove(); state.cherries += 10; showMessage("+10 Vişne!"); }
+    function runInGarden() {
+        const charD = document.getElementById('char-draggable'); if(state.selectedChar==='stitch') document.getElementById('char-container').classList.add('is-somersaulting');
+        state.stats.energy -= 10; state.stats.hunger -= 5; state.stats.hygiene -= 15;
+        if(charD) {
+            charD.style.transition = "left 0.8s"; charD.style.left = "80%"; setTimeout(() => { charD.style.left = "10%"; setTimeout(() => { charD.style.left = "45%"; charD.style.transition = "none"; document.getElementById('char-container').classList.remove('is-somersaulting'); }, 800); }, 800);
         }
+        updateUI();
     }
 
     function makeElementDraggable(el, onDrag) {
-        if(!el) return;
-        let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-        el.onmousedown = start; el.ontouchstart = start;
-        function start(e) {
-            if(state.atSchool && el.id === 'char-draggable') return;
-            p3 = e.clientX || e.touches[0].clientX; p4 = e.clientY || e.touches[0].clientY;
-            if (el.id === 'char-draggable') el.classList.add('is-dragging');
-            document.onmouseup = stop; document.ontouchend = stop;
-            document.onmousemove = drag; document.ontouchmove = drag;
-        }
-        function drag(e) {
-            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            p1 = p3 - cx; p2 = p4 - cy; p3 = cx; p4 = cy;
-            el.style.top = (el.offsetTop - p2) + "px"; el.style.left = (el.offsetLeft - p1) + "px";
-            if (onDrag) onDrag(el);
-        }
-        function stop() { if (el.id === 'char-draggable') el.classList.remove('is-dragging'); document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; }
+        if(!el) return; let p1,p2,p3,p4;
+        el.onmousedown = el.ontouchstart = (e) => {
+            const ev = e.touches ? e.touches[0] : e; p3=ev.clientX; p4=ev.clientY;
+            el.classList.add('is-dragging');
+            document.onmouseup = document.ontouchend = () => {
+                el.classList.remove('is-dragging'); document.onmousemove = document.ontouchmove = null;
+                if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "70%"; el.style.top = "60%"; }
+            };
+            document.onmousemove = document.ontouchmove = (e2) => {
+                const ev2 = e2.touches ? e2.touches[0] : e2; p1=p3-ev2.clientX; p2=p4-ev2.clientY; p3=ev2.clientX; p4=ev2.clientY;
+                el.style.top = (el.offsetTop-p2)+"px"; el.style.left = (el.offsetLeft-p1)+"px"; if(onDrag) onDrag(el);
+            };
+        };
     }
 
-    function checkCollisions(draggedEl) {
-        const char = document.getElementById('char-draggable');
-        const rect1 = draggedEl.getBoundingClientRect();
-        const rectChar = char.getBoundingClientRect();
-        const isOver = !(rect1.right < rectChar.left || rect1.left > rectChar.right || rect1.bottom < rectChar.top || rect1.top > rectChar.bottom);
-        if (draggedEl.id === 'food-item' && isOver) {
-            if (state.stats.hunger < 100) {
-                state.stats.hunger = Math.min(100, state.stats.hunger + 3); updateUI();
-                if(state.stats.hunger > 99 || Math.random() > 0.94) {
-                    const list = state.selectedChar === 'alien' ? alienFoods : foods;
-                    currentFoodIdx = (currentFoodIdx + 1) % list.length;
-                    draggedEl.innerText = list[currentFoodIdx];
-                    draggedEl.style.right = "10%"; draggedEl.style.bottom = "30%"; draggedEl.style.top = "auto"; draggedEl.style.left = "auto";
-                    showMessage("Mmm, harika! 😋");
-                }
-            }
+    function checkCollisions(el) {
+        const char = document.getElementById('char-draggable'); const r1=el.getBoundingClientRect(), rc=char.getBoundingClientRect();
+        const over = !(r1.right<rc.left || r1.left>rc.right || r1.bottom<rc.top || r1.top>rc.bottom);
+        if(over) {
+            if(el.id==='food-item') { state.stats.hunger = Math.min(100, state.stats.hunger+20); currentFoodIdx++; goRoom('kitchen'); showMessage("Ham hum! 😋"); }
+            if(el.id==='soap-item') { state.stats.hygiene = Math.min(100, state.stats.hygiene+10); updateUI(); }
         }
-        if (draggedEl.id === 'soap-item' && isOver) {
-            if (state.stats.hygiene < 100 || state.isDirty) {
-                state.stats.hygiene = Math.min(100, state.stats.hygiene + 2.5);
-                state.isDirty = false; state.lastCleaned = Date.now(); updateUI(); createBubble(rect1.left + 30, rect1.top + 30);
-            }
-        }
-        if (draggedEl.id === 'char-draggable' && state.room === 'bedroom') {
-            const bed = document.getElementById('bed-target').getBoundingClientRect();
-            const closet = document.getElementById('closet-target').getBoundingClientRect();
-            const isOverBed = !(rectChar.right < bed.left || rectChar.left > bed.right || rectChar.bottom < bed.top || rectChar.top > bed.bottom);
-            const isOverCloset = !(rectChar.right < closet.left || rectChar.left > closet.right || rectChar.bottom < closet.top || rectChar.top > closet.bottom);
-            if (isOverBed && !state.isSleeping) { state.isSleeping = true; state.stats.energy = 100; updateUI(); showMessage("Tatlı rüyalar... 💤"); } 
-            else if (!isOverBed && state.isSleeping) { state.isSleeping = false; updateUI(); showMessage("Yeni bir gün! ☀️"); }
-            if (isOverCloset && state.selectedChar === 'kitty' && !state.isClosetZoneActive) { state.isClosetZoneActive = true; document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); } 
-            else if(!isOverCloset) { state.isClosetZoneActive = false; }
+        if(state.room === 'bedroom') {
+            const bedArea = document.getElementById('bed-area-trigger').getBoundingClientRect();
+            const wasSleeping = state.isSleeping;
+            state.isSleeping = !(rc.right < bedArea.left || rc.left > bedArea.right || rc.bottom < bedArea.top || rc.top > bedArea.bottom);
+            if(state.isSleeping && !wasSleeping) showMessage("İyi geceler! 🌙");
+            if(!state.isSleeping && wasSleeping) showMessage("Günaydın! ☀️");
+            updateUI();
         }
     }
 
-    function changeOutfit(o) { state.kittyOutfit = o; document.getElementById('char-svg-wrap').innerHTML = getKittySvg(o); showMessage("Yeni kıyafet harika oldu! ✨"); }
-    function closeCloset() { document.getElementById('closet-modal').classList.add('hidden'); document.getElementById('closet-modal').classList.remove('flex'); }
-    function runInGarden() {
-        const char = document.getElementById('char-draggable'); char.style.transition = "all 0.5s ease-in-out";
-        let count = 0;
-        let runInterval = setInterval(() => { char.style.left = (30 + Math.random() * 40) + "%"; char.style.bottom = (100 + Math.random() * 50) + "px"; count++;
-            if(count > 8) { clearInterval(runInterval); char.style.transition = "none"; state.stats.energy = Math.max(0, state.stats.energy - 20); state.stats.hunger = Math.max(0, state.stats.hunger - 15); state.stats.hygiene = Math.max(0, state.stats.hygiene - 25); state.isDirty = true; updateUI(); showMessage("Çok yoruldum! 🥵"); }
-        }, 300);
-    }
-
-    function funWithRegularShow() {
-        const mainArea = document.getElementById('world-screen'); mainArea.classList.add('shaking'); showMessage("BOOOOM! UZAY SALLANIYOR! 🚀🌌");
-        setTimeout(() => { mainArea.classList.remove('shaking'); state.isDirty = true; updateUI(); showMessage("Heryer toz oldu ama değdi! ✨"); }, 1500);
-    }
-
-    function createBubble(x, y) {
-        const b = document.createElement('div'); b.className = 'bubble'; b.style.left = x + 'px'; b.style.top = y + 'px';
-        b.style.width = b.style.height = (15 + Math.random() * 15) + 'px'; document.body.appendChild(b);
-        setTimeout(() => b.remove(), 1000);
-    }
-
-    function startSchool() { state.atSchool = true; state.schoolTimeLeft = 10; goRoom('school'); }
-    function handleSchoolTimer() { if (state.schoolTimeLeft > 0) state.schoolTimeLeft--; else { state.atSchool = false; updateUI(); goRoom('school'); } }
-    function showMessage(txt) {
-        const m = document.createElement('div'); m.className = "fixed top-24 md:top-32 left-1/2 -translate-x-1/2 bg-white text-[#ff5c8d] px-6 md:px-10 py-2 md:py-4 rounded-full font-black shadow-2xl z-[300] animate-bounce border-2 md:border-4 border-[#ffc2d1] text-xs md:text-base text-center";
-        m.innerText = txt; document.body.appendChild(m); setTimeout(() => m.remove(), 2500);
-    }
-
-    window.onload = () => { document.getElementById('day-counter').innerText = calculateDays(); updateSelection('kitty'); updateLockUI(); };
+    window.onload = () => {
+        document.getElementById('day-counter').innerText = calculateDays();
+        let prg = 0; let texts = ["hello kitty oluşturuluyor...", "stitch banyosundan çıkıyor..", "prospectus uzaydan dönüyor..", "civcik uyanıyor.."];
+        const interval = setInterval(() => {
+            prg += 1; document.getElementById('loading-progress').style.width = prg + "%";
+            if(prg % 25 === 0) document.getElementById('loading-text').innerText = texts[Math.floor(prg/26)];
+            if(prg >= 100) { clearInterval(interval); document.getElementById('initial-loading').style.display = 'none'; document.getElementById('welcome-screen').classList.remove('hidden-screen'); updateSelection('kitty'); }
+        }, 30);
+    };
 </script>
 </body>
 </html>
