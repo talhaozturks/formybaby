@@ -64,11 +64,12 @@
         .char-container { width: 140px; height: 140px; position: relative; z-index: 50; }
         @media (min-width: 768px) { .char-container { width: 170px; height: 170px; } }
 
-        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 0.8s; z-index: 200; }
+        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 1s; z-index: 200; }
 
+        /* Butonların yerleşimi düzeltildi */
         .top-btn { position: fixed; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); color: var(--text-color); transition: 0.3s; }
-        .dark-toggle { top: 20px; right: 20px; }
-        .fullscreen-toggle { top: 20px; right: 75px; }
+        .dark-toggle { bottom: 110px; right: 20px; } /* Sağ Üstten Sağ Alta Taşındı */
+        .fullscreen-toggle { bottom: 110px; right: 75px; } /* Sağ Üstten Sağ Alta Taşındı */
         @media (min-width: 1024px) { .fullscreen-toggle { display: none; } }
 
         .soft-btn { background: linear-gradient(135deg, #ff85a2, #ff5c8d); color: white !important; border: 3px solid white; border-radius: 30px; font-weight: 800; padding: 10px 20px; box-shadow: 0 6px 15px rgba(255, 92, 141, 0.2); transition: 0.3s; display: inline-block; text-align: center; cursor: pointer; }
@@ -119,9 +120,10 @@
 
         .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 10px; z-index: 20; }
         
-        .modal-body { max-height: 70vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
+        /* Modal Mobil Düzenlemeler */
+        .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .shop-box { width: 120px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
+        .shop-box { width: 130px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
 
         .login-input { width: 100%; padding: 14px; border: 3px solid #ffc2d1; border-radius: 18px; margin-bottom: 12px; text-align: center; font-weight: 800; font-size: 16px; outline: none; background: var(--hud-bg); color: var(--text-color); }
         @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -145,7 +147,7 @@
 <!-- LOGIN -->
 <div id="login-screen" class="screen items-center justify-center p-4 hidden-screen">
     <div class="soft-panel p-8 w-full max-w-sm text-center">
-        <h2 class="text-2xl font-black text-[#ff5c8d] mb-6 uppercase">Giriş Yap</h2>
+        <h2 class="text-2xl font-black text-[#ff5c8d] mb-6 uppercase">Hoş Geldin Nisan</h2>
         <input type="text" id="login-username" class="login-input" placeholder="Kullanıcı Adı">
         <input type="password" id="login-password" class="login-input" placeholder="Şifre">
         <button onclick="window.handleLogin()" class="soft-btn w-full py-4 text-sm uppercase mb-4 shadow-lg">HESABA GİR</button>
@@ -269,13 +271,9 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Vercel Fallback Config
+    // Vercel / GitHub Fallback
     let fbConfig = {};
-    try {
-        fbConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-    } catch (e) {
-        console.warn("Firebase config not found. Running in local mode.");
-    }
+    try { fbConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}'); } catch (e) {}
     
     const app = Object.keys(fbConfig).length > 0 ? initializeApp(fbConfig) : null;
     const auth = app ? getAuth(app) : null;
@@ -284,8 +282,9 @@
 
     let user = null;
     let isGuest = true;
+    let currentUserId = "anonymous";
 
-    // --- SYSTEM CORE ---
+    // --- TEMEL SİSTEM (EN ÜSTTE) ---
     window.showMessage = (txt) => {
         const m = document.createElement('div');
         m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
@@ -315,21 +314,13 @@
         chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"]
     };
 
-    const roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
-        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
-    };
-
     const itemSvgs = {
         hat: `<svg viewBox="0 0 100 100"><path d="M20 70 Q 50 60 80 70 L 85 80 Q 50 70 15 80 Z" fill="#333" stroke="#000"/><path d="M35 70 L 35 40 Q 50 30 65 40 L 65 70" fill="#333" stroke="#000"/><rect x="35" y="60" width="30" height="5" fill="#ff85a2"/><circle cx="50" cy="62" r="3" fill="#ffb3c6"/></svg>`,
         tie: `<svg viewBox="0 0 100 100"><path d="M50 40 L 42 48 L 50 85 L 58 48 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><circle cx="50" cy="42" r="7" fill="#ff5c8d" stroke="#000"/></svg>`,
         dress: `<svg viewBox="0 0 100 100">
-            <path d="M32 45 L 68 45 L 75 75 Q 50 70 25 75 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1"/>
-            <path d="M25 75 Q 35 70 45 75 Q 55 70 65 75 Q 75 70 85 75 L 92 90 Q 50 82 8 90 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1"/>
-            <path d="M8 90 Q 30 84 50 90 Q 70 84 92 90 L 98 100 Q 50 92 2 100 Z" fill="#ffc2d1" stroke="#4a1d2e" stroke-width="1"/>
-            <circle cx="50" cy="68" r="4" fill="#ef4444" stroke="#4a1d2e"/>
+            <path d="M30 45 Q 50 40 70 45 L 78 80 Q 50 72 22 80 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.2"/>
+            <path d="M22 80 Q 35 75 45 80 Q 55 75 65 80 Q 75 75 88 80 L 92 98 Q 50 90 8 98 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.2"/>
+            <circle cx="50" cy="65" r="4" fill="#ef4444" stroke="#4a1d2e"/>
         </svg>`
     };
 
@@ -342,7 +333,7 @@
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 110) scale(0.6)">${itemSvgs.tie}</g>`;
-        if(state.outfit === 'dress') acc = `<g transform="translate(50, 142) scale(0.95) translate(-50,-50)">${itemSvgs.dress}</g>`;
+        if(state.outfit === 'dress') acc = `<g transform="translate(50, 145) scale(0.9) translate(-50,-50)">${itemSvgs.dress}</g>`;
         return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs('white')}<rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/><path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/><ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>${acc}</svg>`;
     };
 
@@ -356,11 +347,11 @@
         if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
     };
 
-    // --- DATA ---
+    // --- DATA SAVING (FIXED FOR PERSISTENCE) ---
     window.saveProgress = async () => {
-        if (!auth || !user || isGuest) return;
+        if (!db || isGuest) return;
         try {
-            const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
+            const userRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'progress', 'data');
             await setDoc(userRef, {
                 cherries: state.cherries,
                 inventory: state.inventory,
@@ -371,9 +362,9 @@
     };
 
     async function loadProgress() {
-        if (!auth || !user || isGuest) return;
+        if (!db || isGuest) return;
         try {
-            const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
+            const userRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'progress', 'data');
             const snap = await getDoc(userRef);
             if (snap.exists()) {
                 const data = snap.data();
@@ -392,6 +383,7 @@
         const p = document.getElementById('login-password').value;
         if (u === 'nisan' && p === 'talha<3') {
             isGuest = false;
+            currentUserId = "nisan_user"; // Sabit ID ile kalıcı kayıt
             if (auth) await signInAnonymously(auth);
             window.changeScreen('welcome-screen');
         } else { showMessage("Hatalı Giriş!"); }
@@ -400,7 +392,7 @@
     window.handleGuestLogin = async () => {
         isGuest = true;
         if (auth) await signInAnonymously(auth);
-        showMessage("Misafir Girdin!");
+        showMessage("Misafir Girdin, Kaydedilmez!");
         window.changeScreen('welcome-screen');
     };
 
@@ -493,9 +485,9 @@
     
     window.openCloset = () => { 
         const cont = document.getElementById('closet-items');
-        cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
-        if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="window.state.outfit='dress'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase text-gray-800">Fırfırlı</span></div>`;
-        state.inventory.forEach(item => { cont.innerHTML += `<div onclick="window.state.outfit='${item}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase text-gray-800">${item}</span></div>`; });
+        cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
+        if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="window.state.outfit='dress'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase text-gray-800">Fırfırlı</span></div>`;
+        state.inventory.forEach(item => { cont.innerHTML += `<div onclick="window.state.outfit='${item}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase text-gray-800">${item}</span></div>`; });
         document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); 
     };
     window.closeCloset = () => { document.getElementById('closet-modal').classList.add('hidden'); };
@@ -515,7 +507,7 @@
         state.cherries -= price; state.inventory.push(item); window.saveProgress(); showMessage("Hayırlı olsun!"); window.openShop();
     };
 
-    // --- LOOP ---
+    // --- GAME LOOP ---
     function mainLoop() {
         if(!state.isSleeping && !state.huntActive && !state.schoolActive) { 
             state.stats.hunger = Math.max(0, state.stats.hunger - 0.05); 
@@ -531,6 +523,7 @@
             state.schoolTimer = Math.max(0, state.schoolTimer - state.schoolSpeed);
             if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
+        // Speech logic
         state.lastSpeech++;
         if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
             state.lastSpeech = 0;
@@ -568,33 +561,41 @@
         if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     };
 
-    // --- DRAG SYSTEM ---
+    // --- MOBILE DRAG SYSTEM ---
     function makeElementDraggable(el, onDrag) {
         if(!el) return;
         let startX, startY;
+        
         const dragStart = (e) => {
             const ev = e.touches ? e.touches[0] : e;
             startX = ev.clientX - el.offsetLeft;
             startY = ev.clientY - el.offsetTop;
             el.classList.add('is-dragging');
+            
             const moveEvent = e.touches ? 'touchmove' : 'mousemove';
             const endEvent = e.touches ? 'touchend' : 'mouseup';
+            
             const dragging = (me) => {
                 if (me.cancelable) me.preventDefault();
                 const mev = me.touches ? me.touches[0] : me;
-                el.style.left = (mev.clientX - startX) + 'px';
-                el.style.top = (mev.clientY - startY) + 'px';
+                let nx = mev.clientX - startX;
+                let ny = mev.clientY - startY;
+                el.style.left = nx + 'px';
+                el.style.top = ny + 'px';
                 if(onDrag) onDrag(el);
             };
+
             const dragEnd = () => {
                 el.classList.remove('is-dragging');
                 document.removeEventListener(moveEvent, dragging);
                 document.removeEventListener(endEvent, dragEnd);
                 if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "65%"; el.style.top = "60%"; }
             };
+
             document.addEventListener(moveEvent, dragging, { passive: false });
             document.addEventListener(endEvent, dragEnd);
         };
+
         el.addEventListener('mousedown', dragStart);
         el.addEventListener('touchstart', dragStart, { passive: false });
     }
@@ -617,7 +618,13 @@
         }
     }
 
-    if (auth) onAuthStateChanged(auth, (u) => { user = u; if (u) loadProgress(); });
+    if (auth) onAuthStateChanged(auth, (u) => { 
+        user = u; 
+        if (u && !isGuest) {
+            currentUserId = "nisan_user";
+            loadProgress(); 
+        }
+    });
 
     window.onload = () => {
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
