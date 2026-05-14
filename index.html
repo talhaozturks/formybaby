@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nisan için - Made by Talha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -24,57 +24,61 @@
             --border-color: #4a1d2e;
             --hud-bg: #16213e;
             --nav-bg: #16213e;
-            --btn-grad: linear-gradient(135deg, #4a1d2e, #1a1a2e);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body { 
             margin: 0; font-family: 'Outfit', sans-serif; 
             background-color: var(--bg-main); color: var(--text-color);
             height: 100vh; width: 100vw; overflow: hidden;
-            user-select: none; touch-action: none; transition: all 0.6s ease;
+            user-select: none; touch-action: none; transition: background-color 0.6s ease, color 0.3s ease;
         }
-
-        /* Başlangıç Yüklenme Ekranı */
-        #initial-loading {
-            position: fixed; inset: 0; background: #ffc2d1; z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .loading-bar-container { width: 200px; height: 12px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 2px solid white; }
-        #loading-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #ff85a2, #ff5c8d); transition: width 0.3s; }
 
         .bg-hearts {
             position: fixed; inset: 0; pointer-events: none; z-index: 1;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="%23ff5c8d" opacity="0.3"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="%23ff5c8d" opacity="0.2"/></svg>');
             background-size: 100px 100px; animation: moveHearts 25s linear infinite;
         }
         @keyframes moveHearts { from { background-position: 0 0; } to { background-position: 500px 0; } }
+
+        #initial-loading {
+            position: fixed; inset: 0; background: #ffc2d1; z-index: 9000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loading-bar-container { width: 250px; height: 12px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 2px solid white; }
+        #loading-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #ff85a2, #ff5c8d); transition: width 0.3s; }
 
         .screen { position: fixed; inset: 0; display: flex; flex-direction: column; transition: all 0.5s ease; z-index: 10; background-color: transparent; }
         .hidden-screen { opacity: 0; pointer-events: none; transform: scale(0.98); }
 
         .soft-panel { background: var(--panel-bg); border: 3px solid #ffffff; border-radius: 25px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); color: var(--text-color); }
 
-        .hud-bar { background: var(--hud-bg); padding: 4px 8px; border-radius: 12px; border: 2px solid var(--border-color); display: flex; flex-direction: column; align-items: center; min-width: 65px; transition: 0.3s; }
+        .hud-bar { background: var(--hud-bg); padding: 4px 8px; border-radius: 12px; border: 2px solid var(--border-color); display: flex; flex-direction: column; align-items: center; min-width: 60px; transition: 0.3s; }
         .hud-text { font-size: 7px; font-weight: 900; text-transform: uppercase; color: var(--text-color); margin-bottom: 2px; }
 
         .draggable { cursor: grab; position: absolute; z-index: 100; touch-action: none; }
-        .char-container { width: 170px; height: 170px; position: relative; z-index: 50; }
+        .is-dragging { cursor: grabbing; z-index: 1000 !important; }
+        
+        .char-container { width: 140px; height: 140px; position: relative; z-index: 50; }
+        @media (min-width: 768px) { .char-container { width: 170px; height: 170px; } }
 
-        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 0.8s; z-index: 200; }
+        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 1s; z-index: 200; }
 
-        .dark-toggle { position: fixed; bottom: 120px; right: 20px; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s; color: var(--text-color); }
+        .top-btn { position: fixed; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); color: var(--text-color); transition: 0.3s; }
+        .dark-toggle { top: 20px; right: 20px; }
+        .fullscreen-toggle { top: 20px; right: 75px; }
+        @media (min-width: 1024px) { .fullscreen-toggle { display: none; } }
 
-        .soft-btn { background: linear-gradient(135deg, #ff85a2, #ff5c8d); color: white !important; border: 3px solid white; border-radius: 30px; font-weight: 800; padding: 8px 16px; box-shadow: 0 6px 15px rgba(255, 92, 141, 0.2); transition: 0.3s; display: inline-block; text-align: center; font-size: 12px; }
+        .soft-btn { background: linear-gradient(135deg, #ff85a2, #ff5c8d); color: white !important; border: 3px solid white; border-radius: 30px; font-weight: 800; padding: 10px 20px; box-shadow: 0 6px 15px rgba(255, 92, 141, 0.2); transition: 0.3s; display: inline-block; text-align: center; cursor: pointer; }
         
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-color); transition: 0.3s; background: transparent; border: none; cursor: pointer; font-weight: 900; font-size: 10px; text-transform: uppercase; border-radius: 15px; margin: 2px; height: 85%; }
-        .nav-btn-active { background: #f97316 !important; color: white !important; transform: scale(1.05); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4); }
+        .nav-btn-active { background: #f97316 !important; color: white !important; transform: scale(1.05); }
 
         .speech-bubble {
-            position: absolute; background: white; padding: 10px 15px; border-radius: 20px; color: #ff5c8d; font-weight: 800;
+            position: absolute; background: white; padding: 8px 12px; border-radius: 20px; color: #ff5c8d; font-weight: 800;
             font-size: 11px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid #ffc2d1; bottom: 115%; left: 50%;
-            transform: translateX(-50%); width: max-content; max-width: 160px; z-index: 110; display: block; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            transform: translateX(-50%); width: max-content; max-width: 150px; z-index: 110; display: block; text-align: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
 
         .sleep-zzz {
@@ -88,136 +92,136 @@
             100% { transform: translate(10px, -40px) scale(1.1); opacity: 0; }
         }
 
-        .dust-overlay { 
-            position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s; 
-            background-image: radial-gradient(#8b5a2b 1.5px, transparent 1px); background-size: 10px 10px; 
-            border-radius: 50%; z-index: 60; 
-        }
+        .dust-overlay { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s; background-image: radial-gradient(#8b5a2b 1.5px, transparent 1px); background-size: 10px 10px; border-radius: 50%; z-index: 60; }
         .is-dirty .dust-overlay { opacity: 0.8; }
-        .is-dirty #char-svg { filter: sepia(0.3) brightness(0.9); }
 
         .limb { transform-box: fill-box; transition: transform 0.2s; }
         .is-dragging .limb-arm-l { animation: limbSwing 0.3s infinite alternate; transform-origin: center top; }
         .is-dragging .limb-arm-r { animation: limbSwing 0.3s infinite alternate-reverse; transform-origin: center top; }
         .is-dragging .limb-leg-l { animation: limbSwing 0.4s infinite alternate; transform-origin: center top; }
         .is-dragging .limb-leg-r { animation: limbSwing 0.4s infinite alternate-reverse; transform-origin: center top; }
-        @keyframes limbSwing { from { transform: rotate(-20deg); } to { transform: rotate(20deg); } }
+        @keyframes limbSwing { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }
 
+        .item-icon { width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 3px solid #ffc2d1; box-shadow: 0 5px 15px rgba(0,0,0,0.1); pointer-events: auto; }
+        
         .char-btn { background: rgba(255, 255, 255, 0.6); border: 2px solid transparent; border-radius: 20px; padding: 10px; transition: 0.3s; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; color: #4a1d2e; cursor: pointer; }
+        .dark-mode .char-btn { background: rgba(255, 255, 255, 0.05); color: #fce7f3; }
         .char-btn-kitty.selected { background: #ff85a2 !important; color: white !important; }
         .char-btn-stitch.selected { background: #1e3a8a !important; color: white !important; }
         .char-btn-chick.selected { background: #ffc2d1 !important; color: #4a1d2e !important; border-color: #ff85a2 !important; }
         .char-btn-alien.selected { background: #166534 !important; color: white !important; }
 
-        .item-icon { width: 65px; height: 65px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 3px solid #ffc2d1; box-shadow: 0 5px 15px rgba(0,0,0,0.1); pointer-events: auto; }
-        
-        @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .is-somersaulting { animation: somersault 0.6s ease-in-out; }
-
         .bed-area { position: absolute; right: 0; top: 0; bottom: 0; width: 35%; background: rgba(255,255,255,0.01); z-index: 5; pointer-events: none; }
         
-        .poster-frame {
-            position: absolute; width: 80px; height: 110px;
-            background: #fff; border: 4px solid #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transform: rotate(1deg); z-index: 5;
-            overflow: hidden;
-        }
+        .poster-frame { position: absolute; width: 70px; height: 95px; background: #fff; border: 4px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transform: rotate(1deg); z-index: 5; overflow: hidden; }
         .poster-frame img { width: 100%; height: 100%; object-fit: cover; }
 
-        .shop-item-box { background: white; border: 3px solid #eee; border-radius: 20px; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
-        .item-svg-box { width: 50px; height: 50px; }
+        .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 10px; z-index: 20; }
         
-        .lock-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; font-weight: 900; font-size: 10px; z-index: 20;
-        }
+        .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
+        .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .shop-box { width: 130px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
+
+        .login-input { width: 100%; padding: 14px; border: 3px solid #ffc2d1; border-radius: 18px; margin-bottom: 12px; text-align: center; font-weight: 800; font-size: 16px; outline: none; background: var(--hud-bg); color: var(--text-color); }
+        @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .is-somersaulting { animation: somersault 0.6s ease-in-out; }
     </style>
 </head>
 <body id="main-body">
 
-<!-- 0. YÜKLENME EKRANI -->
 <div id="initial-loading">
     <h2 class="text-xl font-extrabold text-[#ff5c8d] mb-2 text-center px-4">Talha tarafından ❤️ ile hazırlandı.</h2>
-    <p id="loading-text" class="text-xs font-bold uppercase opacity-70 text-pink-600">başlatılıyor...</p>
+    <p id="loading-text" class="text-xs font-bold uppercase opacity-70 text-pink-600">sistemler kontrol ediliyor...</p>
     <div class="loading-bar-container">
         <div id="loading-progress"></div>
     </div>
 </div>
 
 <div class="bg-hearts"></div>
-<div class="dark-toggle" onclick="toggleDarkMode()">🌓</div>
+<div class="top-btn dark-toggle" id="mode-btn" onclick="window.toggleDarkMode()">🌓</div>
+<div class="top-btn fullscreen-toggle" id="fs-btn" onclick="window.toggleFullscreen()">⛶</div>
 
-<!-- 1. GİRİŞ EKRANI -->
+<!-- LOGIN -->
+<div id="login-screen" class="screen items-center justify-center p-4 hidden-screen">
+    <div class="soft-panel p-8 w-full max-w-sm text-center">
+        <h2 class="text-2xl font-black text-[#ff5c8d] mb-6 uppercase">Giriş Yap</h2>
+        <input type="text" id="login-username" class="login-input" placeholder="Kullanıcı Adı">
+        <input type="password" id="login-password" class="login-input" placeholder="Şifre">
+        <button onclick="window.handleLogin()" class="soft-btn w-full py-4 text-sm uppercase mb-4 shadow-lg">HESABA GİR</button>
+        <button onclick="window.handleGuestLogin()" class="text-[10px] font-black uppercase text-gray-400 border-b border-gray-200">Misafir Olarak Gir (Kaydedilmez!)</button>
+    </div>
+</div>
+
+<!-- WELCOME -->
 <div id="welcome-screen" class="screen items-center justify-center p-4 hidden-screen">
     <div class="pinned-note" style="position: absolute; top: 20px; left: 20px; width: 90px; height: 90px; background: #fff9c4; transform: rotate(-3deg); box-shadow: 3px 3px 10px rgba(0,0,0,0.1); border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 120;">
         <p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">Birlikte</p>
         <p id="day-counter" style="font-size: 20px; font-weight: 800; color: #d84315; margin: 0;">0</p>
         <p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">gün...</p>
     </div>
-    <div class="text-center z-10 p-12 soft-panel w-full max-w-xl relative">
-        <h1 class="text-5xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">Nisan için</h1>
-        <p class="text-[#a64d79] text-base mb-12 tracking-[0.2em] font-bold uppercase opacity-80">Our world</p>
-        <button onclick="changeScreen('selection-screen')" class="soft-btn text-xl uppercase tracking-widest px-10 py-4">Giriş Yap</button>
+    <div class="text-center p-12 soft-panel w-full max-w-xl relative">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-[#ff5c8d] uppercase tracking-tighter mb-4">Nisan'ın Dünyası</h1>
+        <p class="text-[#a64d79] text-base mb-12 tracking-[0.2em] font-bold uppercase opacity-80">Our Small World</p>
+        <button onclick="window.changeScreen('selection-screen')" class="soft-btn text-lg uppercase tracking-widest px-12 py-4">BAŞLA</button>
     </div>
 </div>
 
-<!-- 2. SEÇİM EKRANI -->
+<!-- SELECTION -->
 <div id="selection-screen" class="screen hidden-screen p-4 md:p-10">
     <div class="flex flex-col lg:flex-row h-full items-center justify-center gap-8 max-w-6xl mx-auto w-full overflow-y-auto">
-        <div class="soft-panel w-full max-w-sm p-8 z-20">
-            <div class="flex items-center justify-between mb-8">
+        <div class="soft-panel w-full max-w-sm p-6 z-20">
+            <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
-                <button onclick="openShop()" class="bg-[#ef4444] text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-lg active:translate-y-1 transition-all">🍒 Mağaza</button>
+                <button onclick="window.openShop()" class="bg-[#ef4444] text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-lg">Mağaza</button>
             </div>
             <div class="flex flex-col gap-3" id="char-list">
-                <button onclick="updateSelection('kitty')" id="opt-kitty" class="char-btn char-btn-kitty selected">
+                <button onclick="window.updateSelection('kitty')" id="opt-kitty" class="char-btn char-btn-kitty selected">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🎀</div>
-                    <div><h3 class="font-bold text-sm">Hello Kitty</h3><p class="text-[8px] uppercase opacity-70">En Tatlı Evlat</p></div>
+                    <div><h3 class="font-bold text-sm text-inherit">Hello Kitty</h3><p class="text-[8px] uppercase opacity-70">En Tatlı</p></div>
                 </button>
-                <button onclick="updateSelection('stitch')" id="opt-stitch" class="char-btn char-btn-stitch">
+                <button onclick="window.updateSelection('stitch')" id="opt-stitch" class="char-btn char-btn-stitch">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🌀</div>
-                    <div><h3 class="font-bold text-sm">Stitch</h3><p class="text-[8px] uppercase opacity-70">Mavi Dost</p></div>
+                    <div><h3 class="font-bold text-sm text-inherit">Stitch</h3><p class="text-[8px] uppercase opacity-70">Haylaz</p></div>
                 </button>
-                <button onclick="updateSelection('chick')" id="opt-chick" class="char-btn char-btn-chick relative">
-                    <div id="chick-lock-ui" class="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-white font-black text-[10px] z-10">🍒 50</div>
+                <button onclick="window.updateSelection('chick')" id="opt-chick" class="char-btn char-btn-chick relative overflow-hidden">
+                    <div id="chick-lock-ui" class="lock-overlay"><span>🍒 50</span></div>
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">🐣</div>
-                    <div><h3 class="font-bold text-sm">Civcik</h3><p class="text-[8px] uppercase opacity-70">Minik Kuş</p></div>
+                    <div><h3 class="font-bold text-sm text-inherit">Civcik</h3><p class="text-[8px] uppercase opacity-70">Minik</p></div>
                 </button>
-                <button onclick="updateSelection('alien')" id="opt-alien" class="char-btn char-btn-alien">
+                <button onclick="window.updateSelection('alien')" id="opt-alien" class="char-btn char-btn-alien">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm">👽</div>
-                    <div><h3 class="font-bold text-sm">Prospectus</h3><p class="text-[8px] uppercase opacity-70">Zeki Ziyaretçi</p></div>
+                    <div><h3 class="font-bold text-sm text-inherit">Prospectus</h3><p class="text-[8px] uppercase opacity-70">Uzaylı</p></div>
                 </button>
             </div>
-            <button onclick="enterWorld()" class="w-full mt-6 soft-btn py-3">Dünyaya Git</button>
+            <button onclick="window.enterWorld()" class="w-full mt-6 soft-btn py-4">DÜNYAYA GİT</button>
         </div>
-        <div id="selection-preview" class="w-full max-w-[250px] aspect-square flex items-center justify-center"></div>
+        <div id="selection-preview" class="w-full max-w-[200px] aspect-square flex items-center justify-center"></div>
     </div>
 </div>
 
-<!-- 3. OYUN DÜNYASI -->
+<!-- WORLD -->
 <div id="world-screen" class="screen hidden-screen">
     <div class="night-overlay" id="night-overlay"></div>
-    <div class="h-20 w-full flex items-center justify-between px-3 bg-white/95 backdrop-blur-md border-b-2 z-50 overflow-x-auto gap-4 shadow-sm" style="background: var(--nav-bg); border-color: var(--border-color);">
+    <!-- HUD -->
+    <div class="h-20 w-full flex items-center justify-between px-3 bg-white/95 backdrop-blur-md border-b-2 z-50 overflow-x-auto gap-4" style="background: var(--nav-bg); border-color: var(--border-color);">
         <div class="flex gap-2 flex-shrink-0">
             <div class="hud-bar"><span class="hud-text">Açlık</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hunger" class="h-full bg-pink-400" style="width: 80%"></div></div></div>
             <div class="hud-bar"><span class="hud-text">Hijyen</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hygiene" class="h-full bg-blue-400" style="width: 100%"></div></div></div>
             <div class="hud-bar"><span class="hud-text">Uyku</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-energy" class="h-full bg-yellow-400" style="width: 100%"></div></div></div>
             <div class="flex items-center gap-1 px-3 bg-white border-2 border-red-200 rounded-xl font-black text-red-500 text-sm shadow-sm">🍒 <span id="cherry-count-hud">0</span></div>
         </div>
-        <button onclick="changeScreen('selection-screen')" class="bg-white/90 px-3 py-1.5 rounded-xl border border-pink-100 text-[8px] font-black uppercase text-pink-500">DEĞİŞTİR</button>
+        <button onclick="window.changeScreen('selection-screen')" class="bg-white/90 px-3 py-1.5 rounded-xl border border-pink-100 text-[8px] font-black uppercase text-pink-500 flex-shrink-0">Değiştir</button>
     </div>
 
     <div id="main-area" class="flex-1 relative overflow-hidden">
         <div id="room-bg-layer" class="absolute inset-0 bg-cover bg-center transition-all duration-700"></div>
         <div id="bed-area-trigger" class="bed-area"></div>
         
-        <div id="closet-target" class="hidden absolute left-4 bottom-[22%] z-[350] flex flex-col items-center justify-center w-16 h-40 bg-white/30 backdrop-blur-md border-2 border-dashed border-white rounded-2xl cursor-pointer" onclick="openCloset()">
-            <span class="text-3xl">👗</span><p class="text-[8px] font-black uppercase text-white mt-1 text-center">Dolap</p>
+        <div id="closet-target" class="hidden absolute left-4 bottom-[22%] z-[350] flex flex-col items-center justify-center w-16 h-36 bg-white/30 backdrop-blur-md border-2 border-dashed border-white rounded-2xl cursor-pointer" onclick="window.openCloset()">
+            <span class="text-2xl">👗</span><p class="text-[8px] font-black uppercase text-white mt-1">Dolap</p>
         </div>
         
-        <div id="char-draggable" class="draggable" style="left: 45%; bottom: 100px;">
+        <div id="char-draggable" class="draggable" style="left: 40%; bottom: 100px;">
             <div id="char-container" class="char-container">
                 <div id="zzz-emoji" class="sleep-zzz">zZz</div>
                 <div class="dust-overlay"></div>
@@ -228,43 +232,70 @@
         <div id="interaction-layer" class="absolute inset-0 z-[150] pointer-events-none"></div>
     </div>
 
-    <div class="h-24 w-full backdrop-blur-md border-t-2 flex items-center justify-around z-[400] shadow-lg px-2" style="background: var(--nav-bg); border-top-color: var(--border-color);">
-        <button id="nav-kitchen" onclick="goRoom('kitchen')" class="nav-btn"><span>🧁</span><span>Mutfak</span></button>
-        <button id="nav-bathroom" onclick="goRoom('bathroom')" class="nav-btn"><span>🧼</span><span>Banyo</span></button>
-        <button id="nav-bedroom" onclick="goRoom('bedroom')" class="nav-btn"><span>🛌</span><span>Uyku</span></button>
-        <button id="nav-garden" onclick="goRoom('garden')" class="nav-btn"><span>🌲</span><span>Bahçe</span></button>
-        <button id="nav-school" onclick="goRoom('school')" class="nav-btn"><span>🎓</span><span>Okul</span></button>
+    <!-- ALT NAVBAR -->
+    <div id="navbar" class="h-24 w-full backdrop-blur-md border-t-2 flex items-center justify-around z-[400] shadow-lg px-1 pb-safe" style="background: var(--nav-bg); border-top-color: var(--border-color);">
+        <button id="nav-kitchen" onclick="window.goRoom('kitchen')" class="nav-btn"><span>🧁</span><span class="text-[9px]">Mutfak</span></button>
+        <button id="nav-bathroom" onclick="window.goRoom('bathroom')" class="nav-btn"><span>🧼</span><span class="text-[9px]">Banyo</span></button>
+        <button id="nav-bedroom" onclick="window.goRoom('bedroom')" class="nav-btn"><span>🛌</span><span class="text-[9px]">Uyku</span></button>
+        <button id="nav-garden" onclick="window.goRoom('garden')" class="nav-btn"><span>🌲</span><span class="text-[9px]">Bahçe</span></button>
+        <button id="nav-school" onclick="window.goRoom('school')" class="nav-btn"><span>🎓</span><span class="text-[9px]">Okul</span></button>
     </div>
 </div>
 
 <!-- MODALLAR -->
-<div id="shop-modal" class="fixed inset-0 bg-black/85 z-[600] hidden items-center justify-center p-4">
-    <div class="soft-panel p-6 max-w-lg w-full text-center border-4 border-red-300">
-        <h3 class="text-xl font-black text-red-500 mb-4 uppercase">🍒 VişneMağaza 🍒</h3>
-        <div id="shop-items-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
-        <button onclick="closeShop()" class="soft-btn bg-red-500 w-full">KAPAT</button>
+<div id="shop-modal" class="fixed inset-0 bg-black/85 z-[600] hidden items-center justify-center p-2">
+    <div class="soft-panel p-6 max-w-lg w-full border-4 border-red-300 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-black text-red-500 uppercase">🍒 VişneMağaza</h3>
+            <button onclick="window.closeShop()" class="bg-red-500 text-white w-8 h-8 rounded-full font-black">X</button>
+        </div>
+        <div id="shop-items-container" class="modal-body grid-flex"></div>
     </div>
 </div>
 
-<div id="closet-modal" class="fixed inset-0 bg-black/75 z-[600] hidden items-center justify-center p-4">
-    <div class="soft-panel p-8 max-w-sm w-full text-center">
-        <h3 class="text-xl font-black text-pink-500 mb-6 uppercase text-center">Gardırop</h3>
-        <div id="closet-items" class="grid grid-cols-2 gap-4 mb-8"></div>
-        <button onclick="closeCloset()" class="soft-btn w-full py-3">KAPAT</button>
+<div id="closet-modal" class="fixed inset-0 bg-black/75 z-[600] hidden items-center justify-center p-2">
+    <div class="soft-panel p-6 max-w-sm w-full flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-black text-pink-500 uppercase">Gardırop</h3>
+            <button onclick="window.closeCloset()" class="bg-pink-500 text-white w-8 h-8 rounded-full font-black">X</button>
+        </div>
+        <div id="closet-items" class="modal-body grid-flex"></div>
     </div>
 </div>
 
-<script>
-    // --- TEMEL SİSTEM ---
-    function showMessage(txt) {
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'nisan-dunyam';
+
+    let user = null;
+    let isGuest = false;
+
+    // --- TEMEL TANIMLAMALAR ---
+    window.showMessage = (txt) => {
         const m = document.createElement('div');
-        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[2000] border-2 border-pink-100 text-xs text-center animate-bounce";
+        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
         m.innerText = txt; document.body.appendChild(m);
         setTimeout(() => m.remove(), 2500);
-    }
+    };
 
-    const calculateDays = () => Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
+    window.calculateDays = () => Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
 
+    window.state = {
+        selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, energy: 70, hygiene: 100 },
+        isSleeping: false, outfit: 'default', cherries: 0, 
+        huntActive: false, huntTimer: 60, huntSpeed: 1,
+        schoolActive: false, schoolTimer: 60, schoolSpeed: 1,
+        isDarkMode: false, inventory: [], lastSpeech: 0
+    };
+
+    const themes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1" };
     const normalFoods = ['🍕', '🧁', '🍝'];
     const spaceFoods = ['☄️', '💎', '💍'];
     let currentFoodIdx = 0;
@@ -283,162 +314,144 @@
         chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
     };
 
-    let state = {
-        selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, energy: 70, hygiene: 100 },
-        isSleeping: false, outfit: 'default', cherries: 100, 
-        huntActive: false, huntTimer: 60, huntSpeed: 1,
-        isDarkMode: false, inventory: [], lastSpeech: 0
-    };
-
     const itemSvgs = {
         hat: `<svg viewBox="0 0 100 100"><path d="M20 70 Q 50 60 80 70 L 85 80 Q 50 70 15 80 Z" fill="#333" stroke="#000"/><path d="M35 70 L 35 40 Q 50 30 65 40 L 65 70" fill="#333" stroke="#000"/><rect x="35" y="60" width="30" height="5" fill="#ff85a2"/><circle cx="50" cy="62" r="3" fill="#ffb3c6"/></svg>`,
         tie: `<svg viewBox="0 0 100 100"><path d="M50 40 L 42 48 L 50 85 L 58 48 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><circle cx="50" cy="42" r="7" fill="#ff5c8d" stroke="#000"/></svg>`,
-        dress: `<svg viewBox="0 0 100 100"><path d="M35 40 L 65 40 L 80 85 L 20 85 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><path d="M20 85 Q 30 75 40 85 Q 50 75 60 85 Q 70 75 80 85" fill="#ffb3c6" stroke="#000" stroke-width="2"/></svg>`
+        dress: `<svg viewBox="0 0 100 100">
+            <path d="M30 45 Q 50 40 70 45 L 75 70 Q 50 65 25 70 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.5"/>
+            <path d="M25 70 Q 35 65 45 70 Q 55 65 65 70 Q 75 65 85 70 L 90 85 Q 50 80 10 85 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.5"/>
+            <path d="M10 85 Q 30 80 50 85 Q 70 80 90 85 L 95 98 Q 50 90 5 98 Z" fill="#ffc2d1" stroke="#4a1d2e" stroke-width="1.5"/>
+            <circle cx="50" cy="65" r="5" fill="#ef4444" stroke="#4a1d2e" stroke-width="1"/>
+        </svg>`
     };
 
-    function getLegs(color) {
+    // --- KARAKTER ÇİZİMLERİ ---
+    window.getLegs = (color) => {
         return `<ellipse class="limb limb-leg-l" cx="85" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>`;
-    }
+    };
 
-    function getKittySvg() {
+    window.getKittySvg = () => {
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 110) scale(0.6)">${itemSvgs.tie}</g>`;
-        if(state.outfit === 'dress') acc = `<g transform="translate(50, 110) scale(1.1) translate(-50,-50)">${itemSvgs.dress}</g>`;
-        
-        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-            ${getLegs('white')}
-            <rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/>
-            ${acc}
-            <ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
-            <ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
-            <path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/>
-            <path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/>
-            <ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/>
-            <!-- Kurdele Çizimi -->
-            <g transform="translate(160, 55)">
-                <ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
-                <ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
-                <ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
-                <circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/>
-            </g>
-            <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/>
-            <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>
-        </svg>`;
-    }
+        if(state.outfit === 'dress') acc = `<g transform="translate(50, 142) scale(1.0) translate(-50,-50)">${itemSvgs.dress}</g>`;
+        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs('white')}<rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/><path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/><ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>${acc}</svg>`;
+    };
 
-    function getOtherSvg(char) {
+    window.getOtherSvg = (char) => {
         let color = char === 'stitch' ? '#2563eb' : (char === 'alien' ? '#4ade80' : '#fb923c');
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 115) scale(0.6)">${itemSvgs.tie}</g>`;
+        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/><ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>${acc}</svg>`;
+        if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>${acc}</svg>`;
+        if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
+    };
 
-        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/><ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>${acc}</svg>`;
-        if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>${acc}</svg>`;
-        if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
+    // --- DB FUNCTIONS ---
+    window.saveProgress = async () => {
+        if (!user || isGuest) return;
+        try {
+            const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
+            await setDoc(userRef, {
+                cherries: state.cherries,
+                inventory: state.inventory,
+                stats: state.stats,
+                outfit: state.outfit
+            }, { merge: true });
+        } catch(e) { console.error("Save Error", e); }
+    };
+
+    async function loadProgress() {
+        if (!user || isGuest) return;
+        try {
+            const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
+            const snap = await getDoc(userRef);
+            if (snap.exists()) {
+                const data = snap.data();
+                state.cherries = data.cherries || 0;
+                state.inventory = data.inventory || [];
+                state.stats = data.stats || state.stats;
+                state.outfit = data.outfit || 'default';
+                window.updateUI();
+            }
+        } catch(e) { console.error("Load Error", e); }
     }
 
-    // --- MANTIK ---
-    function changeScreen(id) { 
+    // --- ACTIONS ---
+    window.handleLogin = async () => {
+        const u = document.getElementById('login-username').value.toLowerCase();
+        const p = document.getElementById('login-password').value;
+        if (u === 'nisan' && p === 'talha<3') {
+            isGuest = false;
+            await signInAnonymously(auth);
+            window.changeScreen('welcome-screen');
+        } else { showMessage("Hatalı Giriş!"); }
+    };
+
+    window.handleGuestLogin = async () => {
+        isGuest = true;
+        await signInAnonymously(auth);
+        showMessage("Misafir Girdin, Kayıt Yapılmaz!");
+        window.changeScreen('welcome-screen');
+    };
+
+    window.toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => showMessage("Tam ekran hatası!"));
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
+    window.toggleDarkMode = () => { 
+        state.isDarkMode = !state.isDarkMode; 
+        document.body.classList.toggle('dark-mode', state.isDarkMode); 
+    };
+
+    window.changeScreen = (id) => { 
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen')); 
         const el = document.getElementById(id); if(el) el.classList.remove('hidden-screen');
-        updateUI();
-    }
-    
-    function toggleDarkMode() { state.isDarkMode = !state.isDarkMode; document.body.classList.toggle('dark-mode', state.isDarkMode); }
+        window.updateUI();
+    };
 
-    function updateSelection(char) {
-        if(char === 'chick' && state.cherries < 50) { showMessage("Vişne yetmiyor! 🍒"); return; }
+    window.updateSelection = (char) => {
+        if(char === 'chick' && state.cherries < 50) { showMessage("Henüz kilitli! 🍒"); return; }
         state.selectedChar = char;
-        const charThemes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1" };
-        document.body.style.backgroundColor = charThemes[char];
+        document.body.style.backgroundColor = themes[char];
         document.querySelectorAll('#char-list button').forEach(b => b.classList.remove('selected'));
         const btn = document.getElementById('opt-'+char); if(btn) btn.classList.add('selected');
-        const prev = document.getElementById('selection-preview'); if(prev) prev.innerHTML = (char==='kitty') ? getKittySvg() : getOtherSvg(char);
-    }
+        const prev = document.getElementById('selection-preview'); if(prev) prev.innerHTML = (char==='kitty') ? window.getKittySvg() : window.getOtherSvg(char);
+    };
 
-    function enterWorld() { changeScreen('world-screen'); goRoom('kitchen'); if(!window.loop) window.loop = setInterval(mainLoop, 1000); makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); }
+    window.enterWorld = () => { 
+        window.changeScreen('world-screen'); 
+        window.goRoom('kitchen'); 
+        if(!window.loop) window.loop = setInterval(mainLoop, 1000); 
+        makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); 
+    };
 
-    function mainLoop() {
-        if(!state.isSleeping && !state.huntActive) { 
-            state.stats.hunger = Math.max(0, state.stats.hunger - 0.05); 
-            state.stats.energy = Math.max(0, state.stats.energy - 0.03); 
-            state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.04);
-        }
-        if(state.isSleeping) state.stats.energy = Math.min(100, state.stats.energy + 1.8);
-        
-        if(state.huntActive) {
-            state.huntTimer = Math.max(0, state.huntTimer - state.huntSpeed);
-            if(state.huntTimer <= 0) { state.huntActive = false; state.cherries += 25; showMessage("Av Tamam! +25 🍒"); goRoom('kitchen'); }
-        }
-
-        state.lastSpeech++;
-        if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
-            state.lastSpeech = 0;
-            const bubble = document.getElementById('speech-bubble');
-            let text = "";
-            if(state.stats.energy < 30) text = "anne uykum geldi";
-            else if(state.stats.hunger < 30) text = "anne çok açımmm";
-            else if(state.stats.hygiene < 30) text = "anne duş almam gerek";
-            else text = quotes[state.selectedChar][Math.floor(Math.random()*quotes[state.selectedChar].length)];
-            
-            bubble.innerText = text; bubble.style.opacity = "1";
-            setTimeout(() => bubble.style.opacity = "0", 3500);
-        }
-        updateUI();
-    }
-
-    function updateUI() {
-        document.getElementById('bar-hunger').style.width = state.stats.hunger + '%';
-        document.getElementById('bar-hygiene').style.width = state.stats.hygiene + '%';
-        document.getElementById('bar-energy').style.width = state.stats.energy + '%';
-        document.getElementById('cherry-count-hud').innerText = Math.floor(state.cherries);
-        
-        const wrap = document.getElementById('char-svg-wrap');
-        const bubble = document.getElementById('speech-bubble');
-        const zzz = document.getElementById('zzz-emoji');
-        const cont = document.getElementById('char-container');
-        
-        if(wrap) wrap.innerHTML = (state.selectedChar === 'kitty') ? getKittySvg(state.outfit) : getOtherSvg(state.selectedChar);
-        if(zzz) zzz.style.display = state.isSleeping ? "block" : "none";
-        
-        if(cont) {
-            cont.classList.toggle('is-dirty', state.stats.hygiene < 50);
-            if(state.selectedChar === 'alien' && state.huntActive) {
-                cont.style.opacity = "0.4"; bubble.style.opacity = "1"; 
-                bubble.innerText = `vişne topluyorum döncem yaa (${Math.ceil(state.huntTimer)}s)`;
-            } else {
-                cont.style.opacity = "1";
-                // Eğer avda değilsek ve konuşma balonunun içeriği av yazısıysa temizleyelim
-                if(bubble.innerText.includes("vişne topluyorum")) bubble.style.opacity = "0";
-            }
-        }
-        document.getElementById('night-overlay').style.opacity = state.isSleeping ? "0.8" : "0";
-        const lock = document.getElementById('chick-lock-ui');
-        if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
-    }
-
-    function goRoom(r) {
+    window.goRoom = (r) => {
         state.room = r;
         if(r !== 'bedroom') state.isSleeping = false;
-        
         const config = roomConfigs[state.selectedChar] || roomConfigs['kitty'];
         document.getElementById('room-bg-layer').style.backgroundImage = `url('${config[r]}')`;
         const interact = document.getElementById('interaction-layer'); interact.innerHTML = '';
-        
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('nav-btn-active', btn.id === 'nav-'+r));
         document.getElementById('closet-target').classList.toggle('hidden', r !== 'bedroom');
 
         if(r === 'kitchen') {
             let food = state.selectedChar === 'alien' ? spaceFoods[currentFoodIdx % spaceFoods.length] : normalFoods[currentFoodIdx % normalFoods.length];
-            interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 70%; top: 60%; pointer-events: auto;">${food}</div>`;
+            interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">${food}</div>`;
             if(state.selectedChar === 'alien') {
-                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="startHunt()" class="soft-btn">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button onclick="state.huntSpeed=2" class="bg-yellow-500 text-white px-3 py-2 rounded-xl text-[10px] font-black">2X</button>` : ''}</div>`;
+                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black shadow-lg">2X</button>` : ''}</div>`;
+                const sBtn = document.getElementById('hunt-speed-btn');
+                if(sBtn) sBtn.onclick = () => { state.huntSpeed = 2; showMessage("Hızlandı! ⚡"); };
             }
             makeElementDraggable(document.getElementById('food-item'), checkCollisions);
         }
         if(r === 'bathroom') {
-            interact.innerHTML = `<div id="soap-item" class="draggable item-icon" style="left: 70%; top: 60%; pointer-events: auto;">🧼</div>`;
+            interact.innerHTML = `<div id="soap-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">🧼</div>`;
             makeElementDraggable(document.getElementById('soap-item'), checkCollisions);
         }
         if(r === 'bedroom') {
@@ -447,88 +460,167 @@
             }
         }
         if(r === 'garden') {
-            interact.innerHTML = `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="runInGarden()" class="soft-btn">KOŞTUR!</button></div>`;
-            for(let i=0; i<3; i++) { interact.innerHTML += `<div onclick="collectCherry(this)" class="text-4xl animate-bounce cursor-pointer absolute" style="left: ${20+i*25}%; top: 30%; pointer-events: auto;">🍒</div>`; }
+            interact.innerHTML = `<div class="absolute left-1/2 bottom-10 -translate-x-1/2" style="pointer-events: auto;"><button onclick="window.runInGarden()" class="soft-btn px-8">KOŞTUR!</button></div>`;
+            for(let i=0; i<3; i++) { interact.innerHTML += `<div onclick="window.collectCherry(this)" class="text-3xl animate-bounce cursor-pointer absolute" style="left: ${20+i*25}%; top: 30%; pointer-events: auto;">🍒</div>`; }
         }
-        updateUI();
-    }
+        if(r === 'school') {
+            if(!state.schoolActive) interact.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style="pointer-events: auto;"><button onclick="window.startSchool()" class="soft-btn px-8 uppercase">DERSE GİR</button></div>`;
+            else interact.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white font-black"><p class="text-xl mb-4">Ders İşleniyor... ${Math.ceil(state.schoolTimer)}s</p><button id="school-speed-btn" class="bg-yellow-500 px-6 py-2 rounded-xl text-xs uppercase shadow-xl" style="pointer-events: auto;">3X HIZLANDIR</button></div>`;
+            const sBtn = document.getElementById('school-speed-btn');
+            if(sBtn) sBtn.onclick = () => { state.schoolSpeed = 3; showMessage("Zaman Akıyor! ⚡"); };
+        }
+        window.updateUI();
+    };
 
-    function buyItem(item, price) {
-        if(state.cherries < price) { showMessage("Vişnen yetmiyor! 🍒"); return; }
-        if(state.inventory.includes(item)) { showMessage("Zaten sende var! ✨"); return; }
-        state.cherries -= price; state.inventory.push(item); showMessage("Hayırlı olsun! 🛍️"); openShop();
-    }
-
-    function openShop() { 
+    window.openShop = () => { 
         const cont = document.getElementById('shop-items-container');
         cont.innerHTML = `
-            <div class="shop-item-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="item-svg-box">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Fiyonk Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="buyItem('hat', 150)" class="soft-btn scale-75">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
-            <div class="shop-item-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="item-svg-box">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Pembe Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="buyItem('tie', 20)" class="soft-btn scale-75">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
-            <div class="shop-item-box opacity-60"><span class="bg-purple-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Özel</span><div class="item-svg-box animate-pulse"><svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" fill="#a855f7" rx="5"/><rect x="25" y="55" width="50" height="10" fill="#facc15"/></svg></div><p class="text-[9px] font-bold">Sürpriz Kutu</p><p class="text-red-500 font-black text-xs">50 🍒</p><button class="soft-btn scale-75 opacity-50 cursor-not-allowed">KİLİTLİ</button></div>
+            <div class="shop-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Fiyonk Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="window.buyItem('hat', 150)" class="soft-btn scale-75 mt-2">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Pembe Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="window.buyItem('tie', 20)" class="soft-btn scale-75 mt-2">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-box opacity-60"><span class="bg-purple-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Özel</span><div class="w-10 h-10 mx-auto my-2 animate-pulse"><svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" fill="#a855f7" rx="5"/><rect x="25" y="55" width="50" height="10" fill="#facc15"/></svg></div><p class="text-[9px] font-bold">Sürpriz</p><p class="text-red-500 font-black text-xs">50 🍒</p><button class="soft-btn scale-75 mt-2 opacity-50 cursor-not-allowed">KİLİTLİ</button></div>
         `;
         document.getElementById('shop-modal').classList.remove('hidden'); document.getElementById('shop-modal').classList.add('flex'); 
-    }
-    function closeShop() { document.getElementById('shop-modal').classList.add('hidden'); }
-    function openCloset() { 
+    };
+    window.closeShop = () => { document.getElementById('shop-modal').classList.add('hidden'); };
+    
+    window.openCloset = () => { 
         const cont = document.getElementById('closet-items');
-        cont.innerHTML = `<div onclick="state.outfit='default'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase">Orijinal</span></div>`;
-        if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="state.outfit='dress'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase">Fırfırlı</span></div>`;
-        state.inventory.forEach(item => { cont.innerHTML += `<div onclick="state.outfit='${item}'; updateUI();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase">${item}</span></div>`; });
+        cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto shadow-sm"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
+        if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="window.state.outfit='dress'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase text-gray-800">Fırfırlı</span></div>`;
+        state.inventory.forEach(item => { cont.innerHTML += `<div onclick="window.state.outfit='${item}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase text-gray-800">${item}</span></div>`; });
         document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); 
-    }
-    function closeCloset() { document.getElementById('closet-modal').classList.add('hidden'); }
+    };
+    window.closeCloset = () => { document.getElementById('closet-modal').classList.add('hidden'); };
 
-    function startHunt() { if(state.huntActive) return; state.huntActive = true; state.huntTimer = 60; state.huntSpeed = 1; goRoom('kitchen'); }
-    function collectCherry(el) { el.remove(); state.cherries += 10; showMessage("+10 Vişne!"); }
-    function runInGarden() {
+    window.startHunt = () => { if(state.huntActive) return; state.huntActive = true; state.huntTimer = 60; state.huntSpeed = 1; window.goRoom('kitchen'); };
+    window.startSchool = () => { if(state.schoolActive) return; state.schoolActive = true; state.schoolTimer = 60; state.schoolSpeed = 1; window.goRoom('school'); };
+    window.collectCherry = (el) => { el.remove(); state.cherries += 10; showMessage("+10 Vişne!"); window.saveProgress(); window.updateUI(); };
+    window.runInGarden = () => {
         const charD = document.getElementById('char-draggable'); if(state.selectedChar==='stitch') document.getElementById('char-container').classList.add('is-somersaulting');
         state.stats.energy -= 10; state.stats.hunger -= 5; state.stats.hygiene -= 15;
-        if(charD) {
-            charD.style.transition = "left 0.8s"; charD.style.left = "80%"; setTimeout(() => { charD.style.left = "10%"; setTimeout(() => { charD.style.left = "45%"; charD.style.transition = "none"; document.getElementById('char-container').classList.remove('is-somersaulting'); }, 800); }, 800);
+        if(charD) { charD.style.transition = "left 0.8s"; charD.style.left = "80%"; setTimeout(() => { charD.style.left = "10%"; setTimeout(() => { charD.style.left = "40%"; charD.style.transition = "none"; document.getElementById('char-container').classList.remove('is-somersaulting'); }, 800); }, 800); }
+        window.saveProgress(); window.updateUI();
+    };
+
+    window.buyItem = (item, price) => {
+        if(state.cherries < price) { showMessage("Vişnen yetmiyor! 🍒"); return; }
+        state.cherries -= price; state.inventory.push(item); window.saveProgress(); showMessage("Hayırlı olsun!"); window.openShop();
+    };
+
+    // --- GAME LOOP ---
+    function mainLoop() {
+        if(!state.isSleeping && !state.huntActive && !state.schoolActive) { 
+            state.stats.hunger = Math.max(0, state.stats.hunger - 0.05); 
+            state.stats.energy = Math.max(0, state.stats.energy - 0.03); 
+            state.stats.hygiene = Math.max(0, state.stats.hygiene - 0.04);
         }
-        updateUI();
+        if(state.isSleeping) state.stats.energy = Math.min(100, state.stats.energy + 2);
+        if(state.huntActive) {
+            state.huntTimer = Math.max(0, state.huntTimer - state.huntSpeed);
+            if(state.huntTimer <= 0) { state.huntActive = false; state.cherries += 30; showMessage("Av Tamam! +30 🍒"); window.saveProgress(); window.goRoom('kitchen'); }
+        }
+        if(state.schoolActive) {
+            state.schoolTimer = Math.max(0, state.schoolTimer - state.schoolSpeed);
+            if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti! +40 🍒"); window.saveProgress(); window.goRoom('kitchen'); }
+        }
+        // Speech logic
+        state.lastSpeech++;
+        if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
+            state.lastSpeech = 0;
+            const bubble = document.getElementById('speech-bubble');
+            let text = (state.stats.energy < 30) ? "anne uykum geldi" : (state.stats.hunger < 30) ? "anne çok açımmm" : (state.stats.hygiene < 30) ? "anne duş almam gerek" : quotes[state.selectedChar][Math.floor(Math.random()*quotes[state.selectedChar].length)];
+            bubble.innerText = text; bubble.style.opacity = "1";
+            setTimeout(() => bubble.style.opacity = "0", 3500);
+        }
+        window.updateUI();
     }
 
+    window.updateUI = () => {
+        const hb = document.getElementById('bar-hunger');
+        const hyb = document.getElementById('bar-hygiene');
+        const eb = document.getElementById('bar-energy');
+        const cc = document.getElementById('cherry-count-hud');
+        if(hb) hb.style.width = state.stats.hunger + '%';
+        if(hyb) hyb.style.width = state.stats.hygiene + '%';
+        if(eb) eb.style.width = state.stats.energy + '%';
+        if(cc) cc.innerText = Math.floor(state.cherries);
+        const wrap = document.getElementById('char-svg-wrap');
+        const bubble = document.getElementById('speech-bubble');
+        const zzz = document.getElementById('zzz-emoji');
+        const cont = document.getElementById('char-container');
+        if(wrap) wrap.innerHTML = (state.selectedChar === 'kitty') ? window.getKittySvg() : window.getOtherSvg(state.selectedChar);
+        if(zzz) zzz.style.display = (state.isSleeping && state.room === 'bedroom') ? "block" : "none";
+        if(cont) {
+            cont.classList.toggle('is-dirty', state.stats.hygiene < 50);
+            if(state.selectedChar === 'alien' && state.huntActive) {
+                cont.style.opacity = "0.4"; bubble.style.opacity = "1"; 
+                bubble.innerText = `vişne topluyorum (${Math.ceil(state.huntTimer)}s)`;
+            } else if (state.selectedChar === 'alien' && !state.huntActive) { cont.style.opacity = "1"; }
+        }
+        const night = document.getElementById('night-overlay');
+        if(night) night.style.opacity = state.isSleeping ? "0.8" : "0";
+        const lock = document.getElementById('chick-lock-ui');
+        if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
+    };
+
+    // --- MOBILE DRAG ---
     function makeElementDraggable(el, onDrag) {
-        if(!el) return; let p1,p2,p3,p4;
-        el.onmousedown = el.ontouchstart = (e) => {
-            const ev = e.touches ? e.touches[0] : e; p3=ev.clientX; p4=ev.clientY;
+        if(!el) return;
+        let startX, startY;
+        const dragStart = (e) => {
+            const ev = e.touches ? e.touches[0] : e;
+            startX = ev.clientX - el.offsetLeft;
+            startY = ev.clientY - el.offsetTop;
             el.classList.add('is-dragging');
-            document.onmouseup = document.ontouchend = () => {
-                el.classList.remove('is-dragging'); document.onmousemove = document.ontouchmove = null;
-                if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "70%"; el.style.top = "60%"; }
+            const moveEvent = e.touches ? 'touchmove' : 'mousemove';
+            const endEvent = e.touches ? 'touchend' : 'mouseup';
+            const dragging = (me) => {
+                if (me.cancelable) me.preventDefault();
+                const mev = me.touches ? me.touches[0] : me;
+                el.style.left = (mev.clientX - startX) + 'px';
+                el.style.top = (mev.clientY - startY) + 'px';
+                if(onDrag) onDrag(el);
             };
-            document.onmousemove = document.ontouchmove = (e2) => {
-                const ev2 = e2.touches ? e2.touches[0] : e2; p1=p3-ev2.clientX; p2=p4-ev2.clientY; p3=ev2.clientX; p4=ev2.clientY;
-                el.style.top = (el.offsetTop-p2)+"px"; el.style.left = (el.offsetLeft-p1)+"px"; if(onDrag) onDrag(el);
+            const dragEnd = () => {
+                el.classList.remove('is-dragging');
+                document.removeEventListener(moveEvent, dragging);
+                document.removeEventListener(endEvent, dragEnd);
+                if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "65%"; el.style.top = "60%"; }
             };
+            document.addEventListener(moveEvent, dragging, { passive: false });
+            document.addEventListener(endEvent, dragEnd);
         };
+        el.addEventListener('mousedown', dragStart);
+        el.addEventListener('touchstart', dragStart, { passive: false });
     }
 
     function checkCollisions(el) {
-        const char = document.getElementById('char-draggable'); const r1=el.getBoundingClientRect(), rc=char.getBoundingClientRect();
+        const char = document.getElementById('char-draggable');
+        const r1=el.getBoundingClientRect(), rc=char.getBoundingClientRect();
         const over = !(r1.right<rc.left || r1.left>rc.right || r1.bottom<rc.top || r1.top>rc.bottom);
         if(over) {
-            if(el.id==='food-item') { state.stats.hunger = Math.min(100, state.stats.hunger+20); currentFoodIdx++; goRoom('kitchen'); showMessage("Ham hum! 😋"); }
-            if(el.id==='soap-item') { state.stats.hygiene = Math.min(100, state.stats.hygiene+10); updateUI(); }
+            if(el.id==='food-item') { state.stats.hunger = Math.min(100, state.stats.hunger+20); currentFoodIdx++; window.goRoom('kitchen'); showMessage("😋 Ham Hum!"); window.saveProgress(); }
+            if(el.id==='soap-item') { state.stats.hygiene = Math.min(100, state.stats.hygiene+15); window.updateUI(); window.saveProgress(); }
         }
         if(state.room === 'bedroom') {
             const bedArea = document.getElementById('bed-area-trigger').getBoundingClientRect();
             const wasSleeping = state.isSleeping;
             state.isSleeping = !(rc.right < bedArea.left || rc.left > bedArea.right || rc.bottom < bedArea.top || rc.top > bedArea.bottom);
-            if(state.isSleeping && !wasSleeping) showMessage("İyi geceler! 🌙");
-            if(!state.isSleeping && wasSleeping) showMessage("Günaydın! ☀️");
-            updateUI();
+            if(state.isSleeping && !wasSleeping) { showMessage("İyi geceler! 🌙"); window.saveProgress(); }
+            if(!state.isSleeping && wasSleeping) { showMessage("Günaydın! ☀️"); window.saveProgress(); }
+            window.updateUI();
         }
     }
 
+    onAuthStateChanged(auth, (u) => { user = u; if (u) loadProgress(); });
+
     window.onload = () => {
-        document.getElementById('day-counter').innerText = calculateDays();
+        const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
         let prg = 0; let texts = ["hello kitty oluşturuluyor...", "stitch banyosundan çıkıyor..", "prospectus uzaydan dönüyor..", "civcik uyanıyor.."];
         const interval = setInterval(() => {
             prg += 1; document.getElementById('loading-progress').style.width = prg + "%";
             if(prg % 25 === 0) document.getElementById('loading-text').innerText = texts[Math.floor(prg/26)];
-            if(prg >= 100) { clearInterval(interval); document.getElementById('initial-loading').style.display = 'none'; document.getElementById('welcome-screen').classList.remove('hidden-screen'); updateSelection('kitty'); }
+            if(prg >= 100) { clearInterval(interval); document.getElementById('initial-loading').style.display = 'none'; window.changeScreen('login-screen'); }
         }, 30);
     };
 </script>
