@@ -24,6 +24,7 @@
             --border-color: #4a1d2e;
             --hud-bg: #16213e;
             --nav-bg: #16213e;
+            --btn-grad: linear-gradient(135deg, #4a1d2e, #1a1a2e);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -63,7 +64,7 @@
         .char-container { width: 140px; height: 140px; position: relative; z-index: 50; }
         @media (min-width: 768px) { .char-container { width: 170px; height: 170px; } }
 
-        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 1s; z-index: 200; }
+        .night-overlay { position: absolute; inset: 0; background: rgba(0, 0, 30, 0.7); pointer-events: none; opacity: 0; transition: opacity 0.8s; z-index: 200; }
 
         .top-btn { position: fixed; z-index: 500; background: var(--hud-bg); border: 2px solid var(--border-color); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); color: var(--text-color); transition: 0.3s; }
         .dark-toggle { top: 20px; right: 20px; }
@@ -118,9 +119,9 @@
 
         .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 10px; z-index: 20; }
         
-        .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
+        .modal-body { max-height: 70vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .shop-box { width: 130px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
+        .shop-box { width: 120px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
 
         .login-input { width: 100%; padding: 14px; border: 3px solid #ffc2d1; border-radius: 18px; margin-bottom: 12px; text-align: center; font-weight: 800; font-size: 16px; outline: none; background: var(--hud-bg); color: var(--text-color); }
         @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -268,16 +269,23 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Vercel Fallback Config
+    let fbConfig = {};
+    try {
+        fbConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    } catch (e) {
+        console.warn("Firebase config not found. Running in local mode.");
+    }
+    
+    const app = Object.keys(fbConfig).length > 0 ? initializeApp(fbConfig) : null;
+    const auth = app ? getAuth(app) : null;
+    const db = app ? getFirestore(app) : null;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'nisan-dunyam';
 
     let user = null;
-    let isGuest = false;
+    let isGuest = true;
 
-    // --- TEMEL TANIMLAMALAR ---
+    // --- SYSTEM CORE ---
     window.showMessage = (txt) => {
         const m = document.createElement('div');
         m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
@@ -318,14 +326,14 @@
         hat: `<svg viewBox="0 0 100 100"><path d="M20 70 Q 50 60 80 70 L 85 80 Q 50 70 15 80 Z" fill="#333" stroke="#000"/><path d="M35 70 L 35 40 Q 50 30 65 40 L 65 70" fill="#333" stroke="#000"/><rect x="35" y="60" width="30" height="5" fill="#ff85a2"/><circle cx="50" cy="62" r="3" fill="#ffb3c6"/></svg>`,
         tie: `<svg viewBox="0 0 100 100"><path d="M50 40 L 42 48 L 50 85 L 58 48 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><circle cx="50" cy="42" r="7" fill="#ff5c8d" stroke="#000"/></svg>`,
         dress: `<svg viewBox="0 0 100 100">
-            <path d="M30 45 Q 50 40 70 45 L 75 70 Q 50 65 25 70 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.5"/>
-            <path d="M25 70 Q 35 65 45 70 Q 55 65 65 70 Q 75 65 85 70 L 90 85 Q 50 80 10 85 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.5"/>
-            <path d="M10 85 Q 30 80 50 85 Q 70 80 90 85 L 95 98 Q 50 90 5 98 Z" fill="#ffc2d1" stroke="#4a1d2e" stroke-width="1.5"/>
-            <circle cx="50" cy="65" r="5" fill="#ef4444" stroke="#4a1d2e" stroke-width="1"/>
+            <path d="M32 45 L 68 45 L 75 75 Q 50 70 25 75 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1"/>
+            <path d="M25 75 Q 35 70 45 75 Q 55 70 65 75 Q 75 70 85 75 L 92 90 Q 50 82 8 90 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1"/>
+            <path d="M8 90 Q 30 84 50 90 Q 70 84 92 90 L 98 100 Q 50 92 2 100 Z" fill="#ffc2d1" stroke="#4a1d2e" stroke-width="1"/>
+            <circle cx="50" cy="68" r="4" fill="#ef4444" stroke="#4a1d2e"/>
         </svg>`
     };
 
-    // --- KARAKTER ÇİZİMLERİ ---
+    // --- RENDER HELPERS ---
     window.getLegs = (color) => {
         return `<ellipse class="limb limb-leg-l" cx="85" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>`;
     };
@@ -334,7 +342,7 @@
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 110) scale(0.6)">${itemSvgs.tie}</g>`;
-        if(state.outfit === 'dress') acc = `<g transform="translate(50, 142) scale(1.0) translate(-50,-50)">${itemSvgs.dress}</g>`;
+        if(state.outfit === 'dress') acc = `<g transform="translate(50, 142) scale(0.95) translate(-50,-50)">${itemSvgs.dress}</g>`;
         return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs('white')}<rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/><path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/><ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>${acc}</svg>`;
     };
 
@@ -348,9 +356,9 @@
         if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
     };
 
-    // --- DB FUNCTIONS ---
+    // --- DATA ---
     window.saveProgress = async () => {
-        if (!user || isGuest) return;
+        if (!auth || !user || isGuest) return;
         try {
             const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
             await setDoc(userRef, {
@@ -359,11 +367,11 @@
                 stats: state.stats,
                 outfit: state.outfit
             }, { merge: true });
-        } catch(e) { console.error("Save Error", e); }
+        } catch(e) {}
     };
 
     async function loadProgress() {
-        if (!user || isGuest) return;
+        if (!auth || !user || isGuest) return;
         try {
             const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'progress', 'data');
             const snap = await getDoc(userRef);
@@ -375,7 +383,7 @@
                 state.outfit = data.outfit || 'default';
                 window.updateUI();
             }
-        } catch(e) { console.error("Load Error", e); }
+        } catch(e) {}
     }
 
     // --- ACTIONS ---
@@ -384,21 +392,21 @@
         const p = document.getElementById('login-password').value;
         if (u === 'nisan' && p === 'talha<3') {
             isGuest = false;
-            await signInAnonymously(auth);
+            if (auth) await signInAnonymously(auth);
             window.changeScreen('welcome-screen');
         } else { showMessage("Hatalı Giriş!"); }
     };
 
     window.handleGuestLogin = async () => {
         isGuest = true;
-        await signInAnonymously(auth);
-        showMessage("Misafir Girdin, Kayıt Yapılmaz!");
+        if (auth) await signInAnonymously(auth);
+        showMessage("Misafir Girdin!");
         window.changeScreen('welcome-screen');
     };
 
     window.toggleFullscreen = () => {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(() => showMessage("Tam ekran hatası!"));
+            document.documentElement.requestFullscreen().catch(() => showMessage("Desteklenmiyor!"));
         } else {
             document.exitFullscreen();
         }
@@ -465,9 +473,9 @@
         }
         if(r === 'school') {
             if(!state.schoolActive) interact.innerHTML = `<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style="pointer-events: auto;"><button onclick="window.startSchool()" class="soft-btn px-8 uppercase">DERSE GİR</button></div>`;
-            else interact.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white font-black"><p class="text-xl mb-4">Ders İşleniyor... ${Math.ceil(state.schoolTimer)}s</p><button id="school-speed-btn" class="bg-yellow-500 px-6 py-2 rounded-xl text-xs uppercase shadow-xl" style="pointer-events: auto;">3X HIZLANDIR</button></div>`;
+            else interact.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white font-black"><p class="text-xl mb-4">Ders... ${Math.ceil(state.schoolTimer)}s</p><button id="school-speed-btn" class="bg-yellow-500 px-6 py-2 rounded-xl text-xs uppercase shadow-xl" style="pointer-events: auto;">3X HIZLANDIR</button></div>`;
             const sBtn = document.getElementById('school-speed-btn');
-            if(sBtn) sBtn.onclick = () => { state.schoolSpeed = 3; showMessage("Zaman Akıyor! ⚡"); };
+            if(sBtn) sBtn.onclick = () => { state.schoolSpeed = 3; showMessage("⚡ Hızlandı!"); };
         }
         window.updateUI();
     };
@@ -475,8 +483,8 @@
     window.openShop = () => { 
         const cont = document.getElementById('shop-items-container');
         cont.innerHTML = `
-            <div class="shop-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Fiyonk Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="window.buyItem('hat', 150)" class="soft-btn scale-75 mt-2">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
-            <div class="shop-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Pembe Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="window.buyItem('tie', 20)" class="soft-btn scale-75 mt-2">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="window.buyItem('hat', 150)" class="soft-btn scale-75 mt-2">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
+            <div class="shop-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="window.buyItem('tie', 20)" class="soft-btn scale-75 mt-2">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
             <div class="shop-box opacity-60"><span class="bg-purple-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Özel</span><div class="w-10 h-10 mx-auto my-2 animate-pulse"><svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" fill="#a855f7" rx="5"/><rect x="25" y="55" width="50" height="10" fill="#facc15"/></svg></div><p class="text-[9px] font-bold">Sürpriz</p><p class="text-red-500 font-black text-xs">50 🍒</p><button class="soft-btn scale-75 mt-2 opacity-50 cursor-not-allowed">KİLİTLİ</button></div>
         `;
         document.getElementById('shop-modal').classList.remove('hidden'); document.getElementById('shop-modal').classList.add('flex'); 
@@ -485,7 +493,7 @@
     
     window.openCloset = () => { 
         const cont = document.getElementById('closet-items');
-        cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto shadow-sm"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
+        cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
         if(state.selectedChar === 'kitty') cont.innerHTML += `<div onclick="window.state.outfit='dress'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs.dress}</div><span class="text-[8px] font-black uppercase text-gray-800">Fırfırlı</span></div>`;
         state.inventory.forEach(item => { cont.innerHTML += `<div onclick="window.state.outfit='${item}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer"><div class="w-10 h-10 mx-auto">${itemSvgs[item] || ''}</div><span class="text-[8px] font-black uppercase text-gray-800">${item}</span></div>`; });
         document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); 
@@ -507,7 +515,7 @@
         state.cherries -= price; state.inventory.push(item); window.saveProgress(); showMessage("Hayırlı olsun!"); window.openShop();
     };
 
-    // --- GAME LOOP ---
+    // --- LOOP ---
     function mainLoop() {
         if(!state.isSleeping && !state.huntActive && !state.schoolActive) { 
             state.stats.hunger = Math.max(0, state.stats.hunger - 0.05); 
@@ -517,20 +525,18 @@
         if(state.isSleeping) state.stats.energy = Math.min(100, state.stats.energy + 2);
         if(state.huntActive) {
             state.huntTimer = Math.max(0, state.huntTimer - state.huntSpeed);
-            if(state.huntTimer <= 0) { state.huntActive = false; state.cherries += 30; showMessage("Av Tamam! +30 🍒"); window.saveProgress(); window.goRoom('kitchen'); }
+            if(state.huntTimer <= 0) { state.huntActive = false; state.cherries += 30; showMessage("Av Tamam!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
         if(state.schoolActive) {
             state.schoolTimer = Math.max(0, state.schoolTimer - state.schoolSpeed);
-            if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti! +40 🍒"); window.saveProgress(); window.goRoom('kitchen'); }
+            if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
-        // Speech logic
         state.lastSpeech++;
         if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
             state.lastSpeech = 0;
             const bubble = document.getElementById('speech-bubble');
             let text = (state.stats.energy < 30) ? "anne uykum geldi" : (state.stats.hunger < 30) ? "anne çok açımmm" : (state.stats.hygiene < 30) ? "anne duş almam gerek" : quotes[state.selectedChar][Math.floor(Math.random()*quotes[state.selectedChar].length)];
-            bubble.innerText = text; bubble.style.opacity = "1";
-            setTimeout(() => bubble.style.opacity = "0", 3500);
+            if(bubble) { bubble.innerText = text; bubble.style.opacity = "1"; setTimeout(() => { if(bubble) bubble.style.opacity = "0"; }, 3500); }
         }
         window.updateUI();
     }
@@ -553,8 +559,7 @@
         if(cont) {
             cont.classList.toggle('is-dirty', state.stats.hygiene < 50);
             if(state.selectedChar === 'alien' && state.huntActive) {
-                cont.style.opacity = "0.4"; bubble.style.opacity = "1"; 
-                bubble.innerText = `vişne topluyorum (${Math.ceil(state.huntTimer)}s)`;
+                cont.style.opacity = "0.4"; if(bubble) { bubble.style.opacity = "1"; bubble.innerText = `vişne topluyorum (${Math.ceil(state.huntTimer)}s)`; }
             } else if (state.selectedChar === 'alien' && !state.huntActive) { cont.style.opacity = "1"; }
         }
         const night = document.getElementById('night-overlay');
@@ -563,7 +568,7 @@
         if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     };
 
-    // --- MOBILE DRAG ---
+    // --- DRAG SYSTEM ---
     function makeElementDraggable(el, onDrag) {
         if(!el) return;
         let startX, startY;
@@ -612,7 +617,7 @@
         }
     }
 
-    onAuthStateChanged(auth, (u) => { user = u; if (u) loadProgress(); });
+    if (auth) onAuthStateChanged(auth, (u) => { user = u; if (u) loadProgress(); });
 
     window.onload = () => {
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
