@@ -58,7 +58,7 @@
         .hud-bar { background: var(--hud-bg); padding: 4px 8px; border-radius: 12px; border: 2px solid var(--border-color); display: flex; flex-direction: column; align-items: center; min-width: 60px; transition: 0.3s; }
         .hud-text { font-size: 7px; font-weight: 900; text-transform: uppercase; color: var(--text-color); margin-bottom: 2px; }
 
-        .draggable { cursor: grab; position: absolute; z-index: 100; touch-action: none; }
+        .draggable { cursor: grab; position: absolute; z-index: 380; touch-action: none; }
         .is-dragging { cursor: grabbing; z-index: 1000 !important; }
         
         .char-container { width: 140px; height: 140px; position: relative; z-index: 50; }
@@ -110,13 +110,17 @@
         .char-btn-stitch.selected { background: #1e3a8a !important; color: white !important; }
         .char-btn-chick.selected { background: #ffc2d1 !important; color: #4a1d2e !important; border-color: #ff85a2 !important; }
         .char-btn-alien.selected { background: #166534 !important; color: white !important; }
+        .char-btn-talha.selected { background: #ef4444 !important; color: white !important; }
 
         .bed-area { position: absolute; right: 0; top: 0; bottom: 0; width: 35%; background: rgba(255,255,255,0.01); z-index: 5; pointer-events: none; }
         
         .poster-frame { position: absolute; width: 70px; height: 95px; background: #fff; border: 4px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transform: rotate(1deg); z-index: 5; overflow: hidden; }
         .poster-frame img { width: 100%; height: 100%; object-fit: cover; }
 
-        .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 10px; z-index: 20; }
+        .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 12px; z-index: 20; transition: opacity 0.3s; }
+        .lock-overlay:hover { opacity: 0.95; cursor: pointer; }
+        .lock-overlay span { background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); margin-bottom: 2px; }
+        .lock-overlay p { font-size: 8px; color: #fca5a5; margin-top: 4px; text-transform: uppercase; text-align: center; padding: 0 4px; }
         
         .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
@@ -128,7 +132,7 @@
         @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .is-somersaulting { animation: somersault 0.6s ease-in-out; }
 
-        /* Karakter Seçim Animasyonları */
+        /* Karakter Seçim Animasyonları & Görünürlük Ayarları */
         @keyframes charWave {
             0%, 100% { transform: rotate(0deg); }
             25% { transform: rotate(-15deg) translateY(-10px); }
@@ -155,10 +159,19 @@
         }
         .anim-smoke { animation: puffSmoke 0.6s ease-out forwards; }
 
+        /* SVG PREVIEW DÜZELTME */
+        #selection-preview svg { 
+            width: 100%; 
+            height: auto; 
+            max-height: 45vh; 
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15));
+            transform-origin: center bottom;
+        }
+
         #shop-timer { font-size: 10px; font-weight: 800; color: #ff5c8d; background: rgba(255, 92, 141, 0.1); padding: 4px 8px; border-radius: 10px; margin-top: 5px; }
 
-        .admin-tab { padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
-        .admin-tab.active { border-bottom-color: #ef4444; color: #ef4444; }
+        .admin-tab, .shop-tab { padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .admin-tab.active, .shop-tab.active { border-bottom-color: #ef4444; color: #ef4444; }
 
         /* Civcik Kule Game CSS (Toy Theme Redesign) */
         #blockblast-screen { 
@@ -176,17 +189,18 @@
             border-radius: 8px; 
         }
         
-        .bb-tray { display: flex; justify-content: space-around; align-items: center; height: 130px; margin-top: 30px; gap: 10px; }
-        .bb-shape-wrapper { display: grid; gap: 1px; cursor: grab; padding: 5px; border-radius: 5px; transition: transform 0.2s; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2)); }
+        .bb-tray { display: flex; justify-content: space-evenly; align-items: center; height: 110px; margin-top: 15px; width: 100%; gap: 10px; }
+        .bb-shape-wrapper { display: flex; align-items: center; justify-content: center; flex: 1; cursor: grab; transition: transform 0.2s; filter: drop-shadow(0 5px 8px rgba(0,0,0,0.2)); }
         .bb-shape-wrapper:hover { transform: scale(1.05); }
+        .bb-shape-inner { display: grid; gap: 1px; touch-action:none; }
         
         .bb-shape-cell { 
-            width: 24px; height: 24px; border-radius: 6px; 
-            box-shadow: inset -2px -3px 4px rgba(0,0,0,0.2), inset 2px 3px 4px rgba(255,255,255,0.5); 
+            width: 14px; height: 14px; border-radius: 4px; 
+            box-shadow: inset -1px -2px 3px rgba(0,0,0,0.2), inset 1px 2px 3px rgba(255,255,255,0.5); 
             border: 1px solid rgba(0,0,0,0.1);
         }
         .bb-shape-cell.empty { background: transparent !important; box-shadow: none; border: none; }
-        .bb-dragging { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.4); opacity: 0.95; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3)); }
+        .bb-dragging { position: fixed; pointer-events: none; z-index: 9999; transform: scale(1.1); opacity: 0.95; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); }
 
         @keyframes floatUpText {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
@@ -204,6 +218,14 @@
         /* Drawing Canvas Tool */
         .color-btn { width: 35px; height: 35px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.2s; }
         .color-btn:active, .color-btn.selected { transform: scale(1.2); border-color: #4a1d2e; }
+
+        /* Maden Efektleri */
+        @keyframes mineSwing {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-45deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .swinging { animation: mineSwing 0.5s infinite; transform-origin: bottom left; }
     </style>
 </head>
 <body id="main-body">
@@ -308,41 +330,65 @@
 
 <!-- SELECTION (Mobil Uyumlu) -->
 <div id="selection-screen" class="screen hidden-screen p-2 md:p-10">
-    <div class="flex flex-row h-full items-center justify-center gap-2 md:gap-8 max-w-6xl mx-auto w-full overflow-y-auto">
-        <div class="soft-panel w-[60%] md:w-full max-w-sm p-3 md:p-6 z-20 relative flex flex-col max-h-[95vh] overflow-y-auto">
+    <div class="flex flex-row h-full items-center justify-center gap-1 md:gap-8 max-w-6xl mx-auto w-full overflow-y-auto px-2">
+        <div class="soft-panel w-[55%] md:w-[60%] lg:max-w-sm p-3 md:p-6 z-20 relative flex flex-col max-h-[95vh] overflow-y-auto">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2">
                 <div>
                     <h2 class="text-base md:text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
-                    <p class="text-[9px] md:text-[10px] font-black text-red-400 mt-1">🍒 Vişnen: <span id="cherry-count-selection">0</span></p>
+                    <div class="flex flex-col mt-1 gap-1">
+                        <p class="text-[9px] md:text-[10px] font-black text-red-400">🍒 Vişnen: <span id="cherry-count-selection">0</span></p>
+                        <p class="text-[9px] md:text-[10px] font-black text-blue-400">💎 Elmas: <span id="diamond-count-selection">0</span></p>
+                    </div>
                 </div>
                 <div class="flex gap-1 md:gap-2">
                     <button onclick="window.handleLogout()" class="bg-gray-200 text-gray-700 px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase shadow-sm hover:bg-red-500 hover:text-white transition-colors">Çıkış</button>
                     <button onclick="window.openShop()" class="bg-[#ef4444] text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-[8px] md:text-[9px] font-black uppercase shadow-lg animate-pulse">Mağaza</button>
                 </div>
             </div>
+            
             <div class="flex flex-col gap-2" id="char-list">
                 <button onclick="window.updateSelection('kitty')" id="opt-kitty" class="char-btn char-btn-kitty selected p-2 md:p-3">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">🎀</div>
-                    <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Hello Kitty</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">En Tatlı</p></div>
+                    <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Hello Kitty</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Açık</p></div>
                 </button>
-                <button onclick="window.updateSelection('stitch')" id="opt-stitch" class="char-btn char-btn-stitch p-2 md:p-3">
+                
+                <button onclick="window.updateSelection('stitch')" id="opt-stitch" class="char-btn char-btn-stitch relative overflow-hidden p-2 md:p-3">
+                    <div id="stitch-lock-ui" class="lock-overlay"><span>🍒 50</span><p>Kilidi Aç</p></div>
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">🌀</div>
                     <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Stitch</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Haylaz</p></div>
                 </button>
+                
+                <button onclick="window.updateSelection('alien')" id="opt-alien" class="char-btn char-btn-alien relative overflow-hidden p-2 md:p-3">
+                    <div id="alien-lock-ui" class="lock-overlay"><span>🍒 100</span><p>Kilidi Aç</p></div>
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">👽</div>
+                    <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Prospectus</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Uzaylı</p></div>
+                </button>
+                
                 <button onclick="window.updateSelection('chick')" id="opt-chick" class="char-btn char-btn-chick relative overflow-hidden p-2 md:p-3">
-                    <div id="chick-lock-ui" class="lock-overlay"><span>🍒 50</span></div>
+                    <div id="chick-lock-ui" class="lock-overlay"><span>🍒 150</span><p>Kilidi Aç</p></div>
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">🐣</div>
                     <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Civcik</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Minik</p></div>
                 </button>
-                <button onclick="window.updateSelection('alien')" id="opt-alien" class="char-btn char-btn-alien p-2 md:p-3">
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">👽</div>
-                    <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Prospectus</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Uzaylı</p></div>
+                
+                <button onclick="window.updateSelection('talha')" id="opt-talha" class="char-btn char-btn-talha relative overflow-hidden p-2 md:p-3">
+                    <div id="talha-lock-ui" class="lock-overlay"><span>🍒 200</span><p>Kilidi Aç</p></div>
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">❤️</div>
+                    <div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Talha</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Seni Seviyor</p></div>
                 </button>
             </div>
             <button onclick="window.enterWorld()" class="w-full mt-4 soft-btn py-3 md:py-4 text-xs md:text-base">DÜNYAYA GİT</button>
         </div>
-        <div id="selection-preview" class="w-[40%] md:w-full max-w-[200px] aspect-square flex items-center justify-center relative"></div>
+        <div id="selection-preview" class="w-[45%] md:w-[40%] max-w-[250px] shrink-0 flex items-center justify-center relative pointer-events-none"></div>
     </div>
+</div>
+
+<!-- DÜNYA SEÇİM EKRANI (SUB-WORLD) -->
+<div id="world-selection-screen" class="screen hidden-screen p-4 md:p-10 flex flex-col items-center justify-center bg-black/80 z-[100] backdrop-blur-sm">
+    <h2 class="text-3xl md:text-4xl font-black text-white mb-8 uppercase drop-shadow-lg text-center">Gideceğin Yeri Seç</h2>
+    <div id="world-options" class="flex flex-wrap justify-center gap-6 max-w-4xl w-full">
+        <!-- JS ile dolacak -->
+    </div>
+    <button onclick="window.changeScreen('selection-screen')" class="mt-12 bg-gray-800 text-white px-8 py-3 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-gray-700">Geri Dön</button>
 </div>
 
 <!-- WORLD -->
@@ -355,6 +401,8 @@
             <div class="hud-bar"><span class="hud-text">Hijyen</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hygiene" class="h-full bg-blue-400" style="width: 100%"></div></div></div>
             <div class="hud-bar"><span class="hud-text">Uyku</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-energy" class="h-full bg-yellow-400" style="width: 100%"></div></div></div>
             <div class="flex items-center gap-1 px-3 bg-white border-2 border-red-200 rounded-xl font-black text-red-500 text-sm shadow-sm">🍒 <span id="cherry-count-hud">0</span></div>
+            <!-- Elmas Sayacı Eklendi -->
+            <div class="flex items-center gap-1 px-3 bg-white border-2 border-blue-200 rounded-xl font-black text-blue-500 text-sm shadow-sm">💎 <span id="diamond-count-hud">0</span></div>
         </div>
         <button onclick="window.changeScreen('selection-screen')" class="bg-white/90 px-3 py-1.5 rounded-xl border border-pink-100 text-[8px] font-black uppercase text-pink-500 flex-shrink-0">Değiştir</button>
     </div>
@@ -385,6 +433,9 @@
         <button id="nav-bedroom" onclick="window.goRoom('bedroom')" class="nav-btn"><span>🛌</span><span class="text-[9px]">Uyku</span></button>
         <button id="nav-garden" onclick="window.goRoom('garden')" class="nav-btn"><span>🌲</span><span class="text-[9px]">Bahçe</span></button>
         <button id="nav-school" onclick="window.goRoom('school')" class="nav-btn"><span>🎓</span><span class="text-[9px]">Okul</span></button>
+        <button id="nav-cinema" onclick="window.goRoom('cinema')" class="nav-btn hidden"><span>🍿</span><span class="text-[9px]">Sinema</span></button>
+        <button id="nav-moon_mine" onclick="window.goRoom('moon_mine')" class="nav-btn hidden"><span>⛏️</span><span class="text-[9px]">Maden</span></button>
+        <button id="nav-planet_kitty" onclick="window.goRoom('planet_kitty')" class="nav-btn hidden"><span>💖</span><span class="text-[9px]">Gezegen</span></button>
     </div>
 </div>
 
@@ -442,15 +493,66 @@
     </div>
 </div>
 
-<!-- DİĞER MODALLAR (Mağaza ve Dolap) -->
+<!-- UZAY OYUNU (PROSPECTUS) MODALI -->
+<div id="alien-game-screen" class="screen hidden-screen p-4 flex-col items-center justify-center bg-gray-900/95 z-[700]">
+    <div class="relative w-full max-w-sm aspect-[3/4] bg-black border-[6px] border-purple-500 rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/50">
+        <canvas id="alien-canvas" class="w-full h-full block touch-none"></canvas>
+        
+        <div class="absolute top-4 left-4 font-black text-white text-xl drop-shadow-md z-10">Skor: <span id="alien-score" class="text-green-400">0</span></div>
+        <button onclick="window.closeAlienGame()" class="absolute top-4 right-4 bg-red-500 text-white w-10 h-10 rounded-full font-black text-xl z-10 shadow-lg hover:scale-110 transition-transform flex items-center justify-center">X</button>
+        
+        <div id="alien-game-over" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-20">
+            <h2 id="alien-game-msg" class="text-3xl font-black text-purple-400 mb-6 text-center drop-shadow-lg px-4"></h2>
+            <button onclick="window.startAlienGame()" class="bg-green-500 text-white px-8 py-3 rounded-xl text-lg font-black uppercase mb-4 shadow-lg hover:bg-green-400 hover:scale-105 transition-all">Tekrar Oyna</button>
+            <button onclick="window.closeAlienGame()" class="text-sm text-gray-300 underline font-bold uppercase">Çıkış</button>
+        </div>
+    </div>
+    <p class="text-white/60 text-xs font-bold mt-4 uppercase text-center w-full">Mekiği kontrol etmek için<br>parmağınla sağa sola sürükle! 🚀</p>
+</div>
+
+<!-- MAĞAZA & KARA MARKET MODALI -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 z-[600] hidden items-center justify-center p-2">
     <div class="soft-panel p-6 max-w-xl w-full border-4 border-red-300 flex flex-col relative">
-        <div class="flex justify-between items-center mb-2">
-            <h3 class="text-xl font-black text-red-500 uppercase">🍒 VişneMağaza</h3>
-            <button onclick="window.closeShop()" class="bg-red-500 text-white w-8 h-8 rounded-full font-black">X</button>
+        <button onclick="window.closeShop()" class="absolute -top-4 -right-4 bg-red-500 text-white w-10 h-10 rounded-full font-black border-2 border-white z-50">X</button>
+        
+        <!-- Sekmeler -->
+        <div class="flex gap-4 border-b-2 border-pink-100 mb-4 justify-center">
+            <div class="shop-tab active" onclick="window.switchShopTab('items', this)">🛍️ Kıyafetler</div>
+            <div class="shop-tab" onclick="window.switchShopTab('market', this)">📈 Kara Market</div>
         </div>
-        <div id="shop-timer" class="mb-4 text-center">Yenilenmesine: 00:00:00 kaldı</div>
-        <div id="shop-items-container" class="modal-body grid-flex"></div>
+
+        <!-- Eşyalar (Normal Shop) -->
+        <div id="shop-items-section" class="w-full">
+            <div id="shop-timer" class="mb-4 text-center">Yenilenmesine: 00:00:00 kaldı</div>
+            <div id="shop-items-container" class="modal-body grid-flex"></div>
+        </div>
+
+        <!-- Kara Market (Borsa) -->
+        <div id="black-market-container" class="w-full hidden flex flex-col items-center">
+            <h3 class="text-xl font-black text-blue-500 uppercase mb-2">💎 Elmas Borsası</h3>
+            <p class="text-xs text-gray-500 mb-4 text-center font-bold">1 Dakikada bir fiyatlar güncellenir.<br>Al-Sat yaparak zengin ol!</p>
+            
+            <div class="bg-gray-900 w-full rounded-xl p-3 mb-4 border-2 border-blue-300 shadow-inner relative">
+                <div id="market-graph-container"></div>
+                <div class="flex justify-between text-[10px] text-gray-400 mt-1 font-bold"><span>Geçmiş</span><span>Şimdi</span></div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-blue-50 p-4 rounded-xl border border-blue-200 w-full justify-center">
+                <div class="text-center flex-1">
+                    <p class="text-sm font-black text-gray-700 uppercase">Güncel Fiyat</p>
+                    <p class="text-3xl font-black text-red-500"><span id="bm-current-price">0</span> 🍒</p>
+                </div>
+                <div class="flex flex-col gap-2 flex-1">
+                    <button onclick="window.buyDiamond()" class="bg-green-500 text-white py-2 rounded-lg font-black uppercase text-sm shadow hover:bg-green-600">Al (1💎)</button>
+                    <button onclick="window.sellDiamond()" class="bg-red-500 text-white py-2 rounded-lg font-black uppercase text-sm shadow hover:bg-red-600">Sat (1💎)</button>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex gap-4 text-sm font-black text-gray-600">
+                <p>Senin Vişnen: <span id="bm-user-cherries" class="text-red-500">0</span></p>
+                <p>Elmasın: <span id="bm-user-diamonds" class="text-blue-500">0</span></p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -487,14 +589,14 @@
         "talha": { pass: "talha2008", uid: "admin_user", role: "admin" }
     };
     
-    // YENİ SVG KIYAFET VE AKSESUARLAR EKLENDİ!
-    window.dynamicShopItems = {
-        "hat": { id: "hat", name: "Kral Tacı", price: 150, rarity: "Efsanevi", svg: `<g transform="translate(80, 50)"><path d="M 0 30 L 0 0 L 10 15 L 20 0 L 30 15 L 40 0 L 40 30 Z" fill="#fbbf24" stroke="#000" stroke-width="2"/></g>` },
-        "glasses": { id: "glasses", name: "Havalı Gözlük", price: 100, rarity: "Ender", svg: `<g transform="translate(60, 85)"><rect x="0" y="0" width="30" height="20" rx="5" fill="none" stroke="#000" stroke-width="4"/><rect x="50" y="0" width="30" height="20" rx="5" fill="none" stroke="#000" stroke-width="4"/><line x1="30" y1="10" x2="50" y2="10" stroke="#000" stroke-width="4"/></g>` },
-        "tshirt": { id: "tshirt", name: "Yıldızlı Tişört", price: 200, rarity: "Özel", svg: `<g transform="translate(65, 130)"><path d="M 0 0 L 70 0 L 80 20 L 70 25 L 70 45 L 0 45 L 0 25 L -10 20 Z" fill="#22c55e" stroke="#000" stroke-width="2"/><text x="35" y="30" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">★</text></g>` },
-        "skirt": { id: "skirt", name: "Tatlı Etek", price: 180, rarity: "Özel", svg: `<g transform="translate(70, 160)"><path d="M 10 0 L 50 0 L 60 30 L 0 30 Z" fill="#ec4899" stroke="#000" stroke-width="2"/></g>` },
-        "dress": { id: "dress", name: "Fırfırlı Elbise", price: 300, rarity: "Efsanevi", svg: `<g transform="translate(50, 148) scale(0.95) translate(-50,-50)"><path d="M28 42 Q 50 38 72 42 L 78 75 Q 50 70 22 75 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.2"/><path d="M22 75 Q 35 70 45 75 Q 55 70 65 75 Q 75 70 88 75 L 94 98 Q 50 90 6 98 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.2"/><circle cx="50" cy="62" r="4" fill="#ef4444" stroke="#4a1d2e" stroke-width="1"/></g>`}
+    const defaultShopItems = {
+        "hat": { id: "hat", name: "Kral Tacı", price: 150, rarity: "Efsanevi", svg: `<path d="M 10 90 L 10 30 L 30 60 L 50 20 L 70 60 L 90 30 L 90 90 Z" fill="#fbbf24" stroke="#000" stroke-width="4"/>` },
+        "glasses": { id: "glasses", name: "Havalı Gözlük", price: 100, rarity: "Ender", svg: `<rect x="10" y="30" width="35" height="25" rx="5" fill="rgba(0,0,0,0.8)" stroke="#000" stroke-width="6"/><rect x="55" y="30" width="35" height="25" rx="5" fill="rgba(0,0,0,0.8)" stroke="#000" stroke-width="6"/><line x1="45" y1="42" x2="55" y2="42" stroke="#000" stroke-width="6"/>` },
+        "tshirt": { id: "tshirt", name: "Yıldızlı Tişört", price: 200, rarity: "Özel", svg: `<path d="M 10 20 L 90 20 L 100 50 L 80 60 L 80 90 L 20 90 L 20 60 L 0 50 Z" fill="#22c55e" stroke="#000" stroke-width="4"/><text x="50" y="65" text-anchor="middle" fill="#fff" font-size="30" font-weight="bold">★</text>` },
+        "skirt": { id: "skirt", name: "Tatlı Etek", price: 180, rarity: "Özel", svg: `<path d="M 25 10 L 75 10 L 95 80 L 5 80 Z" fill="#ec4899" stroke="#000" stroke-width="4"/>` },
+        "dress": { id: "dress", name: "Fırfırlı Elbise", price: 300, rarity: "Efsanevi", svg: `<path d="M 30 10 L 70 10 L 85 45 L 95 90 L 5 90 L 15 45 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="4"/><circle cx="50" cy="30" r="6" fill="#ef4444" stroke="#4a1d2e" stroke-width="2"/>` }
     };
+    window.dynamicShopItems = { ...defaultShopItems };
 
     let userProgressUnsub = null;
     let shopUnsub = null;
@@ -503,24 +605,32 @@
 
     window.showMessage = (txt) => {
         const m = document.createElement('div');
-        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
+        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce z-[9999]";
         m.innerText = txt; document.body.appendChild(m);
         setTimeout(() => m.remove(), 2500);
     };
 
     window.calculateDays = () => Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
 
+    const charPrices = { kitty: 0, stitch: 50, alien: 100, chick: 150, talha: 200 };
+
     window.state = {
         selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, energy: 70, hygiene: 100 },
-        isSleeping: false, outfit: 'default', cherries: 0, 
+        isSleeping: false, outfit: 'default', cherries: 0, diamonds: 0,
         huntActive: false, huntTimer: 60, huntSpeed: 1,
         schoolActive: false, schoolTimer: 60, schoolSpeed: 1,
         isDarkMode: false, inventory: [], lastSpeech: 0,
         blockHighScore: 0,
-        savedDrawings: { 1: null, 2: null, 3: null, 4: null, 5: null } // 5 Sayfalık Defter
+        savedDrawings: { 1: null, 2: null, 3: null, 4: null, 5: null },
+        unlockedChars: ['kitty'],
+        unlockedSubWorlds: [],
+        mineResources: 5,
+        lastMinedTime: 0,
+        hasPickaxe: false,
+        isMining: false
     };
 
-    const themes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1" };
+    const themes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1", talha: "#fca5a5" };
     const normalFoods = ['🍕', '🧁', '🍝'];
     const spaceFoods = ['☄️', '💎', '💍'];
     let currentFoodIdx = 0;
@@ -529,17 +639,29 @@
         kitty: ["anne ödevim birikti yaaa", "babamı özledimmm", "hava çok güzel anneee", "babamı çok seviyom"],
         alien: ["hayirsiz evlat miyim", "cok tatlisin bugün annee", "uzayda hava nasil", "annemmm canım annem"],
         stitch: ["karnım acıktı", "anne biraz dışarı çıkalımmm", "ohana demek aile demek", "takla atayım mı"],
-        chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"]
+        chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"],
+        talha: ["hadi beraber izleyelim sevgilim!", "aşkım hep seninle olacağım", "çok güzel değil mi", "seninle olmak keyif verici"]
     };
 
     window.getLegs = (color) => {
         return `<ellipse class="limb limb-leg-l" cx="85" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>`;
     };
 
-    window.getOutfitSvg = () => {
+    window.getOutfitSvg = (char) => {
         if(state.outfit === 'default') return "";
         const item = window.dynamicShopItems[state.outfit];
-        return item ? item.svg : "";
+        if(!item) return "";
+
+        const t = {
+            'kitty': { 'hat': 'translate(75, -5) scale(0.5)', 'glasses': 'translate(65, 65) scale(0.7)', 'tshirt': 'translate(65, 130) scale(0.7)', 'skirt': 'translate(65, 160) scale(0.7)', 'dress': 'translate(65, 130) scale(0.7)' },
+            'stitch': { 'hat': 'translate(75, -10) scale(0.5)', 'glasses': 'translate(55, 65) scale(0.9)', 'tshirt': 'translate(50, 130) scale(1.0)', 'skirt': 'translate(50, 175) scale(1.0)', 'dress': 'translate(50, 130) scale(1.0)' },
+            'alien': { 'hat': 'translate(75, 0) scale(0.5)', 'glasses': 'translate(60, 60) scale(0.8)', 'tshirt': 'translate(60, 140) scale(0.8)', 'skirt': 'translate(60, 175) scale(0.8)', 'dress': 'translate(60, 140) scale(0.8)' },
+            'chick': { 'hat': 'translate(75, -10) scale(0.5)', 'glasses': 'translate(65, 70) scale(0.7)', 'tshirt': 'translate(60, 130) scale(0.8)', 'skirt': 'translate(60, 170) scale(0.8)', 'dress': 'translate(60, 130) scale(0.8)' },
+            'talha': { 'hat': 'translate(75, -20) scale(0.5)', 'glasses': 'translate(65, 30) scale(0.7)', 'tshirt': 'translate(55, 95) scale(0.9)', 'skirt': 'translate(55, 140) scale(0.9)', 'dress': 'translate(55, 95) scale(0.9)' }
+        };
+
+        const transform = (t[char] && t[char][item.id]) ? t[char][item.id] : 'translate(50,50) scale(0.5)';
+        return `<g transform="${transform}">${item.svg}</g>`;
     };
 
     window.getKittySvg = () => {
@@ -561,13 +683,53 @@
                 <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/>
                 <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>
             </g>
-            ${window.getOutfitSvg()}
+            ${window.getOutfitSvg('kitty')}
         </svg>`;
     };
 
     window.getOtherSvg = (char) => {
+        let outfitSvg = window.getOutfitSvg(char);
+        
+        if (char === 'talha') {
+            return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Pantolon (Bacaklar) -->
+                <rect class="limb limb-leg-l" x="75" y="160" width="16" height="35" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+                <rect class="limb limb-leg-r" x="109" y="160" width="16" height="35" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+                <!-- Beyaz Ayakkabılar -->
+                <ellipse class="limb limb-leg-l" cx="83" cy="198" rx="14" ry="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                <ellipse class="limb limb-leg-r" cx="117" cy="198" rx="14" ry="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                
+                <!-- Tişört (Gövde) -->
+                <rect x="65" y="105" width="70" height="60" rx="12" fill="#ef4444" stroke="#991b1b" stroke-width="2"/>
+                <text x="100" y="145" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="900" font-family="Arial">T</text>
+                
+                <!-- Kollar -->
+                <g class="limb limb-arm-l" transform-origin="55px 110px">
+                    <rect x="48" y="110" width="14" height="40" rx="7" fill="#ef4444" stroke="#991b1b" stroke-width="2"/>
+                    <ellipse cx="55" cy="150" rx="7" ry="9" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/>
+                </g>
+                <g class="limb limb-arm-r" transform-origin="145px 110px">
+                    <rect x="138" y="110" width="14" height="40" rx="7" fill="#ef4444" stroke="#991b1b" stroke-width="2"/>
+                    <ellipse cx="145" cy="150" rx="7" ry="9" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/>
+                </g>
+
+                <!-- Kafa -->
+                <g class="char-head">
+                    <ellipse cx="62" cy="70" rx="7" ry="10" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/>
+                    <ellipse cx="138" cy="70" rx="7" ry="10" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/>
+                    <ellipse cx="100" cy="65" rx="35" ry="38" fill="#ffedd5" stroke="#fdba74" stroke-width="2"/>
+                    <path d="M 60 50 C 60 10, 140 10, 140 50 C 120 20, 80 20, 60 50 Z" fill="#111827" stroke="#000" stroke-width="1"/>
+                    <path d="M 70 40 Q 80 60 90 40" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M 110 35 Q 120 55 130 38" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="88" cy="60" r="4" fill="#000"/>
+                    <circle cx="112" cy="60" r="4" fill="#000"/>
+                    <path d="M 92 80 Q 100 88 108 80" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>
+                </g>
+                ${outfitSvg}
+            </svg>`;
+        }
+
         let color = char === 'stitch' ? '#2563eb' : (char === 'alien' ? '#4ade80' : '#fb923c');
-        let outfitSvg = window.getOutfitSvg();
         
         if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
             ${window.getLegs(color)}
@@ -619,21 +781,20 @@
         shopUnsub = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shopItems'), (snap) => {
             if(!snap.empty) {
                 let newShop = { ...window.dynamicShopItems };
-                snap.forEach(doc => { newShop[doc.id] = doc.data(); });
+                snap.forEach(doc => { 
+                    let itemData = doc.data();
+                    if (defaultShopItems[doc.id]) { itemData.svg = defaultShopItems[doc.id].svg; }
+                    newShop[doc.id] = itemData; 
+                });
                 window.dynamicShopItems = newShop;
             }
-            if(document.getElementById('admin-screen').classList.contains('hidden-screen') === false) {
-                window.renderAdminShopList();
-            }
+            if(document.getElementById('admin-screen').classList.contains('hidden-screen') === false) { window.renderAdminShopList(); }
         });
 
         if(accountsUnsub) accountsUnsub();
         accountsUnsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'system', 'accounts'), (snap) => {
-            if(snap.exists()) {
-                window.registeredAccounts = { ...window.registeredAccounts, ...snap.data().users };
-            } else {
-                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'system', 'accounts'), { users: window.registeredAccounts });
-            }
+            if(snap.exists()) { window.registeredAccounts = { ...window.registeredAccounts, ...snap.data().users }; } 
+            else { setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'system', 'accounts'), { users: window.registeredAccounts }); }
         });
     }
 
@@ -649,13 +810,19 @@
                 if(data.cherries !== undefined) state.cherries = data.cherries;
                 if(data.inventory) state.inventory = data.inventory;
                 if(data.outfit) state.outfit = data.outfit;
-                if(data.blockHighScore) state.blockHighScore = data.blockHighScore;
-                if(data.savedDrawings) {
-                    state.savedDrawings = data.savedDrawings;
-                } else if(data.savedDrawing) { // Eski veriyi koru
-                    state.savedDrawings[1] = data.savedDrawing;
-                }
+                if(data.blockHighScore !== undefined) state.blockHighScore = data.blockHighScore;
+                if(data.diamonds !== undefined) state.diamonds = data.diamonds;
+                if(data.mineResources !== undefined) state.mineResources = data.mineResources;
+                if(data.lastMinedTime !== undefined) state.lastMinedTime = data.lastMinedTime;
+                
+                if(data.unlockedChars) state.unlockedChars = data.unlockedChars;
+                if(data.unlockedSubWorlds) state.unlockedSubWorlds = data.unlockedSubWorlds;
+                
+                if(data.savedDrawings) { state.savedDrawings = data.savedDrawings; } 
+                else if(data.savedDrawing) { state.savedDrawings[1] = data.savedDrawing; }
+                
                 window.updateUI();
+                if(!document.getElementById('black-market-container').classList.contains('hidden')) { renderBlackMarket(); }
             }
         });
     }
@@ -667,11 +834,16 @@
             await setDoc(userRef, {
                 username: currentUserDisplayName,
                 cherries: state.cherries,
+                diamonds: state.diamonds,
                 inventory: state.inventory,
                 stats: state.stats,
                 outfit: state.outfit,
                 blockHighScore: state.blockHighScore,
                 savedDrawings: state.savedDrawings,
+                unlockedChars: state.unlockedChars,
+                unlockedSubWorlds: state.unlockedSubWorlds,
+                mineResources: state.mineResources,
+                lastMinedTime: state.lastMinedTime,
                 lastUpdate: new Date().toISOString()
             }, { merge: true });
         } catch(e) { }
@@ -696,31 +868,23 @@
                 setupUserProgress();
                 window.changeScreen('welcome-screen');
             }
-        } else { 
-            showMessage("Hatalı Giriş!"); 
-        }
+        } else { showMessage("Hatalı Giriş!"); }
     };
 
     window.handleGuestLogin = async () => {
-        isGuest = true;
-        currentUserId = "anonymous";
-        currentUserDisplayName = "Misafir";
+        isGuest = true; currentUserId = "anonymous"; currentUserDisplayName = "Misafir";
         if(userProgressUnsub) { userProgressUnsub(); userProgressUnsub = null; }
-        showMessage("Misafir Girdin, Kaydedilmez!");
-        window.changeScreen('welcome-screen');
+        showMessage("Misafir Girdin, Kaydedilmez!"); window.changeScreen('welcome-screen');
     };
 
     window.handleLogout = () => {
-        isGuest = true;
-        currentUserId = "anonymous";
-        currentUserDisplayName = "Kullanıcı";
+        isGuest = true; currentUserId = "anonymous"; currentUserDisplayName = "Kullanıcı";
         if(userProgressUnsub) { userProgressUnsub(); userProgressUnsub = null; }
-        document.getElementById('login-username').value = "";
-        document.getElementById('login-password').value = "";
-        window.changeScreen('login-screen');
-        showMessage("Başarıyla çıkış yapıldı!");
+        document.getElementById('login-username').value = ""; document.getElementById('login-password').value = "";
+        window.changeScreen('login-screen'); showMessage("Başarıyla çıkış yapıldı!");
     };
 
+    // ADMIN FUNCTIONS ...
     let adminUsersUnsubList = [];
     function setupAdminRealtime() {
         if (!db || !user) return;
@@ -730,8 +894,7 @@
             if(acc.role !== 'admin') {
                 const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'userProgress', acc.uid);
                 const unsub = onSnapshot(userRef, (snap) => {
-                    allUsersData[username] = snap.exists() ? snap.data() : { cherries: 0 };
-                    window.renderAdminUserList();
+                    allUsersData[username] = snap.exists() ? snap.data() : { cherries: 0 }; window.renderAdminUserList();
                 });
                 adminUsersUnsubList.push(unsub);
             }
@@ -750,23 +913,18 @@
         const id = document.getElementById('admin-item-id').value.trim(); const name = document.getElementById('admin-item-name').value.trim(); const price = parseInt(document.getElementById('admin-item-price').value); const rarity = document.getElementById('admin-item-rarity').value.trim(); const svg = document.getElementById('admin-item-svg').value.trim();
         if(!id || !name || isNaN(price) || !svg) { showMessage("Lütfen tüm alanları doldurun!"); return; }
         const newItem = { id, name, price, rarity, svg };
-        try {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shopItems', id), newItem);
-            showMessage("Eşya Eklendi!"); document.getElementById('admin-item-id').value = ''; document.getElementById('admin-item-name').value = ''; document.getElementById('admin-item-price').value = ''; document.getElementById('admin-item-rarity').value = ''; document.getElementById('admin-item-svg').value = '';
-        } catch(e) { showMessage("Hata oluştu."); }
+        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shopItems', id), newItem); showMessage("Eşya Eklendi!"); document.getElementById('admin-item-id').value = ''; document.getElementById('admin-item-name').value = ''; document.getElementById('admin-item-price').value = ''; document.getElementById('admin-item-rarity').value = ''; document.getElementById('admin-item-svg').value = ''; } catch(e) {}
     };
 
     window.adminDeleteShopItem = async (id) => {
         if (!user) return;
-        if(id === 'hat' || id === 'tie' || id === 'dress' || id === 'skirt' || id === 'glasses' || id === 'tshirt') { showMessage("Varsayılanları silemezsiniz!"); return; }
-        try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shopItems', id)); delete window.dynamicShopItems[id]; showMessage("Eşya Silindi!"); window.renderAdminShopList(); } catch(e) { }
+        if(defaultShopItems[id]) { showMessage("Varsayılanları silemezsiniz!"); return; }
+        try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shopItems', id)); delete window.dynamicShopItems[id]; showMessage("Eşya Silindi!"); window.renderAdminShopList(); } catch(e) {}
     };
 
     window.renderAdminShopList = () => {
         const list = document.getElementById('admin-shop-list'); if(!list) return; list.innerHTML = '';
-        Object.values(window.dynamicShopItems).forEach(item => {
-            list.innerHTML += `<div class="bg-white border rounded-xl p-3 text-center shadow-sm relative"><div class="w-12 h-12 mx-auto bg-gray-50 rounded-full border mb-2"><svg viewBox="0 0 100 100">${item.svg}</svg></div><p class="font-bold text-xs">${item.name}</p><p class="text-[10px] text-red-500 font-black">${item.price} 🍒</p><button onclick="window.adminDeleteShopItem('${item.id}')" class="absolute top-1 right-1 bg-red-100 text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">X</button></div>`;
-        });
+        Object.values(window.dynamicShopItems).forEach(item => { list.innerHTML += `<div class="bg-white border rounded-xl p-3 text-center shadow-sm relative"><div class="w-12 h-12 mx-auto bg-gray-50 rounded-full border mb-2 flex items-center justify-center"><svg viewBox="0 0 100 100" width="100%" height="100%">${item.svg}</svg></div><p class="font-bold text-xs">${item.name}</p><p class="text-[10px] text-red-500 font-black">${item.price} 🍒</p><button onclick="window.adminDeleteShopItem('${item.id}')" class="absolute top-1 right-1 bg-red-100 text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">X</button></div>`; });
     };
 
     window.renderAdminUserList = () => {
@@ -776,31 +934,27 @@
             const acc = window.registeredAccounts[username];
             if(acc.role !== 'admin') {
                 const data = allUsersData[username] || { cherries: 0 }; const cherries = data.cherries || 0;
-                list.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl border shadow-sm"><div class="font-bold text-gray-700 capitalize">${username}</div><div class="font-black text-red-500 bg-red-50 px-3 py-1 rounded-full text-xs">${cherries} 🍒</div></div>`;
+                list.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl border shadow-sm mb-2"><div class="font-bold text-gray-700 capitalize">${username} <span class="text-[9px] text-gray-400 ml-1 border border-gray-200 px-1 rounded">Şifre: ${acc.pass}</span></div><div class="flex items-center gap-2"><div class="font-black text-red-500 bg-red-50 px-3 py-1 rounded-full text-xs">${cherries} 🍒</div><button onclick="window.adminDeleteAccount('${username}', '${acc.uid}')" class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-md hover:scale-110 transition-transform">X</button></div></div>`;
                 optionsHtml += `<option value="${acc.uid}">${username} (Şu an: ${cherries}🍒)</option>`;
             }
         });
         select.innerHTML = optionsHtml;
     };
 
+    window.adminDeleteAccount = async (username, uid) => {
+        if (!user) return; if(username === 'nisan') { showMessage("Ana hesabı silemezsin! ❤️"); return; }
+        try { const newAccounts = { ...window.registeredAccounts }; delete newAccounts[username]; await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'userProgress', uid)); delete allUsersData[username]; showMessage(`Hesap tamamen silindi: ${username} 🗑️`); window.renderAdminUserList(); } catch(e) {}
+    };
+
     window.adminModifyCherries = async () => {
-        if (!user) return;
-        const uid = document.getElementById('admin-user-select').value; const amount = parseInt(document.getElementById('admin-cherry-amount').value);
+        if (!user) return; const uid = document.getElementById('admin-user-select').value; const amount = parseInt(document.getElementById('admin-cherry-amount').value);
         if(!uid || isNaN(amount)) { showMessage("Geçersiz miktar!"); return; }
-        try {
-            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'userProgress', uid);
-            const snap = await getDoc(userRef); let current = 0;
-            if(snap.exists() && snap.data().cherries) current = snap.data().cherries;
-            await setDoc(userRef, { cherries: Math.max(0, current + amount) }, { merge: true });
-            showMessage("Vişneler güncellendi!"); document.getElementById('admin-cherry-amount').value = '';
-        } catch(e) { showMessage("Hata oluştu."); }
+        try { const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'userProgress', uid); const snap = await getDoc(userRef); let current = 0; if(snap.exists() && snap.data().cherries) current = snap.data().cherries; await setDoc(userRef, { cherries: Math.max(0, current + amount) }, { merge: true }); showMessage("Vişneler güncellendi!"); document.getElementById('admin-cherry-amount').value = ''; } catch(e) {}
     };
 
     window.adminCreateAccount = async () => {
-        if (!user) return;
-        const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); const p = document.getElementById('admin-new-pass').value;
-        if(!u || !p) { showMessage("Bilgileri girin!"); return; }
-        if(window.registeredAccounts[u]) { showMessage("Bu kullanıcı zaten var!"); return; }
+        if (!user) return; const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); const p = document.getElementById('admin-new-pass').value;
+        if(!u || !p) { showMessage("Bilgileri girin!"); return; } if(window.registeredAccounts[u]) { showMessage("Bu kullanıcı zaten var!"); return; }
         const newUid = u + "_" + Date.now().toString(); const newAccounts = { ...window.registeredAccounts }; newAccounts[u] = { pass: p, uid: newUid, role: 'user' };
         try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); showMessage(`Hesap Oluşturuldu: ${u}`); document.getElementById('admin-new-user').value = ''; document.getElementById('admin-new-pass').value = ''; } catch(e) { }
     };
@@ -810,13 +964,19 @@
     window.changeScreen = (id) => { 
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen')); 
         const el = document.getElementById(id); if(el) el.classList.remove('hidden-screen');
+        if(id === 'selection-screen') { window.updateSelection(state.selectedChar); }
         if(id === 'selection-screen' || id === 'world-screen') window.updateUI();
     };
 
     window.updateSelection = (char) => {
-        if(char === 'chick' && state.cherries < 50) { showMessage("Henüz kilitli! 🍒"); return; }
-        state.selectedChar = char;
-        document.body.style.backgroundColor = themes[char];
+        if(char === 'talha' && isGuest) { showMessage("Bu karakter Misafir'lere kapalıdır! 🔒"); return; }
+        if (!state.unlockedChars.includes(char)) {
+            const price = charPrices[char];
+            if (state.cherries >= price) { state.cherries -= price; state.unlockedChars.push(char); window.saveProgress(); showMessage(`${char.toUpperCase()} KİLİDİ AÇILDI! -${price}🍒`); window.updateUI(); } 
+            else { showMessage(`Vişnen yetmiyor! 🍒 (${price} lazım)`); return; }
+        }
+
+        state.selectedChar = char; document.body.style.backgroundColor = themes[char];
         document.querySelectorAll('#char-list button').forEach(b => b.classList.remove('selected'));
         const btn = document.getElementById('opt-'+char); if(btn) btn.classList.add('selected');
         
@@ -825,26 +985,100 @@
         prev.innerHTML = smokeHtml + ((char==='kitty') ? window.getKittySvg() : window.getOtherSvg(char));
 
         const svg = prev.querySelector('svg');
-        if(svg) {
-            void svg.offsetWidth; 
-            if(char === 'kitty' || char === 'chick') svg.classList.add('anim-wave');
-            if(char === 'stitch') svg.classList.add('anim-somersault');
-            if(char === 'alien') svg.classList.add('anim-shrink');
-        }
+        if(svg) { void svg.offsetWidth; if(char === 'kitty' || char === 'chick') svg.classList.add('anim-wave'); if(char === 'stitch') svg.classList.add('anim-somersault'); if(char === 'alien') svg.classList.add('anim-shrink'); }
+    };
+
+    // YENİ: DÜNYA SEÇİM EKRANI
+    const charWorlds = {
+        kitty: [
+            { id: 'earth', name: 'Dünya', icon: '🌍', locked: false, bg: '#4ade80' },
+            { id: 'planet_kitty', name: 'Planet of Hello Kitty', iconImg: 'https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png', locked: true, price: 100, bg: '#ff85a2' }
+        ],
+        alien: [
+            { id: 'shuttle', name: 'Uzay Mekiği', icon: '🚀', locked: false, bg: '#3b82f6' },
+            { id: 'moon_mine', name: 'Ay Madeni', bgImg: 'https://t3.ftcdn.net/jpg/04/24/01/34/360_F_424013485_pUwKWK0BddTu35DurX2GeQ0Q0zCeMKL2.jpg', locked: true, price: 100, bg: '#1e293b' }
+        ]
     };
 
     window.enterWorld = () => { 
-        window.changeScreen('world-screen'); 
-        window.goRoom('kitchen'); 
-        if(!window.loop) window.loop = setInterval(mainLoop, 1000); 
-        makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); 
+        if(state.selectedChar === 'kitty' || state.selectedChar === 'alien') {
+            window.renderWorldSelection();
+            window.changeScreen('world-selection-screen');
+        } else if (state.selectedChar === 'talha') {
+            window.changeScreen('world-screen'); window.goRoom('cinema'); 
+            if(!window.loop) window.loop = setInterval(mainLoop, 1000); makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); 
+            window.updateNavbar();
+        } else {
+            window.changeScreen('world-screen'); window.goRoom('kitchen'); 
+            if(!window.loop) window.loop = setInterval(mainLoop, 1000); makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); 
+            window.updateNavbar();
+        }
+    };
+
+    window.renderWorldSelection = () => {
+        const container = document.getElementById('world-options');
+        container.innerHTML = '';
+        const options = charWorlds[state.selectedChar] || [];
+        
+        options.forEach(opt => {
+            const isUnlocked = !opt.locked || state.unlockedSubWorlds.includes(opt.id);
+            let bgStyle = opt.bgImg ? `background-image: url('${opt.bgImg}'); background-size: cover; background-position: center;` : `background-color: ${opt.bg};`;
+            let content = opt.iconImg ? `<img src="${opt.iconImg}" class="w-24 h-24 object-cover rounded-full shadow-lg mb-4 border-4 border-white">` : `<div class="text-[80px] drop-shadow-xl mb-4">${opt.icon}</div>`;
+            let action = isUnlocked ? `window.selectSubWorld('${opt.id}')` : `window.unlockSubWorld('${opt.id}', ${opt.price})`;
+            let lockLayer = !isUnlocked ? `<div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center rounded-xl z-20 transition hover:bg-black/70"><span class="text-white text-5xl mb-2">🔒</span><button class="bg-red-500 text-white font-black px-4 py-2 rounded-xl text-sm shadow-md">${opt.price} 🍒 Aç</button></div>` : '';
+
+            container.innerHTML += `
+                <div onclick="${action}" class="relative w-48 h-64 rounded-2xl flex flex-col items-center justify-center cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 hover:-translate-y-2 border-4 border-white/80" style="${bgStyle}">
+                    ${lockLayer}
+                    ${content}
+                    <h3 class="text-white font-black text-center text-sm px-2 drop-shadow-md bg-black/50 w-full py-3 absolute bottom-0 rounded-b-xl backdrop-blur-sm tracking-wide uppercase">${opt.name}</h3>
+                </div>
+            `;
+        });
+    };
+
+    window.unlockSubWorld = (id, price) => {
+        if(state.cherries >= price) {
+            state.cherries -= price;
+            state.unlockedSubWorlds.push(id);
+            window.saveProgress();
+            window.renderWorldSelection();
+            showMessage("Yeni Dünya Açıldı! 🌍");
+            window.updateUI();
+        } else { showMessage(`Vişnen yetmiyor! 🍒 (${price} lazım)`); }
+    };
+
+    window.selectSubWorld = (id) => {
+        window.changeScreen('world-screen');
+        if(id === 'moon_mine') window.goRoom('moon_mine');
+        else if (id === 'planet_kitty') window.goRoom('planet_kitty');
+        else window.goRoom('kitchen'); 
+        
+        if(!window.loop) window.loop = setInterval(mainLoop, 1000);
+        makeElementDraggable(document.getElementById('char-draggable'), checkCollisions);
+        window.updateNavbar();
+    };
+
+    window.updateNavbar = () => {
+        const navCinema = document.getElementById('nav-cinema');
+        const navMoonMine = document.getElementById('nav-moon_mine');
+        const navPlanetKitty = document.getElementById('nav-planet_kitty');
+        const navSchool = document.getElementById('nav-school');
+        
+        if(navCinema) navCinema.style.display = (state.selectedChar === 'talha') ? 'flex' : 'none';
+        if(navPlanetKitty) navPlanetKitty.style.display = (state.selectedChar === 'kitty' && state.room === 'planet_kitty') ? 'flex' : 'none';
+        if(navMoonMine) navMoonMine.style.display = (state.selectedChar === 'alien' && state.room === 'moon_mine') ? 'flex' : 'none';
+        
+        // Okul Butonunu Talha'dan Gizle
+        if(navSchool) navSchool.style.display = (state.selectedChar === 'talha' || state.room === 'moon_mine' || state.room === 'planet_kitty') ? 'none' : 'flex';
     };
 
     const roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", planet_kitty: "https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png" },
         stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
-        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png", moon_mine: "https://static.vecteezy.com/system/resources/previews/034/324/787/non_2x/dark-cave-game-background-tillable-horizontally-dark-terrible-empty-place-with-rock-lighting-walls-in-side-view-for-2d-games-location-illustration-vector.jpg" },
+        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        talha: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vector/gaming-room-with-computer-neon-lights_107791-3098.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", cinema: "https://tavsiyemiz.com/uploads/articleImage/article_689a0e950eebd.webp" }
     };
 
     window.goRoom = (r) => {
@@ -856,6 +1090,35 @@
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('nav-btn-active', btn.id === 'nav-'+r));
         document.getElementById('closet-target').classList.toggle('hidden', r !== 'bedroom');
 
+        if(r === 'moon_mine') {
+            // MADEN SİSTEMİ
+            if(!state.hasPickaxe) {
+                interact.innerHTML += `<div id="moon-pickaxe" onclick="window.equipPickaxe()" class="absolute text-5xl cursor-pointer drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse" style="left:15%; bottom:20%; pointer-events:auto; z-index: 100;">⛏️</div>`;
+            }
+
+            if(state.mineResources > 0) {
+                for(let i=0; i<state.mineResources; i++) {
+                    let leftPos = 40 + (i * 10);
+                    interact.innerHTML += `<div id="diamond-${i}" onclick="window.mineDiamond(this)" class="absolute text-3xl cursor-pointer drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]" style="left:${leftPos}%; bottom:${10 + (Math.random()*10)}%; pointer-events:auto; z-index: 90;">💎</div>`;
+                }
+            } else {
+                interact.innerHTML += `<div class="absolute w-full text-center bottom-[50%] text-cyan-300 font-black text-xl drop-shadow-md bg-black/50 py-2">Maden Tükendi!<br>10 dakika sonra yenilenecek.</div>`;
+            }
+        }
+        if(r === 'cinema') {
+            interact.innerHTML = `
+                <div class="absolute inset-0 pointer-events-none z-[50]">
+                    <iframe style="position: absolute; top: 13.5%; left: 10.5%; width: 79%; height: 54%; pointer-events: auto; border-radius: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.8);" src="https://www.youtube.com/embed/HXfkS56Bnsk?si=HpiJfEyqI7cu-pzi" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            `;
+            const charD = document.getElementById('char-draggable');
+            if (charD) {
+                charD.style.transition = "left 0.8s";
+                charD.style.left = "10%";
+                setTimeout(() => charD.style.transition = "none", 800);
+            }
+        }
+        
         if(r === 'kitchen') {
             let food = state.selectedChar === 'alien' ? spaceFoods[currentFoodIdx % spaceFoods.length] : normalFoods[currentFoodIdx % normalFoods.length];
             interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">${food}</div>`;
@@ -867,6 +1130,10 @@
         if(r === 'bathroom') {
             interact.innerHTML = `<div id="soap-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">🧼</div>`;
             makeElementDraggable(document.getElementById('soap-item'), checkCollisions);
+
+            if(state.selectedChar === 'alien') {
+                interact.innerHTML += `<div onclick="window.openAlienGame()" class="absolute left-[15%] top-[30%] text-6xl cursor-pointer hover:scale-110 transition-transform animate-pulse drop-shadow-2xl" style="pointer-events: auto;" title="Uzaya Çık!">🚪</div>`;
+            }
         }
         if(r === 'bedroom') {
             if(state.selectedChar === 'kitty') {
@@ -880,11 +1147,9 @@
             if(state.selectedChar === 'chick') {
                 interact.innerHTML += `<div onclick="window.openBlockBlast()" class="absolute left-[15%] bottom-[20%] text-5xl cursor-pointer hover:scale-110 transition-transform animate-pulse drop-shadow-2xl" style="pointer-events: auto;" title="Civcik Kule Oyna!">🧩</div>`;
             }
-            
             if(state.selectedChar === 'kitty') {
                 interact.innerHTML += `<div onclick="window.openDrawingBook()" class="absolute left-[75%] bottom-[15%] text-5xl cursor-pointer hover:scale-110 transition-transform drop-shadow-xl" style="pointer-events: auto; animation: charWave 3s infinite;" title="Resim Çiz!">📒</div>`;
             }
-
             if(state.selectedChar === 'stitch') {
                 interact.innerHTML += `<img src="https://cdn-icons-png.flaticon.com/512/625/625418.png" id="stitch-guitar" class="absolute w-12 h-12 cursor-pointer drop-shadow-xl z-[160] transition-all duration-500 ease-in-out" style="left: 20%; bottom: 20%; pointer-events: auto;" onclick="window.playGuitar()" title="Gitar Çal!">`;
             }
@@ -896,12 +1161,161 @@
         window.updateUI();
     };
 
+    // --- AY MADENİ İŞLEMLERİ ---
+    window.equipPickaxe = () => {
+        state.hasPickaxe = true;
+        const pkx = document.getElementById('moon-pickaxe');
+        if(pkx) pkx.remove();
+        showMessage("Kazma Kuşanıldı! Artık kazabilirsin! ⛏️");
+        window.updateUI(); // Kazmayı karaktere ekler (SVG sonrasına veya UI logic)
+        
+        // Kazmayı karakterin yanına ekle
+        const charWrap = document.getElementById('char-container');
+        if(!document.getElementById('equipped-pickaxe')) {
+            const el = document.createElement('div');
+            el.id = 'equipped-pickaxe';
+            el.innerHTML = '⛏️';
+            el.className = 'absolute text-4xl';
+            el.style.right = '-20px';
+            el.style.top = '40px';
+            el.style.zIndex = '100';
+            charWrap.appendChild(el);
+        }
+    };
+
+    window.mineDiamond = (el) => {
+        if(!state.hasPickaxe) { showMessage("Önce yerdeki Kazma'yı (⛏️) almalısın!"); return; }
+        if(state.isMining) return;
+        state.isMining = true;
+
+        const charD = document.getElementById('char-draggable');
+        charD.style.transition = "left 1s, top 1s";
+        charD.style.left = el.style.left;
+        
+        setTimeout(() => {
+            const pickaxe = document.getElementById('equipped-pickaxe');
+            if(pickaxe) pickaxe.classList.add('swinging');
+            
+            let timer = 3;
+            const bubble = document.getElementById('speech-bubble');
+            bubble.style.opacity = '1';
+            
+            const countdown = setInterval(() => {
+                bubble.innerText = `Kazılıyor... ${timer}s`;
+                timer--;
+                if(timer < 0) {
+                    clearInterval(countdown);
+                    state.isMining = false;
+                    charD.style.transition = "none";
+                    if(pickaxe) pickaxe.classList.remove('swinging');
+                    bubble.style.opacity = '0';
+                    el.remove();
+                    
+                    state.mineResources--;
+                    state.diamonds++;
+                    
+                    if(state.mineResources === 0) {
+                        state.lastMinedTime = Date.now();
+                        showMessage("+1 Elmas! 💎 Maden Tükendi. 10Dk Bekle!");
+                        window.goRoom('moon_mine'); // Yeniden yükle uyarı için
+                    } else {
+                        showMessage("+1 Elmas! 💎");
+                    }
+                    window.saveProgress();
+                    window.updateUI();
+                }
+            }, 1000);
+        }, 1000); // 1 sn yürüme süresi
+    };
+
+    // --- MAĞAZA VE KARA MARKET ---
+    window.switchShopTab = (tab, element) => {
+        document.querySelectorAll('.shop-tab').forEach(el => el.classList.remove('active')); 
+        element.classList.add('active');
+        if (tab === 'items') {
+            document.getElementById('shop-items-section').classList.remove('hidden');
+            document.getElementById('black-market-container').classList.add('hidden');
+        } else {
+            document.getElementById('shop-items-section').classList.add('hidden');
+            document.getElementById('black-market-container').classList.remove('hidden');
+            renderBlackMarket();
+        }
+    };
+
+    let bmInterval;
+    window.bmData = { currentPrice: 25, history: [25,25,25,25,25,25,25,25,25,25], lastUpdate: Date.now() };
+
+    function initBlackMarketEngine() {
+        setInterval(() => {
+            // Her 60 saniyede bir lokal olarak elmas fiyatını güncelle
+            if(Date.now() - window.bmData.lastUpdate > 60000) {
+                let newPrice = Math.floor(Math.random() * 41) + 10; // 10 ile 50 arası
+                window.bmData.history.push(newPrice);
+                if(window.bmData.history.length > 10) window.bmData.history.shift();
+                window.bmData.currentPrice = newPrice;
+                window.bmData.lastUpdate = Date.now();
+                if(!document.getElementById('black-market-container').classList.contains('hidden')) {
+                    renderBlackMarket();
+                }
+            }
+        }, 5000);
+    }
+    initBlackMarketEngine();
+
+    function renderBlackMarket() {
+        document.getElementById('bm-current-price').innerText = window.bmData.currentPrice;
+        document.getElementById('bm-user-cherries').innerText = state.cherries;
+        document.getElementById('bm-user-diamonds').innerText = state.diamonds;
+
+        // SVG Grafiği
+        let pts = window.bmData.history.map((val, i) => `${i * 20},${100 - (val * 2)}`).join(" ");
+        let circles = window.bmData.history.map((val, i) => `<circle cx="${i * 20}" cy="${100 - (val * 2)}" r="3" fill="#fff"/>`).join('');
+        
+        document.getElementById('market-graph-container').innerHTML = `
+            <svg viewBox="0 0 180 100" class="w-full h-24">
+                <line x1="0" y1="0" x2="180" y2="0" stroke="#374151" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="0" y1="50" x2="180" y2="50" stroke="#374151" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="0" y1="100" x2="180" y2="100" stroke="#374151" stroke-width="1" stroke-dasharray="4"/>
+                <polyline fill="none" stroke="#ef4444" stroke-width="3" stroke-linejoin="round" points="${pts}"/>
+                ${circles}
+            </svg>
+        `;
+    }
+
+    window.buyDiamond = () => {
+        if(state.cherries >= window.bmData.currentPrice) {
+            state.cherries -= window.bmData.currentPrice;
+            state.diamonds++;
+            window.saveProgress();
+            renderBlackMarket();
+            window.updateUI();
+            showMessage("1 Elmas Satın Alındı! 💎");
+        } else { showMessage("Vişnen yetmiyor! 🍒"); }
+    };
+
+    window.sellDiamond = () => {
+        if(state.diamonds > 0) {
+            state.diamonds--;
+            state.cherries += window.bmData.currentPrice;
+            window.saveProgress();
+            renderBlackMarket();
+            window.updateUI();
+            showMessage(`1 Elmas Satıldı! +${window.bmData.currentPrice} 🍒`);
+        } else { showMessage("Hiç elmasın yok! 💎"); }
+    };
+
     window.openShop = () => { 
+        // Varsayılan sekme
+        document.querySelectorAll('.shop-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.shop-tab')[0].classList.add('active');
+        document.getElementById('shop-items-section').classList.remove('hidden');
+        document.getElementById('black-market-container').classList.add('hidden');
+
         const cont = document.getElementById('shop-items-container'); cont.innerHTML = '';
         Object.values(window.dynamicShopItems).forEach(item => {
             const isOwned = state.inventory.includes(item.id);
             const colorClass = item.rarity.toLowerCase() === 'efsanevi' ? 'bg-yellow-500' : (item.rarity.toLowerCase() === 'ender' ? 'bg-green-500' : 'bg-purple-500');
-            cont.innerHTML += `<div class="shop-box"><span class="${colorClass} text-white text-[7px] font-black px-2 rounded-full uppercase absolute -top-2 right-2">${item.rarity}</span><div class="w-10 h-10 mx-auto my-2 overflow-hidden"><svg viewBox="0 0 100 100">${item.svg}</svg></div><p class="text-[9px] font-bold">${item.name}</p><p class="text-red-500 font-black text-xs">${item.price} 🍒</p><button onclick="window.buyItem('${item.id}', ${item.price})" class="soft-btn scale-75 mt-2 whitespace-nowrap px-2">${isOwned ? 'ALINDI' : 'SATIN AL'}</button></div>`;
+            cont.innerHTML += `<div class="shop-box"><span class="${colorClass} text-white text-[7px] font-black px-2 rounded-full uppercase absolute -top-2 right-2">${item.rarity}</span><div class="w-14 h-14 mx-auto my-2 overflow-hidden flex items-center justify-center"><svg viewBox="0 0 100 100" width="100%" height="100%">${item.svg}</svg></div><p class="text-[9px] font-bold">${item.name}</p><p class="text-red-500 font-black text-xs">${item.price} 🍒</p><button onclick="window.buyItem('${item.id}', ${item.price})" class="soft-btn scale-75 mt-2 whitespace-nowrap px-2">${isOwned ? 'ALINDI' : 'SATIN AL'}</button></div>`;
         });
         document.getElementById('shop-modal').classList.remove('hidden'); document.getElementById('shop-modal').classList.add('flex'); 
     };
@@ -912,7 +1326,7 @@
         cont.innerHTML = `<div onclick="window.state.outfit='default'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 bg-blue-100 rounded-full mx-auto"></div><span class="text-[8px] font-black uppercase text-gray-800">Orijinal</span></div>`;
         state.inventory.forEach(itemId => { 
             const item = window.dynamicShopItems[itemId];
-            if(item) cont.innerHTML += `<div onclick="window.state.outfit='${item.id}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 mx-auto overflow-hidden"><svg viewBox="0 0 100 100">${item.svg}</svg></div><span class="text-[8px] font-black uppercase text-gray-800">${item.name}</span></div>`; 
+            if(item) cont.innerHTML += `<div onclick="window.state.outfit='${item.id}'; window.updateUI(); window.saveProgress();" class="p-3 border-2 rounded-xl bg-white cursor-pointer hover:border-pink-300"><div class="w-10 h-10 mx-auto overflow-hidden flex items-center justify-center"><svg viewBox="0 0 100 100" width="100%" height="100%">${item.svg}</svg></div><span class="text-[8px] font-black uppercase text-gray-800">${item.name}</span></div>`; 
         });
         document.getElementById('closet-modal').classList.remove('hidden'); document.getElementById('closet-modal').classList.add('flex'); 
     };
@@ -990,10 +1404,10 @@
     function renderBBTray() {
         const trayEl = document.getElementById('bb-tray'); trayEl.innerHTML = '';
         bbTray.forEach((shape, idx) => {
-            if(shape.used) { trayEl.innerHTML += `<div class="w-[80px]"></div>`; return; }
-            let html = `<div class="bb-shape-wrapper" data-idx="${idx}" style="grid-template-columns: repeat(${shape.matrix[0].length}, 24px); touch-action:none;">`;
+            if(shape.used) { trayEl.innerHTML += `<div class="flex-1"></div>`; return; }
+            let html = `<div class="bb-shape-wrapper" data-idx="${idx}"><div class="bb-shape-inner" style="grid-template-columns: repeat(${shape.matrix[0].length}, 14px);">`;
             shape.matrix.forEach(row => { row.forEach(val => { html += `<div class="bb-shape-cell ${val?'':'empty'}" style="${val?'background:'+shape.color:''}"></div>`; }); });
-            html += `</div>`; trayEl.innerHTML += html;
+            html += `</div></div>`; trayEl.innerHTML += html;
         });
 
         document.querySelectorAll('.bb-shape-wrapper').forEach(el => {
@@ -1006,30 +1420,50 @@
         if(e.cancelable) e.preventDefault();
         const ev = e.touches ? e.touches[0] : e;
         const target = e.currentTarget; const idx = target.getAttribute('data-idx'); const shape = bbTray[idx];
-        const clone = target.cloneNode(true); clone.classList.add('bb-dragging'); document.body.appendChild(clone);
-        const cellSize = document.querySelector('.bb-cell').offsetWidth || 38;
+        const clone = target.querySelector('.bb-shape-inner').cloneNode(true); clone.classList.add('bb-dragging'); document.body.appendChild(clone);
+        const cellSize = (document.getElementById('bb-grid').offsetWidth - 20) / 8 || 38; 
+        
         clone.style.gridTemplateColumns = `repeat(${shape.matrix[0].length}, ${cellSize}px)`;
         clone.querySelectorAll('.bb-shape-cell').forEach(c => { c.style.width = cellSize+'px'; c.style.height = cellSize+'px'; });
 
         const shapeW = shape.matrix[0].length * cellSize; const shapeH = shape.matrix.length * cellSize;
-        bbDragState = { clone: clone, idx: idx, shape: shape, offsetX: shapeW / 2, offsetY: shapeH + 40 };
+        
+        bbDragState = { clone: clone, idx: idx, shape: shape, offsetX: shapeW / 2, offsetY: shapeH + 80 };
         
         const move = (me) => {
             if(me.cancelable) me.preventDefault(); const mev = me.touches ? me.touches[0] : me;
-            bbDragState.clone.style.left = (mev.clientX - bbDragState.offsetX) + 'px'; bbDragState.clone.style.top = (mev.clientY - bbDragState.offsetY) + 'px';
+            bbDragState.clone.style.left = (mev.clientX - bbDragState.offsetX) + 'px'; 
+            bbDragState.clone.style.top = (mev.clientY - bbDragState.offsetY) + 'px';
         };
+        
         const end = (me) => {
             document.removeEventListener('mousemove', move); document.removeEventListener('touchmove', move);
             document.removeEventListener('mouseup', end); document.removeEventListener('touchend', end);
             bbDragState.clone.style.display = 'none';
+            
             const mev = me.changedTouches ? me.changedTouches[0] : me;
-            const dropX = mev.clientX - bbDragState.offsetX + (cellSize/2); const dropY = mev.clientY - bbDragState.offsetY + (cellSize/2);
-            const el = document.elementFromPoint(dropX, dropY);
+            
+            const gridEl = document.getElementById('bb-grid');
+            const gridRect = gridEl.getBoundingClientRect();
+            
+            const shapeLeft = mev.clientX - bbDragState.offsetX;
+            const shapeTop = mev.clientY - bbDragState.offsetY;
+            
+            const innerX = shapeLeft - gridRect.left - 10;
+            const innerY = shapeTop - gridRect.top - 10;
+            
+            const cSize = (gridRect.width - 20) / 8;
+            
+            const c = Math.round(innerX / cSize);
+            const r = Math.round(innerY / cSize);
+            
             bbDragState.clone.remove();
-            if(el && el.classList.contains('bb-cell')) {
-                const r = parseInt(el.getAttribute('data-r')); const c = parseInt(el.getAttribute('data-c'));
+            
+            if(c >= -1 && c <= 8 && r >= -1 && r <= 8) {
                 tryBBPlace(bbDragState.idx, r, c);
-            } else { renderBBTray(); } 
+            } else { 
+                renderBBTray(); 
+            } 
             bbDragState = null;
         };
         document.addEventListener('mousemove', move, {passive: false}); document.addEventListener('touchmove', move, {passive: false});
@@ -1225,6 +1659,110 @@
         canvas.addEventListener('touchend', stopPos);
     }
 
+    // --- ALIEN (PROSPECTUS) SPACE GAME LOGIC ---
+    let alienGameLoopId;
+    let alienPlayer = {x: 180, y: 400, w: 40, h: 40};
+    let alienEnemies = [];
+    let alienScore = 0;
+    let alienIsPlaying = false;
+    let alienCanvas, alienCtx;
+
+    window.openAlienGame = () => {
+        window.changeScreen('alien-game-screen');
+        alienCanvas = document.getElementById('alien-canvas');
+        alienCtx = alienCanvas.getContext('2d');
+        
+        alienCanvas.width = alienCanvas.clientWidth;
+        alienCanvas.height = alienCanvas.clientHeight;
+        
+        const moveShip = (e) => {
+            if(!alienIsPlaying) return;
+            if(e.cancelable) e.preventDefault();
+            const rect = alienCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const x = (clientX - rect.left) * (alienCanvas.width / rect.width);
+            alienPlayer.x = Math.max(0, Math.min(alienCanvas.width - alienPlayer.w, x - alienPlayer.w/2));
+        };
+        alienCanvas.addEventListener('touchmove', moveShip, {passive: false});
+        alienCanvas.addEventListener('mousemove', moveShip);
+        
+        window.startAlienGame();
+    };
+
+    window.closeAlienGame = () => {
+        cancelAnimationFrame(alienGameLoopId);
+        alienIsPlaying = false;
+        window.changeScreen('world-screen');
+    };
+
+    window.startAlienGame = () => {
+        alienPlayer.x = alienCanvas.width / 2 - 20;
+        alienPlayer.y = alienCanvas.height - 80;
+        alienEnemies = []; 
+        alienScore = 0; 
+        alienIsPlaying = true;
+        document.getElementById('alien-game-over').classList.add('hidden');
+        alienLoop();
+    };
+
+    function alienLoop() {
+        if(!alienIsPlaying) return;
+        
+        alienCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        alienCtx.fillRect(0, 0, alienCanvas.width, alienCanvas.height);
+        
+        alienCtx.fillStyle = "white";
+        if(Math.random() < 0.2) {
+            alienCtx.fillRect(Math.random() * alienCanvas.width, Math.random() * alienCanvas.height, 2, 2);
+        }
+
+        alienCtx.font = "40px Arial";
+        alienCtx.fillText("🚀", alienPlayer.x, alienPlayer.y + 35);
+        
+        if(Math.random() < 0.04 + (alienScore/10000)) { 
+            alienEnemies.push({
+                x: Math.random() * (alienCanvas.width - 30),
+                y: -40,
+                w: 30, h: 30, 
+                speed: 3 + Math.random() * 4 + (alienScore/1000),
+                type: Math.random() > 0.4 ? "☄️" : "👾"
+            });
+        }
+        
+        for(let i = alienEnemies.length - 1; i >= 0; i--) {
+            let e = alienEnemies[i];
+            e.y += e.speed;
+            
+            alienCtx.font = "30px Arial";
+            alienCtx.fillText(e.type, e.x, e.y + 25);
+            
+            if(e.x < alienPlayer.x + alienPlayer.w - 15 &&
+               e.x + e.w > alienPlayer.x + 15 &&
+               e.y < alienPlayer.y + alienPlayer.h - 15 &&
+               e.h + e.y > alienPlayer.y + 15) {
+                
+                alienIsPlaying = false;
+                document.getElementById('alien-game-msg').innerText = "Yakalandın!\nSkor: " + Math.floor(alienScore);
+                document.getElementById('alien-game-over').classList.remove('hidden');
+                return;
+            }
+            
+            if(e.y > alienCanvas.height) {
+                alienEnemies.splice(i, 1);
+                alienScore += 10;
+                document.getElementById('alien-score').innerText = Math.floor(alienScore);
+                
+                if(alienScore > 0 && alienScore % 200 === 0) {
+                    state.cherries += 5;
+                    window.saveProgress();
+                    window.showMessage("Mükemmel Kaçış! +5 🍒");
+                }
+            }
+        }
+        
+        alienGameLoopId = requestAnimationFrame(alienLoop);
+    }
+
     // --- STITCH GUITAR LOGIC ---
     let stitchSingInterval = null;
     window.playGuitar = () => {
@@ -1232,18 +1770,15 @@
         const charContainer = document.getElementById('char-container');
         if(!guitar || !charContainer) return;
         
-        // Gitarı Stitch'e doğru hareket ettir
         guitar.style.left = "45%";
         guitar.style.bottom = "120px";
         guitar.style.transform = "rotate(-20deg) scale(1.5)";
         
-        // Stitch'in şarkı söylemesi
         const notes = ["sEni ÇoK SeViyOruM 🎸", "A-aaaa--aa 🎵", "ohanaaaa... 🎶"];
         let step = 0;
         
         clearInterval(stitchSingInterval);
         
-        // Anında ilk kelimeyi söylesin
         const bubble = document.getElementById('speech-bubble');
         if(bubble) {
             bubble.innerText = notes[0];
@@ -1260,14 +1795,12 @@
             step++;
         }, 1500);
 
-        // 5 saniye sonra durdur ve gitarı geri koy
         setTimeout(() => {
             clearInterval(stitchSingInterval);
             if(bubble) {
                 bubble.style.opacity = '0';
-                bubble.style.color = '#ff5c8d'; // Rengi eski haline döndür
+                bubble.style.color = '#ff5c8d'; 
             }
-            // Sadece odadan çıkmadıysa geri yerine dönsün
             if(state.room === 'garden') { 
                 guitar.style.left = "20%";
                 guitar.style.bottom = "20%";
@@ -1292,31 +1825,46 @@
             state.schoolTimer = Math.max(0, state.schoolTimer - state.schoolSpeed);
             if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
+
+        // Maden Elmas Yenileme Kontrolü
+        if(state.mineResources === 0 && state.lastMinedTime > 0) {
+            if(Date.now() - state.lastMinedTime >= 10 * 60 * 1000) {
+                state.mineResources = 5;
+                state.lastMinedTime = 0;
+                window.saveProgress();
+                if(state.room === 'moon_mine') window.goRoom('moon_mine');
+            }
+        }
         
         function getNext1900() {
-            const now = new Date(); let next19 = new Date(); next19.setHours(19, 0, 0, 0);
-            if (now >= next19) next19.setDate(next19.getDate() + 1);
+            const now = new Date(); 
+            let next19 = new Date(); 
+            next19.setHours(19, 0, 0, 0); 
+            
+            if (now >= next19) {
+                next19.setDate(next19.getDate() + 1);
+            }
+            
             const diff = next19 - now;
-            const h = Math.floor(diff / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000);
+            const h = Math.floor(diff / 3600000); 
+            const m = Math.floor((diff % 3600000) / 60000); 
+            const s = Math.floor((diff % 60000) / 1000);
             return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
         const timerEl = document.getElementById('shop-timer');
         if(timerEl) timerEl.innerText = `Yenilenmesine: ${getNext1900()} kaldı`;
 
         state.lastSpeech++;
-        // Eğer şarkı söylüyorsa, normal rastgele konuşmayı kes (çakışmasın)
         if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
             state.lastSpeech = 0;
             const bubble = document.getElementById('speech-bubble');
             
-            // Eğer o an gitar animasyonu aktif değilse normal konuştur
             const isSinging = document.getElementById('stitch-guitar') && document.getElementById('stitch-guitar').style.left === "45%";
             
             if(bubble && !isSinging) {
                 let text = (state.stats.energy < 30) ? "anne uykum geldi" : (state.stats.hunger < 30) ? "anne çok açımmm" : (state.stats.hygiene < 30) ? "anne duş almam gerek" : quotes[state.selectedChar][Math.floor(Math.random()*quotes[state.selectedChar].length)];
                 bubble.innerText = text; bubble.style.opacity = "1"; 
                 setTimeout(() => { 
-                    // Yine şarkı araya girmediyse kapat
                     if(!document.getElementById('stitch-guitar') || document.getElementById('stitch-guitar').style.left !== "45%") {
                         bubble.style.opacity = "0"; 
                     }
@@ -1331,12 +1879,30 @@
         const hyb = document.getElementById('bar-hygiene');
         const eb = document.getElementById('bar-energy');
         const cc = document.getElementById('cherry-count-hud');
+        const dch = document.getElementById('diamond-count-hud');
         const ccs = document.getElementById('cherry-count-selection');
+        const dcs = document.getElementById('diamond-count-selection');
+
         if(hb) hb.style.width = state.stats.hunger + '%';
         if(hyb) hyb.style.width = state.stats.hygiene + '%';
         if(eb) eb.style.width = state.stats.energy + '%';
         if(cc) cc.innerText = Math.floor(state.cherries);
+        if(dch) dch.innerText = Math.floor(state.diamonds);
         if(ccs) ccs.innerText = Math.floor(state.cherries);
+        if(dcs) dcs.innerText = Math.floor(state.diamonds);
+        
+        ['stitch', 'alien', 'chick', 'talha'].forEach(c => {
+            const lock = document.getElementById(`${c}-lock-ui`);
+            if(lock) {
+                if(c === 'talha' && isGuest) {
+                    lock.style.display = 'flex';
+                    lock.innerHTML = `<span>🔒 Kapalı</span><p>Sadece Giriş Yapanlara</p>`;
+                } else {
+                    lock.style.display = state.unlockedChars.includes(c) ? 'none' : 'flex';
+                    lock.innerHTML = `<span>🍒 ${charPrices[c]}</span><p>Kilidi Aç</p>`;
+                }
+            }
+        });
 
         const wrap = document.getElementById('char-svg-wrap');
         const bubble = document.getElementById('speech-bubble');
@@ -1344,6 +1910,22 @@
         const cont = document.getElementById('char-container');
         if(wrap) wrap.innerHTML = (state.selectedChar === 'kitty') ? window.getKittySvg() : window.getOtherSvg(state.selectedChar);
         if(zzz) zzz.style.display = (state.isSleeping && state.room === 'bedroom') ? "block" : "none";
+        
+        // Karakterin elinde kazma var mı güncelle
+        const equippedPickaxe = document.getElementById('equipped-pickaxe');
+        if(state.hasPickaxe && state.room === 'moon_mine' && !equippedPickaxe) {
+            const el = document.createElement('div');
+            el.id = 'equipped-pickaxe';
+            el.innerHTML = '⛏️';
+            el.className = 'absolute text-4xl';
+            el.style.right = '-20px';
+            el.style.top = '40px';
+            el.style.zIndex = '100';
+            cont.appendChild(el);
+        } else if ((!state.hasPickaxe || state.room !== 'moon_mine') && equippedPickaxe) {
+            equippedPickaxe.remove();
+        }
+
         if(cont) {
             cont.classList.toggle('is-dirty', state.stats.hygiene < 50);
             if(state.selectedChar === 'alien' && state.huntActive) {
@@ -1352,8 +1934,6 @@
         }
         const night = document.getElementById('night-overlay');
         if(night) night.style.opacity = state.isSleeping ? "0.8" : "0";
-        const lock = document.getElementById('chick-lock-ui');
-        if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     };
 
     function makeElementDraggable(el, onDrag) {
@@ -1421,7 +2001,7 @@
     });
 
     window.onload = () => {
-        initCanvasEvents(); // Resim defteri ayarlamaları
+        initCanvasEvents(); 
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
         let prg = 0; let texts = ["hello kitty oluşturuluyor...", "stitch banyosundan çıkıyor..", "prospectus uzaydan dönüyor..", "civcik uyanıyor.."];
         const interval = setInterval(() => {
