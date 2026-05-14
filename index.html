@@ -24,6 +24,7 @@
             --border-color: #4a1d2e;
             --hud-bg: #16213e;
             --nav-bg: #16213e;
+            --btn-grad: linear-gradient(135deg, #4a1d2e, #1a1a2e);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -93,6 +94,12 @@
         .dust-overlay { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.5s; background-image: radial-gradient(#8b5a2b 1.5px, transparent 1px); background-size: 10px 10px; border-radius: 50%; z-index: 60; }
         .is-dirty .dust-overlay { opacity: 0.8; }
 
+        /* Kafa Hareket Animasyonu */
+        .char-head { 
+            transform-origin: center 130px;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .limb { transform-box: fill-box; transition: transform 0.2s; }
         .is-dragging .limb-arm-l { animation: limbSwing 0.3s infinite alternate; transform-origin: center top; }
         .is-dragging .limb-arm-r { animation: limbSwing 0.3s infinite alternate-reverse; transform-origin: center top; }
@@ -116,10 +123,9 @@
 
         .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 10px; z-index: 20; }
         
-        /* Modal Mobil Düzenlemeler */
         .modal-body { max-height: 65vh; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
         .grid-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .shop-box { width: 130px; background: var(--hud-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
+        .shop-box { width: 130px; background: var(--panel-bg); border: 2px solid var(--border-color); border-radius: 15px; padding: 10px; text-align: center; position: relative; color: var(--text-color); }
 
         .login-input { width: 100%; padding: 14px; border: 3px solid #ffc2d1; border-radius: 18px; margin-bottom: 12px; text-align: center; font-weight: 800; font-size: 16px; outline: none; background: var(--hud-bg); color: var(--text-color); }
         @keyframes somersault { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -272,7 +278,7 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Vercel / GitHub Fallback
+    // Fallback Config
     let fbConfig = {};
     try { fbConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}'); } catch (e) {}
     
@@ -285,7 +291,7 @@
     let isGuest = true;
     let currentUserId = "anonymous";
 
-    // --- TEMEL SİSTEM ---
+    // --- TEMEL SİSTEM (YÜKSEK ÖNCELİKLİ) ---
     window.showMessage = (txt) => {
         const m = document.createElement('div');
         m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce";
@@ -315,20 +321,13 @@
         chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"]
     };
 
-    const roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
-        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
-    };
-
     const itemSvgs = {
         hat: `<svg viewBox="0 0 100 100"><path d="M20 70 Q 50 60 80 70 L 85 80 Q 50 70 15 80 Z" fill="#333" stroke="#000"/><path d="M35 70 L 35 40 Q 50 30 65 40 L 65 70" fill="#333" stroke="#000"/><rect x="35" y="60" width="30" height="5" fill="#ff85a2"/><circle cx="50" cy="62" r="3" fill="#ffb3c6"/></svg>`,
         tie: `<svg viewBox="0 0 100 100"><path d="M50 40 L 42 48 L 50 85 L 58 48 Z" fill="#ff85a2" stroke="#000" stroke-width="2"/><circle cx="50" cy="42" r="7" fill="#ff5c8d" stroke="#000"/></svg>`,
         dress: `<svg viewBox="0 0 100 100">
-            <path d="M30 45 Q 50 40 70 45 L 78 80 Q 50 72 22 80 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.2"/>
-            <path d="M22 80 Q 35 75 45 80 Q 55 75 65 80 Q 75 75 88 80 L 92 98 Q 50 90 8 98 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.2"/>
-            <circle cx="50" cy="65" r="4" fill="#ef4444" stroke="#4a1d2e"/>
+            <path d="M28 42 Q 50 38 72 42 L 78 75 Q 50 70 22 75 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="1.2"/>
+            <path d="M22 75 Q 35 70 45 75 Q 55 70 65 75 Q 75 70 88 75 L 94 98 Q 50 90 6 98 Z" fill="#ffb3c6" stroke="#4a1d2e" stroke-width="1.2"/>
+            <circle cx="50" cy="62" r="4" fill="#ef4444" stroke="#4a1d2e" stroke-width="1"/>
         </svg>`
     };
 
@@ -341,8 +340,27 @@
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 110) scale(0.6)">${itemSvgs.tie}</g>`;
-        if(state.outfit === 'dress') acc = `<g transform="translate(50, 145) scale(0.9) translate(-50,-50)">${itemSvgs.dress}</g>`;
-        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs('white')}<rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/><path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/><ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>${acc}</svg>`;
+        if(state.outfit === 'dress') acc = `<g transform="translate(50, 148) scale(0.95) translate(-50,-50)">${itemSvgs.dress}</g>`;
+        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+            ${window.getLegs('white')}
+            <rect x="75" y="140" width="50" height="45" rx="${state.outfit==='dress'?0:15}" fill="${state.outfit==='black'?'#000':state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/>
+            <ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
+            <ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/>
+            <path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/>
+            <path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/>
+            <g class="char-head">
+                <ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/>
+                <g transform="translate(160, 55)">
+                    <ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/>
+                    <ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
+                    <ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/>
+                </g>
+                <ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/>
+                <g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>
+            </g>
+            ${acc}
+        </svg>`;
     };
 
     window.getOtherSvg = (char) => {
@@ -350,9 +368,37 @@
         let acc = "";
         if(state.outfit === 'hat') acc = `<g transform="translate(60, 20) scale(0.8)">${itemSvgs.hat}</g>`;
         if(state.outfit === 'tie') acc = `<g transform="translate(50, 115) scale(0.6)">${itemSvgs.tie}</g>`;
-        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/><ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>${acc}</svg>`;
-        if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>${acc}</svg>`;
-        if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>${acc}</svg>`;
+        
+        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+            ${window.getLegs(color)}
+            <ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/>
+            <ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/>
+            <ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/>
+            <g class="char-head">
+                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
+                <ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>
+            </g>
+            ${acc}
+        </svg>`;
+        
+        if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+            ${window.getLegs(color)}
+            <ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/>
+            <g class="char-head">
+                <circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
+            </g>
+            ${acc}
+        </svg>`;
+        
+        if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+            ${window.getLegs(color)}
+            <ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/>
+            <g class="char-head">
+                <path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>
+            </g>
+            ${acc}
+        </svg>`;
     };
 
     // --- DATA SAVING ---
@@ -383,21 +429,6 @@
                 window.updateUI();
             }
         } catch(e) {}
-    }
-
-    // --- SHOP TIMER ---
-    function getNext1900() {
-        const now = new Date();
-        let next19 = new Date();
-        next19.setHours(19, 0, 0, 0);
-        if (now >= next19) {
-            next19.setDate(next19.getDate() + 1);
-        }
-        const diff = next19 - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
     // --- ACTIONS ---
@@ -446,6 +477,14 @@
         makeElementDraggable(document.getElementById('char-draggable'), checkCollisions); 
     };
 
+    // --- ODA YÖNETİMİ ---
+    const roomConfigs = {
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png" },
+        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" }
+    };
+
     window.goRoom = (r) => {
         state.room = r;
         if(r !== 'bedroom') state.isSleeping = false;
@@ -459,7 +498,7 @@
             let food = state.selectedChar === 'alien' ? spaceFoods[currentFoodIdx % spaceFoods.length] : normalFoods[currentFoodIdx % normalFoods.length];
             interact.innerHTML = `<div id="food-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto;">${food}</div>`;
             if(state.selectedChar === 'alien') {
-                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black">2X</button>` : ''}</div>`;
+                interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black shadow-lg">2X</button>` : ''}</div>`;
             }
             makeElementDraggable(document.getElementById('food-item'), checkCollisions);
         }
@@ -488,7 +527,6 @@
         cont.innerHTML = `
             <div class="shop-box"><span class="bg-yellow-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Efsanevi</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.hat}</div><p class="text-[9px] font-bold">Şapka</p><p class="text-red-500 font-black text-xs">150 🍒</p><button onclick="window.buyItem('hat', 150)" class="soft-btn scale-75 mt-2">${state.inventory.includes('hat')?'ALINDI':'SATIN AL'}</button></div>
             <div class="shop-box"><span class="bg-green-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Ender</span><div class="w-10 h-10 mx-auto my-2">${itemSvgs.tie}</div><p class="text-[9px] font-bold">Kravat</p><p class="text-red-500 font-black text-xs">20 🍒</p><button onclick="window.buyItem('tie', 20)" class="soft-btn scale-75 mt-2">${state.inventory.includes('tie')?'ALINDI':'SATIN AL'}</button></div>
-            <div class="shop-box opacity-60"><span class="bg-purple-500 text-white text-[7px] font-black px-2 rounded-full uppercase">Özel</span><div class="w-10 h-10 mx-auto my-2 animate-pulse"><svg viewBox="0 0 100 100"><rect x="25" y="40" width="50" height="45" fill="#a855f7" rx="5"/><rect x="25" y="55" width="50" height="10" fill="#facc15"/></svg></div><p class="text-[9px] font-bold">Sürpriz</p><p class="text-red-500 font-black text-xs">50 🍒</p><button class="soft-btn scale-75 mt-2 opacity-50 cursor-not-allowed">KİLİTLİ</button></div>
         `;
         document.getElementById('shop-modal').classList.remove('hidden'); document.getElementById('shop-modal').classList.add('flex'); 
     };
@@ -535,11 +573,16 @@
             if(state.schoolTimer <= 0) { state.schoolActive = false; state.cherries += 40; showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); }
         }
         
-        // Shop Timer Update
+        function getNext1900() {
+            const now = new Date(); let next19 = new Date(); next19.setHours(19, 0, 0, 0);
+            if (now >= next19) next19.setDate(next19.getDate() + 1);
+            const diff = next19 - now;
+            const h = Math.floor(diff / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
         const timerEl = document.getElementById('shop-timer');
         if(timerEl) timerEl.innerText = `Yenilenmesine: ${getNext1900()} kaldı`;
 
-        // Speech
         state.lastSpeech++;
         if(state.lastSpeech >= 12 && !state.isSleeping && !(state.huntActive && state.selectedChar === 'alien')) {
             state.lastSpeech = 0;
@@ -580,28 +623,31 @@
         if(lock) lock.style.display = state.cherries >= 50 ? 'none' : 'flex';
     };
 
-    // --- MOBILE DRAG ---
     function makeElementDraggable(el, onDrag) {
         if(!el) return;
-        let startX, startY;
+        let startX, startY; let lastPosX = 0;
         const dragStart = (e) => {
             const ev = e.touches ? e.touches[0] : e;
-            startX = ev.clientX - el.offsetLeft;
-            startY = ev.clientY - el.offsetTop;
-            el.classList.add('is-dragging');
+            startX = ev.clientX - el.offsetLeft; startY = ev.clientY - el.offsetTop;
+            lastPosX = ev.clientX; el.classList.add('is-dragging');
             const moveEvent = e.touches ? 'touchmove' : 'mousemove';
             const endEvent = e.touches ? 'touchend' : 'mouseup';
             const dragging = (me) => {
                 if (me.cancelable) me.preventDefault();
                 const mev = me.touches ? me.touches[0] : me;
-                el.style.left = (mev.clientX - startX) + 'px';
-                el.style.top = (mev.clientY - startY) + 'px';
+                let nx = mev.clientX - startX; let ny = mev.clientY - startY;
+                const head = el.querySelector('.char-head');
+                if (head) {
+                    if (mev.clientX > lastPosX + 2) head.style.transform = 'rotate(-8deg)';
+                    else if (mev.clientX < lastPosX - 2) head.style.transform = 'rotate(8deg)';
+                }
+                lastPosX = mev.clientX; el.style.left = nx + 'px'; el.style.top = ny + 'px';
                 if(onDrag) onDrag(el);
             };
             const dragEnd = () => {
                 el.classList.remove('is-dragging');
-                document.removeEventListener(moveEvent, dragging);
-                document.removeEventListener(endEvent, dragEnd);
+                const head = el.querySelector('.char-head'); if (head) head.style.transform = 'rotate(0deg)';
+                document.removeEventListener(moveEvent, dragging); document.removeEventListener(endEvent, dragEnd);
                 if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "65%"; el.style.top = "60%"; }
             };
             document.addEventListener(moveEvent, dragging, { passive: false });
