@@ -428,7 +428,7 @@
     import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     window.app = null; window.auth = null; window.db = null;
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'nisan-dunyam';
+    window.appId = (typeof __app_id !== 'undefined' && __app_id) ? String(__app_id) : 'nisan-dunyam';
 
     try {
         let fbConfig = {
@@ -532,12 +532,18 @@
         setTimeout(() => m.remove(), 2500);
     };
 
-    window.calculateDays = function() { return Math.floor((new Date() - new Date("2026-02-02")) / 86400000); };
-    window.toggleDarkMode = function() { window.state.isDarkMode = !window.state.isDarkMode; document.body.classList.toggle('dark-mode', window.state.isDarkMode); };
+    window.calculateDays = function() {
+        return Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
+    };
+
+    window.toggleDarkMode = function() { 
+        window.state.isDarkMode = !window.state.isDarkMode; 
+        document.body.classList.toggle('dark-mode', window.state.isDarkMode); 
+    };
 
     // --- GİRİŞ & FIREBASE VERİ SİSTEMLERİ ---
     window.setupGlobalListeners = function() {
-        if (!window.db) return;
+        if (!window.db || !window.user) return;
         
         if(window.shopUnsub) window.shopUnsub();
         window.shopUnsub = onSnapshot(collection(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems'), (snap) => {
@@ -569,7 +575,7 @@
     };
 
     window.setupUserProgress = function() {
-        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
         
         if(window.userProgressUnsub) window.userProgressUnsub();
         const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
@@ -609,7 +615,7 @@
     };
 
     window.saveProgress = async function() {
-        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
         try {
             const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
             await setDoc(userRef, {
@@ -671,7 +677,7 @@
 
     // --- ADMIN PANEL FONKSİYONLARI ---
     window.setupAdminRealtime = function() {
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         if(window.adminUsersUnsubList) window.adminUsersUnsubList.forEach(u => u()); 
         window.adminUsersUnsubList = []; window.allUsersData = {};
         Object.keys(window.registeredAccounts).forEach(username => {
@@ -697,7 +703,7 @@
     };
 
     window.adminAddShopItem = async function() { 
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         const id = document.getElementById('admin-item-id').value.trim(); 
         const name = document.getElementById('admin-item-name').value.trim(); 
         const price = parseInt(document.getElementById('admin-item-price').value); 
@@ -711,17 +717,17 @@
             document.getElementById('admin-item-id').value = ''; document.getElementById('admin-item-name').value = ''; 
             document.getElementById('admin-item-price').value = ''; document.getElementById('admin-item-rarity').value = ''; 
             document.getElementById('admin-item-svg').value = ''; 
-        } catch(e) {} 
+        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
     };
 
     window.adminDeleteShopItem = async function(id) { 
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         if(window.defaultShopItems[id]) { window.showMessage("Varsayılanları silemezsiniz!"); return; } 
         try { 
             await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems', id)); 
             delete window.dynamicShopItems[id]; window.showMessage("Eşya Silindi!"); 
             if(window.renderAdminShopList) window.renderAdminShopList(); 
-        } catch(e) {} 
+        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
     };
 
     window.renderAdminShopList = function() { 
@@ -748,7 +754,7 @@
     };
 
     window.adminDeleteAccount = async function(username, uid) { 
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         if(username === 'nisan') { window.showMessage("Ana hesabı silemezsin! ❤️"); return; } 
         try { 
             const newAccounts = { ...window.registeredAccounts }; delete newAccounts[username]; 
@@ -756,11 +762,11 @@
             await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', uid)); 
             delete window.allUsersData[username]; window.showMessage(`Hesap tamamen silindi: ${username} 🗑️`); 
             if(window.renderAdminUserList) window.renderAdminUserList(); 
-        } catch(e) {} 
+        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
     };
 
     window.adminModifyCherries = async function(multiplier) { 
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         const uid = document.getElementById('admin-user-select').value; 
         const val = parseInt(document.getElementById('admin-cherry-amount').value); 
         if(!uid || isNaN(val)) { window.showMessage("Geçersiz miktar!"); return; } 
@@ -772,11 +778,11 @@
             await setDoc(userRef, { cherries: Math.max(0, current + amount) }, { merge: true }); 
             window.showMessage(multiplier > 0 ? "Vişneler eklendi!" : "Vişneler çıkarıldı!"); 
             document.getElementById('admin-cherry-amount').value = ''; 
-        } catch(e) {} 
+        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
     };
 
     window.adminCreateAccount = async function() { 
-        if (!window.db) return; 
+        if (!window.db || !window.user) return; 
         const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); const p = document.getElementById('admin-new-pass').value; 
         if(!u || !p) { window.showMessage("Bilgileri girin!"); return; } 
         if(window.registeredAccounts[u]) { window.showMessage("Bu kullanıcı zaten var!"); return; } 
@@ -785,7 +791,7 @@
             await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); 
             window.showMessage(`Hesap Oluşturuldu: ${u}`); document.getElementById('admin-new-user').value = ''; document.getElementById('admin-new-pass').value = ''; 
             if(window.setupAdminRealtime) window.setupAdminRealtime();
-        } catch(e) { } 
+        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
     };
 
     // --- Uİ YÖNETİMİ & ÇİZİM SİSTEMLERİ ---
@@ -1171,7 +1177,7 @@
         const interval = setInterval(() => { prg += 2; const lp = document.getElementById('loading-progress'); if (lp) lp.style.width = prg + "%"; const lt = document.getElementById('loading-text'); if (lt && prg % 20 === 0) lt.innerText = texts[Math.floor(prg/25)] || "başlıyor..."; if(prg >= 100) { clearInterval(interval); const initL = document.getElementById('initial-loading'); if (initL) initL.style.display = 'none'; window.changeScreen('login-screen'); } }, 30);
     };
 
-    if (window.auth) onAuthStateChanged(window.auth, (u) => { window.user = u; if (u) window.setupGlobalListeners(); });
+    if (window.auth) onAuthStateChanged(window.auth, (u) => { window.user = u; window.setupGlobalListeners(); });
     
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', window.bootSequence); } else { window.bootSequence(); }
 </script>
