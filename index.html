@@ -107,7 +107,7 @@
         @keyframes jumpThree { 0%, 100% { transform: translateY(0); } 15% { transform: translateY(-40px) scale(0.9, 1.1); } 30% { transform: translateY(0) scale(1.1, 0.9); } 45% { transform: translateY(-40px) scale(0.9, 1.1); } 60% { transform: translateY(0) scale(1.1, 0.9); } 75% { transform: translateY(-40px) scale(0.9, 1.1); } 90% { transform: translateY(0) scale(1.1, 0.9); } }
         .anim-jump-3 { animation: jumpThree 1.5s ease-in-out; transform-origin: bottom center; }
         @keyframes riseFromGrave { 0% { transform: translateY(150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .anim-rise { animation: riseFromGrave 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .anim-rise { animation: riseFromGrave 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.5s both; }
 
         @keyframes stitchFaceReveal { 0%, 20% { opacity: 0; } 25%, 100% { opacity: 1; } }
         .anim-nerd-face { animation: stitchFaceReveal 4s ease-in-out forwards; }
@@ -1141,11 +1141,18 @@
         if(isAnimContext && skin === 'black') {
             return `
             <div class="relative w-full flex-1 flex flex-col items-center justify-end pb-0 min-h-[250px] overflow-hidden rounded-b-[30px]">
-                <div class="absolute bottom-[30px] z-10 w-[80%] max-w-[180px]">${svgBase}</div>
-                <svg class="absolute bottom-0 z-20 w-[120%] max-w-[240px] h-[100px] translate-y-2" viewBox="0 0 200 120">
+                <!-- Mezar Taşı (Arka Katman) -->
+                <svg class="absolute bottom-0 z-0 w-[120%] max-w-[240px] h-[100px] translate-y-2" viewBox="0 0 200 120">
                     <path d="M 50 100 L 50 40 Q 100 0 150 40 L 150 100 Z" fill="#4b5563" stroke="#1f2937" stroke-width="4"/>
                     <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Herkes Kendine</text>
                     <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Yakışanı Yapsın</text>
+                </svg>
+                
+                <!-- Hello Kitty (Orta Katman) -->
+                <div class="absolute bottom-[30px] z-10 w-[80%] max-w-[180px]">${svgBase}</div>
+                
+                <!-- Toprak (Ön Katman) -->
+                <svg class="absolute bottom-0 z-20 w-[120%] max-w-[240px] h-[100px] translate-y-2 pointer-events-none" viewBox="0 0 200 120">
                     <path d="M -10 100 Q 100 60 210 100 L 210 130 L -10 130 Z" fill="#451a03"/>
                 </svg>
             </div>
@@ -1271,41 +1278,71 @@
     window.makeElementDraggable = function(el, onDrag) {
         if(!el || el.dataset.dragAttached === "true") return;
         el.dataset.dragAttached = "true";
-        let startX, startY; let lastPosX = 0;
+        
         const dragStart = (e) => {
-            if(e.type === 'touchstart') e.preventDefault(); 
+            if(e.type === 'touchstart' && e.cancelable) e.preventDefault(); 
             const ev = e.touches ? e.touches[0] : e;
-            const rect = el.getBoundingClientRect();
-            const parentRect = el.parentElement.getBoundingClientRect();
-            const offsetX = ev.clientX - rect.left;
-            const offsetY = ev.clientY - rect.top;
             
-            el.classList.add('is-dragging'); el.style.zIndex = "1000"; 
+            let startX = ev.clientX;
+            let startY = ev.clientY;
+            let initialLeft = el.offsetLeft;
+            let initialTop = el.offsetTop;
+            
+            el.style.bottom = 'auto';
+            el.style.right = 'auto';
+            el.style.left = initialLeft + 'px';
+            el.style.top = initialTop + 'px';
+            
+            el.classList.add('is-dragging'); 
+            el.style.zIndex = "1000"; 
             
             const dragging = (me) => {
                 if (me.cancelable) me.preventDefault();
                 const mev = me.touches ? me.touches[0] : me;
-                let nx = mev.clientX - parentRect.left - offsetX; 
-                let ny = mev.clientY - parentRect.top - offsetY;
+                
+                let deltaX = mev.clientX - startX;
+                let deltaY = mev.clientY - startY;
+                
+                let nx = initialLeft + deltaX;
+                let ny = initialTop + deltaY;
+                
                 const head = el.querySelector('.char-head');
                 if (head) {
-                    if (mev.clientX > (rect.left+offsetX) + 2) head.style.transform = 'rotate(-8deg)';
-                    else if (mev.clientX < (rect.left+offsetX) - 2) head.style.transform = 'rotate(8deg)';
+                    if (deltaX > 2) head.style.transform = 'rotate(-8deg)';
+                    else if (deltaX < -2) head.style.transform = 'rotate(8deg)';
                 }
-                el.style.left = nx + 'px'; el.style.top = ny + 'px';
+                
+                el.style.left = nx + 'px'; 
+                el.style.top = ny + 'px';
                 if(onDrag) onDrag(el);
             };
+            
             const dragEnd = () => {
-                el.classList.remove('is-dragging'); el.style.zIndex = "400"; 
-                const head = el.querySelector('.char-head'); if (head) head.style.transform = 'rotate(0deg)';
-                document.removeEventListener('mousemove', dragging); document.removeEventListener('touchmove', dragging);
-                document.removeEventListener('mouseup', dragEnd); document.removeEventListener('touchend', dragEnd);
-                if(el.id === 'food-item' || el.id === 'soap-item') { el.style.left = "65%"; el.style.top = "60%"; }
+                el.classList.remove('is-dragging'); 
+                el.style.zIndex = "400"; 
+                const head = el.querySelector('.char-head'); 
+                if (head) head.style.transform = 'rotate(0deg)';
+                
+                document.removeEventListener('mousemove', dragging); 
+                document.removeEventListener('touchmove', dragging);
+                document.removeEventListener('mouseup', dragEnd); 
+                document.removeEventListener('touchend', dragEnd);
+                document.removeEventListener('touchcancel', dragEnd);
+                
+                if(el.id === 'food-item' || el.id === 'soap-item') { 
+                    el.style.left = "65%"; el.style.top = "60%"; 
+                }
             };
-            document.addEventListener('mousemove', dragging, { passive: false }); document.addEventListener('touchmove', dragging, { passive: false });
-            document.addEventListener('mouseup', dragEnd); document.addEventListener('touchend', dragEnd);
+            
+            document.addEventListener('mousemove', dragging, { passive: false }); 
+            document.addEventListener('touchmove', dragging, { passive: false });
+            document.addEventListener('mouseup', dragEnd); 
+            document.addEventListener('touchend', dragEnd);
+            document.addEventListener('touchcancel', dragEnd);
         };
-        el.addEventListener('mousedown', dragStart); el.addEventListener('touchstart', dragStart, { passive: false });
+        
+        el.addEventListener('mousedown', dragStart); 
+        el.addEventListener('touchstart', dragStart, { passive: false });
     };
 
     window.checkCollisions = function(el) {
