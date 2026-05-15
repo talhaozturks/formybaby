@@ -109,6 +109,17 @@
         @keyframes riseFromGrave { 0% { transform: translateY(150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         .anim-rise { animation: riseFromGrave 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
+        @keyframes stitchFaceReveal { 0%, 20% { opacity: 0; } 25%, 100% { opacity: 1; } }
+        .anim-nerd-face { animation: stitchFaceReveal 4s ease-in-out forwards; }
+        @keyframes stitchBodyTurn { 
+            0%, 25% { transform: scale(0.65) translateY(-30px); } 
+            37.5%, 50% { transform: scale(1.3) translateY(30px); } 
+            55%, 60% { transform: scale(-1.3, 1.3) translateY(30px); } 
+            65%, 70% { transform: scale(1.3, 1.3) translateY(30px); } 
+            80%, 100% { transform: scale(1) translateY(0); } 
+        }
+        .anim-nerd-body { animation: stitchBodyTurn 4s ease-in-out forwards; transform-origin: center center; }
+
         #selection-preview svg { width: 100%; height: auto; max-height: 45vh; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); transform-origin: center bottom; }
         #shop-timer { font-size: 10px; font-weight: 800; color: #ff5c8d; background: rgba(255, 92, 141, 0.1); padding: 4px 8px; border-radius: 10px; margin-top: 5px; }
         .admin-tab, .shop-tab { padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.2s; }
@@ -136,6 +147,13 @@
         body.goth-mode .bg-hearts {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 30 C50 15 15 15 15 40 C15 65 50 85 50 85 C50 85 85 65 85 40 C85 15 50 15 50 30" fill="%23ffffff" opacity="0.1"/></svg>');
         }
+        
+        body.money-mode .bg-hearts {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><rect x="10" y="35" width="100" height="50" fill="%23bbf7d0" stroke="%23166534" stroke-width="3" rx="5"/><circle cx="60" cy="60" r="15" fill="%2386efac" stroke="%23166534" stroke-width="2"/><circle cx="56" cy="63" r="4" fill="%23ef4444"/><circle cx="64" cy="63" r="4" fill="%23ef4444"/><path d="M56 59 Q60 53 60 56 Q60 53 64 59" fill="none" stroke="%23166534" stroke-width="1.5"/><circle cx="20" cy="45" r="3" fill="%23166534"/><circle cx="100" cy="75" r="3" fill="%23166534"/><circle cx="20" cy="75" r="3" fill="%23166534"/><circle cx="100" cy="45" r="3" fill="%23166534"/></svg>');
+            background-size: 150px 150px;
+            opacity: 0.8;
+        }
+
         .lightning { position: fixed; top: 0; bottom: 0; width: 20vw; max-width: 150px; pointer-events: none; z-index: 5; opacity: 0; }
         .lightning-l { left: 0; animation: strike 3s infinite; }
         .lightning-r { right: 0; animation: strike 4.5s infinite 1.5s; transform: scaleX(-1); }
@@ -289,7 +307,10 @@
         <div class="soft-panel w-[55%] md:w-[60%] lg:max-w-sm p-3 md:p-6 z-20 relative flex flex-col max-h-[95vh] overflow-y-auto">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2">
                 <div>
-                    <h2 class="text-base md:text-xl font-black text-[#ff5c8d] uppercase">Arkadaş Seç</h2>
+                    <h2 class="text-base md:text-xl font-black text-[#ff5c8d] uppercase flex items-center">
+                        Arkadaş Seç
+                        <button id="reset-progress-btn" onclick="window.confirmReset()" class="ml-3 bg-red-100 text-red-600 px-2 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm border border-red-200 hover:bg-red-200 hidden transition-colors">Sıfırla</button>
+                    </h2>
                     <div class="flex flex-col mt-1 gap-1">
                         <p class="text-[9px] md:text-[10px] font-black text-red-400">🍒 Vişnen: <span id="cherry-count-selection">0</span></p>
                         <p class="text-[9px] md:text-[10px] font-black text-blue-400">💎 Elmas: <span id="diamond-count-selection">0</span></p>
@@ -521,6 +542,18 @@
             <button onclick="window.closeCloset()" class="bg-pink-500 text-white w-8 h-8 rounded-full font-black">X</button>
         </div>
         <div id="closet-items" class="modal-body grid-flex"></div>
+    </div>
+</div>
+
+<!-- SIFIRLAMA MODALI -->
+<div id="reset-modal" class="fixed inset-0 bg-black/85 z-[9000] hidden items-center justify-center p-4">
+    <div class="soft-panel p-6 max-w-sm w-full text-center relative border-4 border-red-500">
+        <h3 class="text-xl font-black text-red-600 uppercase mb-2">DİKKAT!</h3>
+        <p class="text-xs font-bold text-gray-700 mb-6">Tüm veriler kalıcı olarak silinecektir. Emin misiniz?</p>
+        <div class="flex gap-4">
+            <button onclick="window.cancelReset()" class="flex-1 bg-gray-300 text-gray-800 py-3 rounded-xl font-black uppercase shadow hover:bg-gray-400">Hayır</button>
+            <button onclick="window.executeReset()" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black uppercase shadow-lg hover:bg-red-700">Evet, Sıfırla</button>
+        </div>
     </div>
 </div>
 
@@ -1090,9 +1123,9 @@
 
         if(isAnimContext && skin === 'black') {
             return `
-            <div class="relative w-full flex-1 flex flex-col items-center justify-end shrink-0 max-h-[300px] mb-2 mt-4">
-                <div class="z-10 w-[80%]">${svgBase}</div>
-                <svg class="absolute bottom-0 z-20 w-[120%] h-[80px] translate-y-3" viewBox="0 0 200 100">
+            <div class="relative w-full flex-1 flex flex-col items-center justify-end pb-8">
+                <div class="absolute bottom-[30px] z-10 w-[80%] h-[80%]">${svgBase}</div>
+                <svg class="absolute bottom-0 z-20 w-[120%] h-[120px]" viewBox="0 0 200 100">
                     <path d="M 50 100 L 50 40 Q 100 0 150 40 L 150 100 Z" fill="#4b5563" stroke="#1f2937" stroke-width="4"/>
                     <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Herkes Kendine</text>
                     <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Yakışanı Yapsın</text>
@@ -1115,15 +1148,20 @@
 
         if (skin === 'nerd') {
             bodyExtra = `
-                <path d="M 65 130 L 135 130 L 140 180 L 60 180 Z" fill="#f3f4f6" stroke="#000" stroke-width="2.5"/>
-                <path d="M 100 130 L 90 145 L 110 145 Z" fill="#f3f4f6" stroke="#000" stroke-width="1.5"/>
-                <polygon points="95,145 105,145 100,180" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+                <g clip-path="url(#stitch-body-clip)">
+                    <rect x="0" y="115" width="200" height="65" fill="#f3f4f6" stroke="#000" stroke-width="3"/>
+                    <path d="M 100 115 L 85 145 L 115 145 Z" fill="#f3f4f6" stroke="#000" stroke-width="1.5"/>
+                    <polygon points="95,145 105,145 100,185" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+                    <circle cx="100" cy="155" r="2.5" fill="#000"/>
+                    <circle cx="100" cy="168" r="2.5" fill="#000"/>
+                </g>
             `;
             headExtra = `
                 <rect x="55" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/>
                 <rect x="110" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/>
                 <line x1="90" y1="85" x2="110" y2="85" stroke="#111827" stroke-width="5"/>
             `;
+            if(isAnimContext) animClass = "anim-nerd-body";
         } else if (skin === 'tongue') {
             headExtra = `
                 <path d="M 90 130 Q 100 135 110 130" fill="none" stroke="#000" stroke-width="2"/>
@@ -1131,17 +1169,8 @@
             `;
         }
 
-        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" class="${isAnimContext ? animClass : ''}">
-            ${window.getLegs(color)}
-            <ellipse cx="100" cy="155" rx="50" ry="55" fill="${color}" stroke="#000" stroke-width="2.5"/>
-            <ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/>
-            ${bodyExtra}
-            <ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
-            <ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
-            <g class="char-head">
-                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
-                <path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
-                <ellipse cx="100" cy="95" rx="72" ry="62" fill="${color}" stroke="#000" stroke-width="3"/>
+        let faceGroup = `
+            <g class="${isAnimContext && skin === 'nerd' ? 'anim-nerd-face' : ''}">
                 <ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/>
                 <circle cx="75" cy="85" r="5" fill="white"/>
                 <ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/>
@@ -1149,8 +1178,51 @@
                 <ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>
                 ${headExtra}
             </g>
+        `;
+
+        let svgBase = `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" class="${animClass}">
+            <defs>
+                <clipPath id="stitch-body-clip"><ellipse cx="100" cy="155" rx="50" ry="55"/></clipPath>
+            </defs>
+            <ellipse cx="100" cy="155" rx="50" ry="55" fill="${color}" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/>
+            ${bodyExtra}
+            <!-- Stitch Ayakları -->
+            <ellipse class="limb limb-leg-l" cx="70" cy="200" rx="16" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>
+            <ellipse class="limb limb-leg-r" cx="130" cy="200" rx="16" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>
+            <circle class="limb limb-leg-l" cx="60" cy="202" r="3.5" fill="#1e3a8a"/>
+            <circle class="limb limb-leg-l" cx="67" cy="206" r="3.5" fill="#1e3a8a"/>
+            <circle class="limb limb-leg-r" cx="140" cy="202" r="3.5" fill="#1e3a8a"/>
+            <circle class="limb limb-leg-r" cx="133" cy="206" r="3.5" fill="#1e3a8a"/>
+            
+            <ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
+            <ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
+            <g class="char-head">
+                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
+                <path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
+                <ellipse cx="100" cy="95" rx="72" ry="62" fill="${color}" stroke="#000" stroke-width="3"/>
+                ${faceGroup}
+            </g>
             ${window.getOutfitSvg('stitch')}
         </svg>`;
+
+        if(isAnimContext && skin === 'nerd') {
+            return `
+            <div class="relative w-full flex-1 flex flex-col items-center justify-center shrink-0 min-h-[220px] mb-2 mt-4 px-4 w-[200px]">
+                <div class="absolute inset-0 z-0 bg-[#0f172a] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.3)] flex flex-col justify-end opacity-90 border-2 border-[#1e293b]">
+                    <svg viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="none" class="animate-pulse">
+                        <polyline points="0,50 15,35 30,40 50,15 70,25 100,5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="100" cy="5" r="2" fill="#22c55e" filter="drop-shadow(0 0 4px #22c55e)"/>
+                        <path d="M 0 50 L 15 35 L 30 40 L 50 15 L 70 25 L 100 5 L 100 50 Z" fill="rgba(34,197,94,0.1)"/>
+                    </svg>
+                    <div class="text-[14px] text-green-400 font-black absolute top-2 left-2 drop-shadow-md">📈 Vişneler Borsası</div>
+                </div>
+                <div class="z-10 w-[80%]">${svgBase}</div>
+            </div>
+            `;
+        }
+
+        return svgBase;
     };
     
     window.getOtherSvg = function(char) {
@@ -1225,7 +1297,7 @@
 
     window.changeScreen = function(id) { document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen')); const el = document.getElementById(id); if(el) el.classList.remove('hidden-screen'); if(id === 'selection-screen') { window.updateSelection(window.state.selectedChar); } if(id === 'selection-screen' || id === 'world-screen') window.updateUI(); };
     window.updateSelection = function(char) {
-        if(char !== 'kitty' && window.isGuest) { 
+        if(char !== 'kitty' && char !== 'stitch' && window.isGuest) { 
             window.showMessage("Bu karakter Misafir'lere kapalıdır! Lütfen giriş yapın. 🔒"); 
             return; 
         }
@@ -1250,6 +1322,7 @@
         if(char === 'kitty' && activeSkin === 'black') {
             document.body.style.backgroundColor = '#000000';
             document.body.classList.add('goth-mode');
+            document.body.classList.remove('money-mode');
             
             if(!document.getElementById('lightning-l')) {
                 const l = document.createElement('div'); l.id = 'lightning-l'; l.className = 'lightning lightning-l';
@@ -1261,9 +1334,16 @@
                 r.innerHTML = `<svg viewBox="0 0 100 500" width="100%" height="100%"><path d="M60 0 L10 250 L50 250 L10 500 L90 200 L50 200 Z" fill="white" filter="drop-shadow(0 0 15px white)"/></svg>`;
                 document.body.appendChild(r);
             }
+        } else if (char === 'stitch' && window.state.previewStitchSkin === 'nerd') {
+            document.body.style.backgroundColor = window.themes[char];
+            document.body.classList.add('money-mode');
+            document.body.classList.remove('goth-mode');
+            const ll = document.getElementById('lightning-l'); if(ll) ll.remove();
+            const lr = document.getElementById('lightning-r'); if(lr) lr.remove();
         } else {
             document.body.style.backgroundColor = window.themes[char];
             document.body.classList.remove('goth-mode');
+            document.body.classList.remove('money-mode');
             const ll = document.getElementById('lightning-l'); if(ll) ll.remove();
             const lr = document.getElementById('lightning-r'); if(lr) lr.remove();
         }
@@ -1429,6 +1509,25 @@
         }
     };
 
+    window.confirmReset = function() {
+        document.getElementById('reset-modal').classList.remove('hidden');
+        document.getElementById('reset-modal').classList.add('flex');
+    };
+
+    window.cancelReset = function() {
+        document.getElementById('reset-modal').classList.add('hidden');
+        document.getElementById('reset-modal').classList.remove('flex');
+    };
+
+    window.executeReset = async function() {
+        window.resetState();
+        await window.saveProgress();
+        window.cancelReset();
+        window.updateUI();
+        window.updateSelection('kitty');
+        window.showMessage("Her şey sıfırlandı! 🧹");
+    };
+
     window.updateUI = function() {
         const id = (el) => document.getElementById(el);
         if(id('bar-hunger')) id('bar-hunger').style.width = window.state.stats.hunger + '%';
@@ -1439,10 +1538,19 @@
         if(id('cherry-count-selection')) id('cherry-count-selection').innerText = Math.floor(window.state.cherries);
         if(id('diamond-count-selection')) id('diamond-count-selection').innerText = Math.floor(window.state.diamonds);
         
+        const resetBtn = id('reset-progress-btn');
+        if (resetBtn) {
+            if (window.isGuest || window.currentUserId === 'admin_user') {
+                resetBtn.classList.add('hidden');
+            } else {
+                resetBtn.classList.remove('hidden');
+            }
+        }
+        
         ['stitch', 'alien', 'chick', 'talha'].forEach(c => { 
             const lock = id(`${c}-lock-ui`); 
             if(lock) { 
-                if(window.isGuest) { 
+                if(window.isGuest && c !== 'stitch') { 
                     lock.style.display = 'flex'; 
                     lock.innerHTML = `<span>🔒 Kapalı</span><p>Giriş Yapılmalı</p>`; 
                 } else { 
