@@ -436,17 +436,6 @@
         window.app = initializeApp(fbConfig); 
         window.auth = getAuth(window.app); 
         window.db = getFirestore(window.app);
-        
-        const initAuth = async () => {
-            try {
-                // Sadece anonim giriş kullanıyoruz, çünkü özel tokenlar bu veritabanına uymaz.
-                await signInAnonymously(window.auth);
-            } catch (err) {
-                console.warn("Auth Init Error (Lütfen Firebase'den Anonymous Girişi Açın):", err);
-                setTimeout(() => { window.showMessage("Uyarı: Veritabanı için Firebase Authentication açılmalı!"); }, 4000);
-            }
-        };
-        initAuth();
     } catch (error) { 
         console.error("Firebase Başlatma Hatası:", error); 
     }
@@ -538,7 +527,7 @@
 
     // --- GİRİŞ & FIREBASE VERİ SİSTEMLERİ ---
     window.setupGlobalListeners = function() {
-        if (!window.db || !window.user) return;
+        if (!window.db) return;
         
         if(window.shopUnsub) window.shopUnsub();
         window.shopUnsub = onSnapshot(collection(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems'), (snap) => {
@@ -567,7 +556,7 @@
     };
 
     window.setupUserProgress = function() {
-        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
         
         if(window.userProgressUnsub) window.userProgressUnsub();
         const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
@@ -607,7 +596,7 @@
     };
 
     window.saveProgress = async function() {
-        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
         try {
             const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
             await setDoc(userRef, {
@@ -690,7 +679,7 @@
 
     // --- ADMIN PANEL FONKSİYONLARI ---
     window.setupAdminRealtime = function() {
-        if (!window.db || !window.user) return; 
+        if (!window.db) return; 
         
         if(window.adminUsersUnsubList) window.adminUsersUnsubList.forEach(u => u()); 
         window.adminUsersUnsubList = []; 
@@ -719,7 +708,7 @@
     };
 
     window.adminAddShopItem = async function() { 
-        if (!window.user) return; 
+        if (!window.db) return; 
         const id = document.getElementById('admin-item-id').value.trim(); 
         const name = document.getElementById('admin-item-name').value.trim(); 
         const price = parseInt(document.getElementById('admin-item-price').value); 
@@ -739,7 +728,7 @@
     };
 
     window.adminDeleteShopItem = async function(id) { 
-        if (!window.user) return; 
+        if (!window.db) return; 
         if(window.defaultShopItems[id]) { window.showMessage("Varsayılanları silemezsiniz!"); return; } 
         try { 
             await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems', id)); 
@@ -776,7 +765,7 @@
     };
 
     window.adminDeleteAccount = async function(username, uid) { 
-        if (!window.user) return; 
+        if (!window.db) return; 
         if(username === 'nisan') { window.showMessage("Ana hesabı silemezsin! ❤️"); return; } 
         try { 
             const newAccounts = { ...window.registeredAccounts }; 
@@ -790,7 +779,7 @@
     };
 
     window.adminModifyCherries = async function() { 
-        if (!window.user) return; 
+        if (!window.db) return; 
         const uid = document.getElementById('admin-user-select').value; 
         const amount = parseInt(document.getElementById('admin-cherry-amount').value); 
         if(!uid || isNaN(amount)) { window.showMessage("Geçersiz miktar!"); return; } 
@@ -806,7 +795,7 @@
     };
 
     window.adminCreateAccount = async function() { 
-        if (!window.user) return; 
+        if (!window.db) return; 
         const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); 
         const p = document.getElementById('admin-new-pass').value; 
         if(!u || !p) { window.showMessage("Bilgileri girin!"); return; } 
