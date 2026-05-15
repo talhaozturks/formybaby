@@ -462,7 +462,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     window.app = null; window.auth = null; window.db = null;
 
@@ -534,7 +534,7 @@
     window.resetState = function() {
         window.state = {
             selectedChar: 'kitty', room: 'kitchen', stats: { hunger: 80, energy: 70, hygiene: 100 }, 
-            isSleeping: false, outfit: 'default', cherries: 0, diamonds: 0, 
+            isSleeping: false, isBathing: false, outfit: 'default', cherries: 0, diamonds: 0, 
             huntActive: false, huntTimer: 60, huntSpeed: 1, 
             schoolActive: false, schoolTimer: 60, schoolSpeed: 1, 
             inventory: [], lastSpeech: 0, blockHighScore: 0, 
@@ -552,8 +552,12 @@
         alien: [ { id: 'shuttle', name: 'Uzay Mekiği', icon: '🚀', locked: false, bg: '#3b82f6' }, { id: 'moon_mine', name: 'Ay Madeni', bgImg: 'https://t3.ftcdn.net/jpg/04/24/01/34/360_F_424013485_pUwKWK0BddTu35DurX2GeQ0Q0zCeMKL2.jpg', locked: true, price: 100, bg: '#1e293b' } ]
     };
 
+    const kittyKitchenSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23fce7f3"/><stop offset="100%" stop-color="%23fbcfe8"/></linearGradient><pattern id="c" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="30" height="30" fill="%23fff1f2"/><rect x="30" width="30" height="30" fill="%23fecdd3"/><rect y="30" width="30" height="30" fill="%23fecdd3"/><rect x="30" y="30" width="30" height="30" fill="%23fff1f2"/></pattern><filter id="drop"><feDropShadow dx="2" dy="5" stdDeviation="5" flood-opacity="0.3"/></filter></defs><rect width="800" height="400" fill="url(%23bg)"/><rect y="400" width="800" height="200" fill="url(%23c)"/><rect x="50" y="100" width="200" height="300" rx="15" fill="%23ef4444" filter="url(%23drop)"/><rect x="60" y="110" width="180" height="120" rx="10" fill="%23fee2e2"/><rect x="60" y="240" width="180" height="150" rx="10" fill="%23fee2e2"/><text x="120" y="180" font-size="50">🎀</text><rect x="300" y="250" width="450" height="150" fill="%23fbcfe8" filter="url(%23drop)"/><rect x="300" y="250" width="450" height="25" fill="%23fda4af"/><rect x="350" y="250" width="120" height="25" fill="%23475569"/><circle cx="380" cy="262" r="6" fill="%23cbd5e1"/><circle cx="440" cy="262" r="6" fill="%23cbd5e1"/><rect x="550" y="250" width="120" height="35" rx="15" fill="%23bae6fd"/><path d="M590 200 L610 200 L600 250 Z" fill="%2394a3b8"/><text x="610" y="240" font-size="25">🎀</text><rect x="350" y="120" width="120" height="80" rx="10" fill="%23ef4444" filter="url(%23drop)"/><rect x="360" y="130" width="70" height="60" rx="5" fill="%23000"/><circle cx="450" cy="150" r="6" fill="white"/><circle cx="450" cy="180" r="6" fill="white"/><text x="375" y="170" font-size="30">🎀</text><text x="680" y="245" font-size="40">🍞</text><text x="730" y="245" font-size="30">🍯</text></svg>`;
+    const kittyGardenSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%237dd3fc"/><stop offset="100%" stop-color="%23e0f2fe"/></linearGradient><linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2386efac"/><stop offset="100%" stop-color="%234ade80"/></linearGradient></defs><rect width="800" height="350" fill="url(%23sky)"/><circle cx="700" cy="100" r="60" fill="%23fef08a"/><rect y="350" width="800" height="250" fill="url(%23grass)"/><path d="M 0 350 L 800 350 M 50 280 L 50 400 M 150 280 L 150 400 M 250 280 L 250 400 M 350 280 L 350 400 M 450 280 L 450 400 M 550 280 L 550 400 M 650 280 L 650 400 M 750 280 L 750 400" stroke="%23f87171" stroke-width="12" stroke-linecap="round"/><rect x="150" y="150" width="30" height="200" fill="%2378350f" rx="10"/><path d="M165 30 C 80 30, 50 150, 165 240 C 280 150, 250 30, 165 30" fill="%23f472b6"/><rect x="600" y="100" width="30" height="250" fill="%2378350f" rx="10"/><path d="M615 0 C 530 0, 500 120, 615 210 C 730 120, 700 0, 615 0" fill="%23f472b6"/><text x="140" y="140" font-size="50">🎀</text><text x="590" y="110" font-size="50">🎀</text><text x="100" y="450" font-size="40">🌸</text><text x="250" y="520" font-size="40">🌺</text><text x="400" y="460" font-size="40">🌼</text><text x="550" y="530" font-size="40">🌷</text><text x="700" y="440" font-size="40">🌻</text><text x="50" y="540" font-size="60">🪴</text><text x="700" y="540" font-size="60">🪴</text><text x="600" y="450" font-size="60">🚿</text></svg>`;
+    const kittyBathroomSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><pattern id="s" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="30" height="60" fill="%23fbcfe8"/><rect x="30" width="30" height="60" fill="%23fdf2f8"/></pattern><filter id="drop"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity="0.2"/></filter></defs><rect width="800" height="450" fill="url(%23s)"/><rect y="450" width="800" height="150" fill="%23e2e8f0"/><rect x="600" y="100" width="140" height="180" fill="%23cbd5e1" rx="15" filter="url(%23drop)"/><rect x="610" y="110" width="120" height="160" fill="%23f8fafc" rx="10"/><rect x="560" y="300" width="220" height="150" fill="%23fff" rx="10" filter="url(%23drop)"/><rect x="600" y="300" width="140" height="25" fill="%23bae6fd" rx="10"/><rect x="50" y="200" width="100" height="250" fill="%23fff" rx="25" filter="url(%23drop)"/><ellipse cx="100" cy="420" rx="70" ry="40" fill="%23fff" filter="url(%23drop)"/><path d="M 220 320 C 220 200, 420 200, 420 320 C 420 200, 620 200, 620 320 L 620 480 Q 420 550 220 480 Z" fill="%23f472b6" filter="url(%23drop)"/><path d="M 400 230 L 400 120" stroke="%2394a3b8" stroke-width="8"/><rect x="380" y="100" width="40" height="20" rx="10" fill="%23cbd5e1"/><text x="630" y="290" font-size="40">🪥</text><text x="680" y="290" font-size="40">🧼</text><text x="160" y="380" font-size="50">🧻</text><text x="40" y="480" font-size="50">🪠</text><text x="60" y="550" font-size="70">🌸</text><text x="400" y="400" font-size="80" opacity="0.6">🫧</text></svg>`;
+
     window.roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", planet_kitty: "https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png" },
+        kitty: { kitchen: kittyKitchenSvg, bathroom: kittyBathroomSvg, bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: kittyGardenSvg, school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", planet_kitty: "https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png" },
         stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
         alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png", moon_mine: "https://static.vecteezy.com/system/resources/previews/034/324/787/non_2x/dark-cave-game-background-tillable-horizontally-dark-terrible-empty-place-with-rock-lighting-walls-in-side-view-for-2d-games-location-illustration-vector.jpg" },
         chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
@@ -995,9 +999,56 @@
         if(navSchool) navSchool.style.display = (window.state.selectedChar === 'talha' || window.state.room === 'moon_mine' || window.state.room === 'planet_kitty') ? 'none' : 'flex';
     };
 
+    window.toggleBath = function() {
+        window.state.isBathing = !window.state.isBathing;
+        const charD = document.getElementById('char-draggable');
+        const btn = document.getElementById('bath-btn');
+        const interactLayer = document.getElementById('interaction-layer');
+        
+        if (window.state.isBathing) {
+            if(btn) btn.innerText = 'Duştan Çık';
+            charD.style.transition = 'left 0.8s, top 0.8s';
+            charD.style.left = '45%';
+            charD.style.top = '30%';
+            
+            setTimeout(() => {
+               window.state.stats.hygiene = 100;
+               window.saveProgress();
+               window.updateUI();
+               window.showMessage("Oh mis gibi köpüklü banyo! 🫧");
+               
+               const bubbles = document.createElement('div');
+               bubbles.id = 'bath-bubbles';
+               bubbles.className = 'absolute z-[500] text-[80px] pointer-events-none animate-pulse';
+               bubbles.style.left = '38%';
+               bubbles.style.top = '35%';
+               bubbles.innerHTML = '🫧🦆🫧🎀';
+               interactLayer.appendChild(bubbles);
+            }, 800);
+        } else {
+            if(btn) btn.innerText = 'Köpüklü Banyo Yap 🛁';
+            const bubbles = document.getElementById('bath-bubbles');
+            if(bubbles) bubbles.remove();
+            
+            charD.style.transition = 'left 0.8s, top 0.8s';
+            charD.style.left = '40%';
+            charD.style.top = 'auto';
+            charD.style.bottom = '100px';
+            setTimeout(() => charD.style.transition = 'none', 800);
+        }
+    };
+
     window.goRoom = function(r) {
         window.state.room = r; if(r !== 'bedroom') window.state.isSleeping = false;
-        document.getElementById('room-bg-layer').style.backgroundImage = `url('${window.roomConfigs[window.state.selectedChar][r] || window.roomConfigs['kitty'][r]}')`;
+        
+        const isSvgConfig = window.roomConfigs[window.state.selectedChar][r] && window.roomConfigs[window.state.selectedChar][r].startsWith('data:image');
+        
+        if (isSvgConfig) {
+            document.getElementById('room-bg-layer').style.backgroundImage = `url('${window.roomConfigs[window.state.selectedChar][r]}')`;
+        } else {
+            document.getElementById('room-bg-layer').style.backgroundImage = `url('${window.roomConfigs[window.state.selectedChar][r] || window.roomConfigs['kitty'][r]}')`;
+        }
+
         const interact = document.getElementById('interaction-layer'); interact.innerHTML = '';
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('nav-btn-active', btn.id === 'nav-'+r));
         document.getElementById('closet-target').classList.toggle('hidden', r !== 'bedroom');
@@ -1023,6 +1074,10 @@
             interact.innerHTML += `<div id="soap-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto; z-index: 400;">🧼</div>`;
             setTimeout(() => { if(window.makeElementDraggable) window.makeElementDraggable(document.getElementById('soap-item'), window.checkCollisions); }, 50);
             if(window.state.selectedChar === 'alien') { interact.innerHTML += `<div onclick="window.openAlienGame()" class="absolute left-[15%] top-[30%] text-6xl cursor-pointer hover:scale-110 transition-transform animate-pulse drop-shadow-2xl" style="pointer-events: auto;" title="Uzaya Çık!">🚪</div>`; }
+            
+            if(window.state.selectedChar === 'kitty') {
+                interact.innerHTML += `<button id="bath-btn" onclick="window.toggleBath()" class="soft-btn absolute z-[600] px-6 py-3 text-xs uppercase shadow-xl" style="left: 50%; bottom: 40px; transform: translateX(-50%); pointer-events: auto;">${window.state.isBathing ? 'Duştan Çık' : 'Köpüklü Banyo Yap 🛁'}</button>`;
+            }
         }
         if(r === 'bedroom') {
             if(window.state.selectedChar === 'kitty') { interact.innerHTML += `<div class="poster-frame" style="right: 15%; top: 15%; pointer-events: none;"><img src="https://cdn-images.dzcdn.net/images/artist/c926bdf25de4c5051216bd8bf3d10758/1900x1900-000000-80-0-0.jpg"></div>`; }
@@ -1196,7 +1251,48 @@
     window.alienLoop = function() { if(!window.alienIsPlaying) return; window.alienCtx.fillStyle = 'rgba(0, 0, 0, 0.3)'; window.alienCtx.fillRect(0, 0, window.alienCanvas.width, window.alienCanvas.height); window.alienCtx.fillStyle = "white"; if(Math.random() < 0.2) { window.alienCtx.fillRect(Math.random() * window.alienCanvas.width, Math.random() * window.alienCanvas.height, 2, 2); } window.alienCtx.font = "40px Arial"; window.alienCtx.fillText("🚀", window.alienPlayer.x, window.alienPlayer.y + 35); if(Math.random() < 0.04 + (window.alienScore/10000)) { window.alienEnemies.push({ x: Math.random() * (window.alienCanvas.width - 30), y: -40, w: 30, h: 30, speed: 3 + Math.random() * 4 + (window.alienScore/1000), type: Math.random() > 0.4 ? "☄️" : "👾" }); } for(let i = window.alienEnemies.length - 1; i >= 0; i--) { let e = window.alienEnemies[i]; e.y += e.speed; window.alienCtx.font = "30px Arial"; window.alienCtx.fillText(e.type, e.x, e.y + 25); if(e.x < window.alienPlayer.x + window.alienPlayer.w - 15 && e.x + e.w > window.alienPlayer.x + 15 && e.y < window.alienPlayer.y + window.alienPlayer.h - 15 && e.h + e.y > window.alienPlayer.y + 15) { window.alienIsPlaying = false; document.getElementById('alien-game-msg').innerText = "Yakalandın!\nSkor: " + Math.floor(window.alienScore); document.getElementById('alien-game-over').classList.remove('hidden'); return; } if(e.y > window.alienCanvas.height) { window.alienEnemies.splice(i, 1); window.alienScore += 10; document.getElementById('alien-score').innerText = Math.floor(window.alienScore); if(window.alienScore > 0 && window.alienScore % 200 === 0) { window.state.cherries += 5; window.saveProgress(); window.showMessage("Mükemmel Kaçış! +5 🍒"); } } } window.alienGameLoopId = requestAnimationFrame(window.alienLoop); };
 
     window.stitchSingInterval = null;
-    window.playGuitar = function() { const guitar = document.getElementById('stitch-guitar'); const charContainer = document.getElementById('char-container'); if(!guitar || !charContainer) return; guitar.style.left = "45%"; guitar.style.bottom = "120px"; guitar.style.transform = "rotate(-20deg) scale(1.5)"; const notes = ["sEni ÇoK SeViyOruM 🎸", "A-aaaa--aa 🎵", "ohanaaaa... 🎶"]; let step = 0; clearInterval(window.stitchSingInterval); const bubble = document.getElementById('speech-bubble'); if(bubble) { bubble.innerText = notes[0]; bubble.style.opacity = '1'; bubble.style.color = '#3b82f6'; } step++; window.stitchSingInterval = setInterval(() => { if(bubble) { bubble.innerText = notes[step % notes.length]; bubble.style.opacity = '1'; } step++; }, 1500); setTimeout(() => { clearInterval(window.stitchSingInterval); if(bubble) { bubble.style.opacity = '0'; bubble.style.color = '#ff5c8d'; } if(window.state.room === 'garden') { guitar.style.left = "20%"; guitar.style.bottom = "20%"; guitar.style.transform = "rotate(0deg) scale(1)"; } }, 5000); };
+    window.playGuitar = function() { 
+        const guitar = document.getElementById('stitch-guitar'); 
+        const charContainer = document.getElementById('char-container'); 
+        if(!guitar || !charContainer) return; 
+        
+        guitar.style.left = "45%"; 
+        guitar.style.bottom = "120px"; 
+        guitar.style.transform = "rotate(-20deg) scale(1.5)"; 
+        
+        const notes = ["sEni ÇoK SeViyOruM 🎸", "A-aaaa--aa 🎵", "ohanaaaa... 🎶"]; 
+        let step = 0; 
+        clearInterval(window.stitchSingInterval); 
+        
+        const bubble = document.getElementById('speech-bubble'); 
+        if(bubble) { 
+            bubble.innerText = notes[0]; 
+            bubble.style.opacity = '1'; 
+            bubble.style.color = '#3b82f6'; 
+        } 
+        
+        step++; 
+        window.stitchSingInterval = setInterval(() => { 
+            if(bubble) { 
+                bubble.innerText = notes[step % notes.length]; 
+                bubble.style.opacity = '1'; 
+            } 
+            step++; 
+        }, 1500); 
+        
+        setTimeout(() => { 
+            clearInterval(window.stitchSingInterval); 
+            if(bubble) { 
+                bubble.style.opacity = '0'; 
+                bubble.style.color = '#ff5c8d'; 
+            } 
+            if(window.state.room === 'garden') { 
+                guitar.style.left = "20%"; 
+                guitar.style.bottom = "20%"; 
+                guitar.style.transform = "rotate(0deg) scale(1)"; 
+            } 
+        }, 5000); 
+    };
 
     // --- OYUN DÖNGÜSÜ VE BAŞLATMA ---
     window.mainLoop = function() {
@@ -1211,30 +1307,104 @@
             window.saveProgress();
         }
         window.updateTimeOverlay();
-        if(!window.state.isSleeping && !window.state.huntActive && !window.state.schoolActive) { window.state.stats.hunger = Math.max(0, window.state.stats.hunger - 0.05); window.state.stats.energy = Math.max(0, window.state.stats.energy - 0.03); window.state.stats.hygiene = Math.max(0, window.state.stats.hygiene - 0.04); }
+        
+        if(!window.state.isSleeping && !window.state.huntActive && !window.state.schoolActive) { 
+            window.state.stats.hunger = Math.max(0, window.state.stats.hunger - 0.05); 
+            window.state.stats.energy = Math.max(0, window.state.stats.energy - 0.03); 
+            window.state.stats.hygiene = Math.max(0, window.state.stats.hygiene - 0.04); 
+        }
+        
         if(window.state.isSleeping) window.state.stats.energy = Math.min(100, window.state.stats.energy + 2);
-        if(window.state.huntActive) { window.state.huntTimer = Math.max(0, window.state.huntTimer - window.state.huntSpeed); if(window.state.huntTimer <= 0) { window.state.huntActive = false; window.state.cherries += 30; window.showMessage("Av Tamam!"); window.saveProgress(); window.goRoom('kitchen'); } }
-        if(window.state.schoolActive) { window.state.schoolTimer = Math.max(0, window.state.schoolTimer - window.state.schoolSpeed); if(window.state.schoolTimer <= 0) { window.state.schoolActive = false; window.state.cherries += 40; window.showMessage("Ders Bitti!"); window.saveProgress(); window.goRoom('kitchen'); } }
-        if(window.state.mineResources <= 0 && window.state.lastMinedTime > 0) { if(Date.now() - window.state.lastMinedTime >= 10 * 60 * 1000) { window.state.mineResources = 5; window.state.lastMinedTime = 0; window.saveProgress(); if(window.state.room === 'moon_mine') window.goRoom('moon_mine'); } }
-        const timerEl = document.getElementById('shop-timer'); if(timerEl) { const now = new Date(); let n19 = new Date(); n19.setHours(19, 0, 0, 0); if (now >= n19) n19.setDate(n19.getDate() + 1); const diff = n19 - now; timerEl.innerText = `Yenilenmesine: ${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`; }
+        
+        if(window.state.huntActive) { 
+            window.state.huntTimer = Math.max(0, window.state.huntTimer - window.state.huntSpeed); 
+            if(window.state.huntTimer <= 0) { 
+                window.state.huntActive = false; 
+                window.state.cherries += 30; 
+                window.showMessage("Av Tamam!"); 
+                window.saveProgress(); 
+                window.goRoom('kitchen'); 
+            } 
+        }
+        
+        if(window.state.schoolActive) { 
+            window.state.schoolTimer = Math.max(0, window.state.schoolTimer - window.state.schoolSpeed); 
+            if(window.state.schoolTimer <= 0) { 
+                window.state.schoolActive = false; 
+                window.state.cherries += 40; 
+                window.showMessage("Ders Bitti!"); 
+                window.saveProgress(); 
+                window.goRoom('kitchen'); 
+            } 
+        }
+        
+        if(window.state.mineResources <= 0 && window.state.lastMinedTime > 0) { 
+            if(Date.now() - window.state.lastMinedTime >= 10 * 60 * 1000) { 
+                window.state.mineResources = 5; 
+                window.state.lastMinedTime = 0; 
+                window.saveProgress(); 
+                if(window.state.room === 'moon_mine') window.goRoom('moon_mine'); 
+            } 
+        }
+        
+        const timerEl = document.getElementById('shop-timer'); 
+        if(timerEl) { 
+            const now = new Date(); 
+            let n19 = new Date(); n19.setHours(19, 0, 0, 0); 
+            if (now >= n19) n19.setDate(n19.getDate() + 1); 
+            const diff = n19 - now; 
+            timerEl.innerText = `Yenilenmesine: ${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`; 
+        }
+        
         window.state.lastSpeech++;
         if(window.state.lastSpeech >= 12 && !window.state.isSleeping && !(window.state.huntActive && window.state.selectedChar === 'alien')) {
-            window.state.lastSpeech = 0; const bubble = document.getElementById('speech-bubble'); const isSinging = document.getElementById('stitch-guitar') && document.getElementById('stitch-guitar').style.left === "45%";
-            if(bubble && !isSinging) { bubble.innerText = (window.state.stats.energy < 30) ? "anne uykum geldi" : (window.state.stats.hunger < 30) ? "anne çok açımmm" : (window.state.stats.hygiene < 30) ? "anne duş almam gerek" : window.quotes[window.state.selectedChar][Math.floor(Math.random()*window.quotes[window.state.selectedChar].length)]; bubble.style.opacity = "1"; setTimeout(() => { if(!document.getElementById('stitch-guitar') || document.getElementById('stitch-guitar').style.left !== "45%") { bubble.style.opacity = "0"; } }, 3500); }
+            window.state.lastSpeech = 0; 
+            const bubble = document.getElementById('speech-bubble'); 
+            const isSinging = document.getElementById('stitch-guitar') && document.getElementById('stitch-guitar').style.left === "45%";
+            
+            if(bubble && !isSinging) { 
+                bubble.innerText = (window.state.stats.energy < 30) ? "anne uykum geldi" : (window.state.stats.hunger < 30) ? "anne çok açımmm" : (window.state.stats.hygiene < 30) ? "anne duş almam gerek" : window.quotes[window.state.selectedChar][Math.floor(Math.random()*window.quotes[window.state.selectedChar].length)]; 
+                bubble.style.opacity = "1"; 
+                setTimeout(() => { 
+                    if(!document.getElementById('stitch-guitar') || document.getElementById('stitch-guitar').style.left !== "45%") { 
+                        bubble.style.opacity = "0"; 
+                    } 
+                }, 3500); 
+            }
         }
-        window.updateUI(); if(!document.getElementById('phone-screen').classList.contains('hidden-screen') && document.getElementById('app-bank').classList.contains('open')) window.updateBankUI();
+        window.updateUI(); 
+        if(!document.getElementById('phone-screen').classList.contains('hidden-screen') && document.getElementById('app-bank').classList.contains('open')) window.updateBankUI();
     };
 
     window.bootSequence = function() {
         if (window.initCanvasEvents) window.initCanvasEvents();
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
         let prg = 0; let texts = ["sistemler kontrol ediliyor...", "hello kitty oluşturuluyor...", "stitch banyosundan çıkıyor..", "prospectus uzaydan dönüyor..", "civcik uyanıyor.."];
-        const interval = setInterval(() => { prg += 2; const lp = document.getElementById('loading-progress'); if (lp) lp.style.width = prg + "%"; const lt = document.getElementById('loading-text'); if (lt && prg % 20 === 0) lt.innerText = texts[Math.floor(prg/25)] || "başlıyor..."; if(prg >= 100) { clearInterval(interval); const initL = document.getElementById('initial-loading'); if (initL) initL.style.display = 'none'; window.changeScreen('login-screen'); } }, 30);
+        const interval = setInterval(() => { 
+            prg += 2; 
+            const lp = document.getElementById('loading-progress'); 
+            if (lp) lp.style.width = prg + "%"; 
+            const lt = document.getElementById('loading-text'); 
+            if (lt && prg % 20 === 0) lt.innerText = texts[Math.floor(prg/25)] || "başlıyor..."; 
+            if(prg >= 100) { 
+                clearInterval(interval); 
+                const initL = document.getElementById('initial-loading'); 
+                if (initL) initL.style.display = 'none'; 
+                window.changeScreen('login-screen'); 
+            } 
+        }, 30);
     };
 
-    if (window.auth) onAuthStateChanged(window.auth, (u) => { window.user = u; if (u) window.setupGlobalListeners(); });
+    if (window.auth) onAuthStateChanged(window.auth, (u) => { 
+        window.user = u; 
+        if(u) window.setupGlobalListeners(); 
+    });
     
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', window.bootSequence); } else { window.bootSequence(); }
+    if (document.readyState === 'loading') { 
+        document.addEventListener('DOMContentLoaded', window.bootSequence); 
+    } else { 
+        window.bootSequence(); 
+    }
 </script>
 </body>
 </html>
