@@ -157,6 +157,7 @@
 <div class="bg-hearts"></div>
 <div class="top-btn dark-toggle" id="mode-btn" onclick="window.toggleDarkMode()">🌓</div>
 
+<!-- LOGIN -->
 <div id="login-screen" class="screen items-center justify-center p-4 hidden-screen">
     <div class="soft-panel p-8 w-full max-w-sm text-center relative z-10">
         <h2 class="text-2xl font-black text-[#ff5c8d] mb-6 uppercase">Hoş Geldin</h2>
@@ -167,6 +168,7 @@
     </div>
 </div>
 
+<!-- ADMIN SCREEN -->
 <div id="admin-screen" class="screen hidden-screen p-4 md:p-10">
     <div class="max-w-4xl mx-auto w-full z-20 relative">
         <div class="soft-panel p-6">
@@ -214,6 +216,7 @@
     </div>
 </div>
 
+<!-- WELCOME -->
 <div id="welcome-screen" class="screen items-center justify-center p-4 hidden-screen">
     <div class="pinned-note" style="position: absolute; top: 20px; left: 20px; width: 90px; height: 90px; background: #fff9c4; transform: rotate(-3deg); box-shadow: 3px 3px 10px rgba(0,0,0,0.1); border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 120;">
         <p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">Birlikte</p><p id="day-counter" style="font-size: 20px; font-weight: 800; color: #d84315; margin: 0;">0</p><p style="font-weight: 800; color: #d84315; font-size: 10px; margin: 0;">gün...</p>
@@ -225,6 +228,7 @@
     </div>
 </div>
 
+<!-- SELECTION -->
 <div id="selection-screen" class="screen hidden-screen p-2 md:p-10">
     <div class="flex flex-row h-full items-center justify-center gap-1 md:gap-8 max-w-6xl mx-auto w-full overflow-y-auto px-2">
         <div class="soft-panel w-[55%] md:w-[60%] lg:max-w-sm p-3 md:p-6 z-20 relative flex flex-col max-h-[95vh] overflow-y-auto">
@@ -261,6 +265,7 @@
     <button onclick="window.changeScreen('selection-screen')" class="mt-12 bg-gray-800 text-white px-8 py-3 rounded-xl font-black text-lg uppercase shadow-lg hover:bg-gray-700">Geri Dön</button>
 </div>
 
+<!-- WORLD -->
 <div id="world-screen" class="screen hidden-screen">
     <div id="time-overlay" class="time-overlay"></div>
     <div class="h-20 w-full flex items-center justify-between px-3 bg-white/95 backdrop-blur-md border-b-2 z-[300] overflow-x-auto gap-4 relative" style="background: var(--nav-bg); border-color: var(--border-color);">
@@ -297,6 +302,7 @@
     </div>
 </div>
 
+<!-- TELEFON -->
 <div id="phone-screen" class="screen hidden-screen flex flex-col items-center justify-center p-4 z-[800]">
     <button onclick="window.closePhone()" class="absolute top-8 right-8 text-white bg-white/20 w-12 h-12 rounded-full font-black text-xl hover:bg-white/40 backdrop-blur-sm z-50">X</button>
     <div class="phone-inner flex flex-col pt-10 px-4 pb-6">
@@ -412,13 +418,13 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     window.app = null; window.auth = null; window.db = null;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'nisan-dunyam';
 
     try {
-        let myFirebaseConfig = {
+        let fbConfig = {
             apiKey: "AIzaSyAy1jS_6Z7JvBRbjqGeCKRCcMLSskzJTis",
             authDomain: "formybaby-c993c.firebaseapp.com",
             projectId: "formybaby-c993c",
@@ -426,19 +432,42 @@
             messagingSenderId: "376231350027",
             appId: "1:376231350027:web:952a1c5613e236cf535c0e"
         };
-        let fbConfig = {};
-        try { fbConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}'); } catch (e) {}
-        if (Object.keys(fbConfig).length === 0 && Object.keys(myFirebaseConfig).length > 0) { fbConfig = myFirebaseConfig; }
+        
+        window.app = initializeApp(fbConfig); 
+        window.auth = getAuth(window.app); 
+        window.db = getFirestore(window.app);
+        
+        const initAuth = async () => {
+            try {
+                // Sadece anonim giriş kullanıyoruz, çünkü özel tokenlar bu veritabanına uymaz.
+                await signInAnonymously(window.auth);
+            } catch (err) {
+                console.warn("Auth Init Error (Lütfen Firebase'den Anonymous Girişi Açın):", err);
+                setTimeout(() => { window.showMessage("Uyarı: Veritabanı için Firebase Authentication açılmalı!"); }, 4000);
+            }
+        };
+        initAuth();
+    } catch (error) { 
+        console.error("Firebase Başlatma Hatası:", error); 
+    }
 
-        if (Object.keys(fbConfig).length > 0) {
-            window.app = initializeApp(fbConfig); window.auth = getAuth(window.app); window.db = getFirestore(window.app);
-        }
-    } catch (error) { console.error("Firebase Başlatma Hatası:", error); }
-
-    window.user = null; window.isGuest = true; window.currentUserId = "anonymous"; window.currentUserDisplayName = "Kullanıcı";
-    window.userProgressUnsub = null; window.shopUnsub = null; window.accountsUnsub = null; window.allUsersData = {}; window.adminUsersUnsubList = []; window.currentFoodIdx = 0;
+    // --- GLOBAL DEĞİŞKENLER ---
+    window.user = null; 
+    window.isGuest = true; 
+    window.currentUserId = "anonymous"; 
+    window.currentUserDisplayName = "Kullanıcı";
+    window.userProgressUnsub = null; 
+    window.shopUnsub = null; 
+    window.accountsUnsub = null; 
+    window.allUsersData = {}; 
+    window.adminUsersUnsubList = []; 
+    window.currentFoodIdx = 0;
     
-    window.registeredAccounts = { "nisan": { pass: "talha<3", uid: "nisan_user", role: "user" }, "talha": { pass: "talha2008", uid: "admin_user", role: "admin" } };
+    window.registeredAccounts = { 
+        "nisan": { pass: "talha<3", uid: "nisan_user", role: "user" }, 
+        "talha": { pass: "talha2008", uid: "admin_user", role: "admin" } 
+    };
+
     window.defaultShopItems = {
         "hat": { id: "hat", name: "Kral Tacı", price: 150, rarity: "Efsanevi", svg: `<path d="M 10 90 L 10 30 L 30 60 L 50 20 L 70 60 L 90 30 L 90 90 Z" fill="#fbbf24" stroke="#000" stroke-width="4"/>` },
         "glasses": { id: "glasses", name: "Havalı Gözlük", price: 100, rarity: "Ender", svg: `<rect x="10" y="30" width="35" height="25" rx="5" fill="rgba(0,0,0,0.8)" stroke="#000" stroke-width="6"/><rect x="55" y="30" width="35" height="25" rx="5" fill="rgba(0,0,0,0.8)" stroke="#000" stroke-width="6"/><line x1="45" y1="42" x2="55" y2="42" stroke="#000" stroke-width="6"/>` },
@@ -447,17 +476,17 @@
         "dress": { id: "dress", name: "Fırfırlı Elbise", price: 300, rarity: "Efsanevi", svg: `<path d="M 30 10 L 70 10 L 85 45 L 95 90 L 5 90 L 15 45 Z" fill="#ff85a2" stroke="#4a1d2e" stroke-width="4"/><circle cx="50" cy="30" r="6" fill="#ef4444" stroke="#4a1d2e" stroke-width="2"/>` }
     };
     window.dynamicShopItems = { ...window.defaultShopItems };
+    
     window.charPrices = { kitty: 0, stitch: 50, alien: 100, chick: 150, talha: 200 };
     window.themes = { kitty: "#ffc2d1", stitch: "#1e3a8a", alien: "#166534", chick: "#ffc2d1", talha: "#fca5a5" };
-    window.normalFoods = ['🍕', '🧁', '🍝']; window.spaceFoods = ['☄️', '💎', '💍'];
-    window.quotes = { kitty: ["anne ödevim birikti yaaa", "babamı özledimmm", "hava çok güzel anneee", "babamı çok seviyom"], alien: ["hayirsiz evlat miyim", "cok tatlisin bugün annee", "uzayda hava nasil", "annemmm canım annem"], stitch: ["karnım acıktı", "anne biraz dışarı çıkalımmm", "ohana demek aile demek", "takla atayım mı"], chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"], talha: ["hadi beraber izleyelim sevgilim!", "aşkım hep seninle olacağım", "çok güzel değil mi", "seninle olmak keyif verici"] };
-    window.charWorlds = { kitty: [ { id: 'earth', name: 'Dünya', icon: '🌍', locked: false, bg: '#4ade80' }, { id: 'planet_kitty', name: 'Planet of Hello Kitty', iconImg: 'https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png', locked: true, price: 100, bg: '#ff85a2' } ], alien: [ { id: 'shuttle', name: 'Uzay Mekiği', icon: '🚀', locked: false, bg: '#3b82f6' }, { id: 'moon_mine', name: 'Ay Madeni', bgImg: 'https://t3.ftcdn.net/jpg/04/24/01/34/360_F_424013485_pUwKWK0BddTu35DurX2GeQ0Q0zCeMKL2.jpg', locked: true, price: 100, bg: '#1e293b' } ] };
-    window.roomConfigs = {
-        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", planet_kitty: "https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png" },
-        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png", moon_mine: "https://static.vecteezy.com/system/resources/previews/034/324/787/non_2x/dark-cave-game-background-tillable-horizontally-dark-terrible-empty-place-with-rock-lighting-walls-in-side-view-for-2d-games-location-illustration-vector.jpg" },
-        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
-        talha: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vector/gaming-room-with-computer-neon-lights_107791-3098.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", cinema: "https://tavsiyemiz.com/uploads/articleImage/article_689a0e950eebd.webp" }
+    window.normalFoods = ['🍕', '🧁', '🍝']; 
+    window.spaceFoods = ['☄️', '💎', '💍'];
+    window.quotes = { 
+        kitty: ["anne ödevim birikti yaaa", "babamı özledimmm", "hava çok güzel anneee", "babamı çok seviyom"], 
+        alien: ["hayirsiz evlat miyim", "cok tatlisin bugün annee", "uzayda hava nasil", "annemmm canım annem"], 
+        stitch: ["karnım acıktı", "anne biraz dışarı çıkalımmm", "ohana demek aile demek", "takla atayım mı"], 
+        chick: ["cik cik anne!", "bugün ne yicez", "beni sev anne", "cok uykum var"], 
+        talha: ["hadi beraber izleyelim sevgilim!", "aşkım hep seninle olacağım", "çok güzel değil mi", "seninle olmak keyif verici"] 
     };
 
     window.resetState = function() {
@@ -474,12 +503,326 @@
             inGameDay: 1, inGameTime: 8 * 60
         };
     };
-    window.resetState(); // İlk açılışta state ayarlanıyor
+    window.resetState();
 
-    window.showMessage = function(txt) { const m = document.createElement('div'); m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce z-[9999]"; m.innerText = txt; document.body.appendChild(m); setTimeout(() => m.remove(), 2500); };
-    window.calculateDays = function() { return Math.floor((new Date() - new Date("2026-02-02")) / 86400000); };
-    window.toggleDarkMode = function() { window.state.isDarkMode = !window.state.isDarkMode; document.body.classList.toggle('dark-mode', window.state.isDarkMode); };
+    window.charWorlds = {
+        kitty: [ { id: 'earth', name: 'Dünya', icon: '🌍', locked: false, bg: '#4ade80' }, { id: 'planet_kitty', name: 'Planet of Hello Kitty', iconImg: 'https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png', locked: true, price: 100, bg: '#ff85a2' } ],
+        alien: [ { id: 'shuttle', name: 'Uzay Mekiği', icon: '🚀', locked: false, bg: '#3b82f6' }, { id: 'moon_mine', name: 'Ay Madeni', bgImg: 'https://t3.ftcdn.net/jpg/04/24/01/34/360_F_424013485_pUwKWK0BddTu35DurX2GeQ0Q0zCeMKL2.jpg', locked: true, price: 100, bg: '#1e293b' } ]
+    };
 
+    window.roomConfigs = {
+        kitty: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", planet_kitty: "https://nftcalendar.io/storage/uploads/2022/09/07/home-hero_0907202211165263187da49d1ce.png" },
+        stitch: { kitchen: "https://cdna.artstation.com/p/assets/images/images/041/568/770/large/kristin-smith-smith-kristin-y1-c2-a1-background.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/e99c2736595091.5721d639647b0.jpg", garden: "https://static.vecteezy.com/system/resources/thumbnails/006/853/173/small/middle-of-a-forest-nature-illustration-vector.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        alien: { kitchen: "https://media.craiyon.com/2025-09-01/81gxPVV3Su6JnNIWQ7ihdA.webp", bathroom: "https://images-rsg.storage.googleapis.com/wp-content/uploads/2016/07/Space-Crisis-2D-Interior-Bathroom.jpg", bedroom: "https://img.freepik.com/premium-photo/scifi-bedroom-with-hovering-spaceship-serving-as-nightlight-providing-soft-light-music_124507-122551.jpg", garden: "https://www.awn.com/sites/default/files/styles/large_featured/public/image/featured/1030919-clip-regular-show-blasts-space-out-world-series-finale.jpg", school: "https://static.wikia.nocookie.net/theregularshow/images/5/51/S6E24.047_The_Planet_Earth.png", moon_mine: "https://static.vecteezy.com/system/resources/previews/034/324/787/non_2x/dark-cave-game-background-tillable-horizontally-dark-terrible-empty-place-with-rock-lighting-walls-in-side-view-for-2d-games-location-illustration-vector.jpg" },
+        chick: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vektor/cizgi-film-yatak-odasi-arka-plan-vektor-tasarimi_1206322-83.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg" },
+        talha: { kitchen: "https://img.freepik.com/free-vector/modern-kitchen-interior-background-template-cartoon-dinner-room-with-furniture_33099-131.jpg", bathroom: "https://img.freepik.com/premium-vektor/modern-banyo-ic-mekani_118813-989.jpg", bedroom: "https://img.freepik.com/premium-vector/gaming-room-with-computer-neon-lights_107791-3098.jpg", garden: "https://img.freepik.com/premium-vektor/bos-arka-bahce-duz-renk-illustrasyonu-arka-planda-gunesli-gokyuzu-olan-insansiz-konut-binasi-avlusu_151150-2631.jpg", school: "https://www.shutterstock.com/shutterstock/videos/1064288065/thumb/2.jpg", cinema: "https://tavsiyemiz.com/uploads/articleImage/article_689a0e950eebd.webp" }
+    };
+
+    // --- ORTAK METODLAR ---
+    window.showMessage = function(txt) {
+        const m = document.createElement('div');
+        m.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-white text-pink-500 px-6 py-3 rounded-full font-black shadow-2xl z-[9000] border-2 border-pink-100 text-xs text-center animate-bounce z-[9999]";
+        m.innerText = txt; 
+        document.body.appendChild(m); 
+        setTimeout(() => m.remove(), 2500);
+    };
+
+    window.calculateDays = function() {
+        return Math.floor((new Date() - new Date("2026-02-02")) / 86400000);
+    };
+
+    window.toggleDarkMode = function() { 
+        window.state.isDarkMode = !window.state.isDarkMode; 
+        document.body.classList.toggle('dark-mode', window.state.isDarkMode); 
+    };
+
+    // --- GİRİŞ & FIREBASE VERİ SİSTEMLERİ ---
+    window.setupGlobalListeners = function() {
+        if (!window.db || !window.user) return;
+        
+        if(window.shopUnsub) window.shopUnsub();
+        window.shopUnsub = onSnapshot(collection(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems'), (snap) => {
+            if(!snap.empty) {
+                let newShop = { ...window.dynamicShopItems };
+                snap.forEach(doc => { 
+                    let itemData = doc.data(); 
+                    if (window.defaultShopItems[doc.id]) { itemData.svg = window.defaultShopItems[doc.id].svg; } 
+                    newShop[doc.id] = itemData; 
+                });
+                window.dynamicShopItems = newShop;
+            }
+            if(document.getElementById('admin-screen') && !document.getElementById('admin-screen').classList.contains('hidden-screen')) {
+                if(window.renderAdminShopList) window.renderAdminShopList();
+            }
+        });
+
+        if(window.accountsUnsub) window.accountsUnsub();
+        window.accountsUnsub = onSnapshot(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), (snap) => {
+            if(snap.exists()) {
+                window.registeredAccounts = { ...window.registeredAccounts, ...snap.data().users };
+            } else {
+                setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: window.registeredAccounts });
+            }
+        });
+    };
+
+    window.setupUserProgress = function() {
+        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        
+        if(window.userProgressUnsub) window.userProgressUnsub();
+        const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
+        
+        window.userProgressUnsub = onSnapshot(userRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                if(data.cherries !== undefined) window.state.cherries = data.cherries;
+                if(data.inventory) window.state.inventory = data.inventory;
+                if(data.outfit) window.state.outfit = data.outfit;
+                if(data.blockHighScore !== undefined) window.state.blockHighScore = data.blockHighScore;
+                if(data.diamonds !== undefined) window.state.diamonds = data.diamonds;
+                if(data.mineResources !== undefined) window.state.mineResources = data.mineResources;
+                if(data.lastMinedTime !== undefined) window.state.lastMinedTime = data.lastMinedTime;
+                if(data.unlockedChars) window.state.unlockedChars = data.unlockedChars;
+                if(data.unlockedSubWorlds) window.state.unlockedSubWorlds = data.unlockedSubWorlds;
+                if(data.usedCodes) window.state.usedCodes = data.usedCodes;
+                if(data.bankCherries !== undefined) window.state.bankCherries = data.bankCherries;
+                if(data.bankDebt !== undefined) window.state.bankDebt = data.bankDebt;
+                if(data.debtDueDay !== undefined) window.state.debtDueDay = data.debtDueDay;
+                if(data.inGameDay !== undefined) window.state.inGameDay = data.inGameDay;
+                if(data.inGameTime !== undefined) window.state.inGameTime = data.inGameTime;
+                if(data.savedDrawings) { 
+                    window.state.savedDrawings = data.savedDrawings; 
+                } else if(data.savedDrawing) { 
+                    window.state.savedDrawings[1] = data.savedDrawing; 
+                }
+                
+                if(window.updateUI) window.updateUI(); 
+                if(window.updateBankUI) window.updateBankUI();
+                const bmCont = document.getElementById('black-market-container');
+                if(bmCont && !bmCont.classList.contains('hidden') && window.renderBlackMarket) {
+                    window.renderBlackMarket();
+                }
+            }
+        });
+    };
+
+    window.saveProgress = async function() {
+        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        try {
+            const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
+            await setDoc(userRef, {
+                username: window.currentUserDisplayName, cherries: window.state.cherries, diamonds: window.state.diamonds,
+                inventory: window.state.inventory, stats: window.state.stats, outfit: window.state.outfit,
+                blockHighScore: window.state.blockHighScore, savedDrawings: window.state.savedDrawings,
+                unlockedChars: window.state.unlockedChars, unlockedSubWorlds: window.state.unlockedSubWorlds,
+                mineResources: window.state.mineResources, lastMinedTime: window.state.lastMinedTime,
+                usedCodes: window.state.usedCodes, bankCherries: window.state.bankCherries, bankDebt: window.state.bankDebt,
+                debtDueDay: window.state.debtDueDay, inGameDay: window.state.inGameDay, inGameTime: window.state.inGameTime,
+                lastUpdate: new Date().toISOString()
+            }, { merge: true });
+        } catch(e) { 
+            console.error("Save Error", e);
+        }
+    };
+
+    window.handleLogin = async function() {
+        const u = document.getElementById('login-username').value.toLowerCase().trim(); 
+        const p = document.getElementById('login-password').value;
+        
+        if(window.registeredAccounts[u] && window.registeredAccounts[u].pass === p) {
+            window.isGuest = false; 
+            const account = window.registeredAccounts[u];
+            window.currentUserId = account.uid; 
+            window.currentUserDisplayName = u.charAt(0).toUpperCase() + u.slice(1);
+            
+            if(account.role === 'admin') {
+                if (!window.db) { window.showMessage("HATA: Firebase ayarlarını yapmalısın! ⚠️"); return; }
+                window.showMessage("Admin Paneline Hoş Geldiniz!"); 
+                if(window.changeScreen) window.changeScreen('admin-screen'); 
+                if(window.switchAdminTab) window.switchAdminTab('shop', document.querySelector('.admin-tab')); 
+                if(window.setupAdminRealtime) window.setupAdminRealtime();
+            } else {
+                if (!window.db) window.showMessage("UYARI: Firebase bağlı değil. Veriler kaydedilmeyecek! ⚠️");
+                if(window.setupUserProgress) window.setupUserProgress(); 
+                if(window.changeScreen) window.changeScreen('welcome-screen');
+            }
+        } else { 
+            window.showMessage("Hatalı Giriş!"); 
+        }
+    };
+
+    window.handleGuestLogin = async function() { 
+        window.isGuest = true; 
+        window.currentUserId = "anonymous"; 
+        window.currentUserDisplayName = "Misafir"; 
+        
+        if(window.userProgressUnsub) { 
+            window.userProgressUnsub(); 
+            window.userProgressUnsub = null; 
+        } 
+        
+        if(window.resetState) window.resetState(); 
+        
+        window.showMessage("Misafir Girdin, Kaydedilmez!"); 
+        if(window.changeScreen) window.changeScreen('welcome-screen'); 
+    };
+
+    window.handleLogout = function() { 
+        window.isGuest = true; 
+        window.currentUserId = "anonymous"; 
+        window.currentUserDisplayName = "Kullanıcı"; 
+        
+        if(window.userProgressUnsub) { 
+            window.userProgressUnsub(); 
+            window.userProgressUnsub = null; 
+        } 
+        
+        if(window.resetState) window.resetState(); 
+        
+        const uInp = document.getElementById('login-username');
+        const pInp = document.getElementById('login-password');
+        if(uInp) uInp.value = ""; 
+        if(pInp) pInp.value = ""; 
+        
+        if(window.changeScreen) window.changeScreen('login-screen'); 
+        window.showMessage("Başarıyla çıkış yapıldı!"); 
+    };
+
+    // --- ADMIN PANEL FONKSİYONLARI ---
+    window.setupAdminRealtime = function() {
+        if (!window.db || !window.user) return; 
+        
+        if(window.adminUsersUnsubList) window.adminUsersUnsubList.forEach(u => u()); 
+        window.adminUsersUnsubList = []; 
+        window.allUsersData = {};
+        
+        Object.keys(window.registeredAccounts).forEach(username => {
+            const acc = window.registeredAccounts[username];
+            if(acc.role !== 'admin') {
+                const unsub = onSnapshot(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', acc.uid), (snap) => { 
+                    window.allUsersData[username] = snap.exists() ? snap.data() : { cherries: 0 }; 
+                    if(window.renderAdminUserList) window.renderAdminUserList(); 
+                });
+                window.adminUsersUnsubList.push(unsub);
+            }
+        });
+        if(window.renderAdminShopList) window.renderAdminShopList();
+    };
+
+    window.switchAdminTab = function(tabId, element) { 
+        document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active')); 
+        if(element) element.classList.add('active'); 
+        document.querySelectorAll('.admin-section').forEach(el => el.classList.add('hidden')); 
+        const targetSec = document.getElementById('admin-'+tabId);
+        if(targetSec) targetSec.classList.remove('hidden'); 
+        if(tabId === 'users' && window.renderAdminUserList) window.renderAdminUserList(); 
+    };
+
+    window.adminAddShopItem = async function() { 
+        if (!window.user) return; 
+        const id = document.getElementById('admin-item-id').value.trim(); 
+        const name = document.getElementById('admin-item-name').value.trim(); 
+        const price = parseInt(document.getElementById('admin-item-price').value); 
+        const rarity = document.getElementById('admin-item-rarity').value.trim(); 
+        const svg = document.getElementById('admin-item-svg').value.trim(); 
+        if(!id || !name || isNaN(price) || !svg) { window.showMessage("Lütfen tüm alanları doldurun!"); return; } 
+        const newItem = { id, name, price, rarity, svg }; 
+        try { 
+            await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems', id), newItem); 
+            window.showMessage("Eşya Eklendi!"); 
+            document.getElementById('admin-item-id').value = ''; 
+            document.getElementById('admin-item-name').value = ''; 
+            document.getElementById('admin-item-price').value = ''; 
+            document.getElementById('admin-item-rarity').value = ''; 
+            document.getElementById('admin-item-svg').value = ''; 
+        } catch(e) {} 
+    };
+
+    window.adminDeleteShopItem = async function(id) { 
+        if (!window.user) return; 
+        if(window.defaultShopItems[id]) { window.showMessage("Varsayılanları silemezsiniz!"); return; } 
+        try { 
+            await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems', id)); 
+            delete window.dynamicShopItems[id]; 
+            window.showMessage("Eşya Silindi!"); 
+            if(window.renderAdminShopList) window.renderAdminShopList(); 
+        } catch(e) {} 
+    };
+
+    window.renderAdminShopList = function() { 
+        const list = document.getElementById('admin-shop-list'); 
+        if(!list) return; 
+        list.innerHTML = ''; 
+        Object.values(window.dynamicShopItems).forEach(item => { 
+            list.innerHTML += `<div class="bg-white border rounded-xl p-3 text-center shadow-sm relative"><div class="w-12 h-12 mx-auto bg-gray-50 rounded-full border mb-2 flex items-center justify-center"><svg viewBox="0 0 100 100" width="100%" height="100%">${item.svg}</svg></div><p class="font-bold text-xs">${item.name}</p><p class="text-[10px] text-red-500 font-black">${item.price} 🍒</p><button onclick="window.adminDeleteShopItem('${item.id}')" class="absolute top-1 right-1 bg-red-100 text-red-500 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">X</button></div>`; 
+        }); 
+    };
+
+    window.renderAdminUserList = function() { 
+        const list = document.getElementById('admin-user-list'); 
+        const select = document.getElementById('admin-user-select'); 
+        if(!list || !select) return; 
+        list.innerHTML = ''; let optionsHtml = ''; 
+        Object.keys(window.registeredAccounts).forEach(username => { 
+            const acc = window.registeredAccounts[username]; 
+            if(acc.role !== 'admin') { 
+                const data = window.allUsersData[username] || { cherries: 0 }; 
+                const cherries = data.cherries || 0; 
+                list.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl border shadow-sm mb-2"><div class="font-bold text-gray-700 capitalize">${username} <span class="text-[9px] text-gray-400 ml-1 border border-gray-200 px-1 rounded">Şifre: ${acc.pass}</span></div><div class="flex items-center gap-2"><div class="font-black text-red-500 bg-red-50 px-3 py-1 rounded-full text-xs">${cherries} 🍒</div><button onclick="window.adminDeleteAccount('${username}', '${acc.uid}')" class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shadow-md hover:scale-110 transition-transform">X</button></div></div>`; 
+                optionsHtml += `<option value="${acc.uid}">${username} (Şu an: ${cherries}🍒)</option>`; 
+            } 
+        }); 
+        select.innerHTML = optionsHtml; 
+    };
+
+    window.adminDeleteAccount = async function(username, uid) { 
+        if (!window.user) return; 
+        if(username === 'nisan') { window.showMessage("Ana hesabı silemezsin! ❤️"); return; } 
+        try { 
+            const newAccounts = { ...window.registeredAccounts }; 
+            delete newAccounts[username]; 
+            await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); 
+            await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', uid)); 
+            delete window.allUsersData[username]; 
+            window.showMessage(`Hesap tamamen silindi: ${username} 🗑️`); 
+            if(window.renderAdminUserList) window.renderAdminUserList(); 
+        } catch(e) {} 
+    };
+
+    window.adminModifyCherries = async function() { 
+        if (!window.user) return; 
+        const uid = document.getElementById('admin-user-select').value; 
+        const amount = parseInt(document.getElementById('admin-cherry-amount').value); 
+        if(!uid || isNaN(amount)) { window.showMessage("Geçersiz miktar!"); return; } 
+        try { 
+            const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', uid); 
+            const snap = await getDoc(userRef); 
+            let current = 0; 
+            if(snap.exists() && snap.data().cherries) current = snap.data().cherries; 
+            await setDoc(userRef, { cherries: Math.max(0, current + amount) }, { merge: true }); 
+            window.showMessage("Vişneler güncellendi!"); 
+            document.getElementById('admin-cherry-amount').value = ''; 
+        } catch(e) {} 
+    };
+
+    window.adminCreateAccount = async function() { 
+        if (!window.user) return; 
+        const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); 
+        const p = document.getElementById('admin-new-pass').value; 
+        if(!u || !p) { window.showMessage("Bilgileri girin!"); return; } 
+        if(window.registeredAccounts[u]) { window.showMessage("Bu kullanıcı zaten var!"); return; } 
+        const newUid = u + "_" + Date.now().toString(); 
+        const newAccounts = { ...window.registeredAccounts }; 
+        newAccounts[u] = { pass: p, uid: newUid, role: 'user' }; 
+        try { 
+            await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); 
+            window.showMessage(`Hesap Oluşturuldu: ${u}`); 
+            document.getElementById('admin-new-user').value = ''; 
+            document.getElementById('admin-new-pass').value = ''; 
+        } catch(e) { } 
+    };
+
+    // --- Uİ YÖNETİMİ & ÇİZİM SİSTEMLERİ ---
     window.getLegs = function(color) { return `<ellipse class="limb limb-leg-l" cx="85" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-leg-r" cx="115" cy="188" rx="14" ry="12" fill="${color}" stroke="#000" stroke-width="2.5"/>`; };
     window.getOutfitSvg = function(char) {
         if(window.state.outfit === 'default') return ""; const item = window.dynamicShopItems[window.state.outfit]; if(!item) return "";
@@ -554,25 +897,6 @@
             window.updateUI();
         }
     };
-
-    // 5. GİRİŞ VE SİSTEMLER
-    window.handleLogin = async function() {
-        const u = document.getElementById('login-username').value.toLowerCase().trim(); const p = document.getElementById('login-password').value;
-        if(window.registeredAccounts[u] && window.registeredAccounts[u].pass === p) {
-            window.isGuest = false; const account = window.registeredAccounts[u];
-            window.currentUserId = account.uid; window.currentUserDisplayName = u.charAt(0).toUpperCase() + u.slice(1);
-            if(account.role === 'admin') {
-                if (!window.db) { window.showMessage("HATA: Vercel için koddaki 'myFirebaseConfig' alanını doldurmalısın! ⚠️"); return; }
-                window.showMessage("Admin Paneline Hoş Geldiniz!"); window.changeScreen('admin-screen'); window.switchAdminTab('shop', document.querySelector('.admin-tab')); window.setupAdminRealtime();
-            } else {
-                if (!window.db) window.showMessage("UYARI: Firebase bağlı değil. Veriler kaydedilmeyecek! ⚠️");
-                window.setupUserProgress(); window.changeScreen('welcome-screen');
-            }
-        } else { window.showMessage("Hatalı Giriş!"); }
-    };
-
-    window.handleGuestLogin = async function() { window.isGuest = true; window.currentUserId = "anonymous"; window.currentUserDisplayName = "Misafir"; if(window.userProgressUnsub) { window.userProgressUnsub(); window.userProgressUnsub = null; } window.resetState(); window.showMessage("Misafir Girdin, Kaydedilmez!"); window.changeScreen('welcome-screen'); };
-    window.handleLogout = function() { window.isGuest = true; window.currentUserId = "anonymous"; window.currentUserDisplayName = "Kullanıcı"; if(window.userProgressUnsub) { window.userProgressUnsub(); window.userProgressUnsub = null; } window.resetState(); document.getElementById('login-username').value = ""; document.getElementById('login-password').value = ""; window.changeScreen('login-screen'); window.showMessage("Başarıyla çıkış yapıldı!"); };
 
     window.changeScreen = function(id) { document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden-screen')); const el = document.getElementById(id); if(el) el.classList.remove('hidden-screen'); if(id === 'selection-screen') { window.updateSelection(window.state.selectedChar); } if(id === 'selection-screen' || id === 'world-screen') window.updateUI(); };
     window.updateSelection = function(char) {
@@ -751,7 +1075,28 @@
     window.startFlappyGame = function() { window.fkPlayer.y = 150; window.fkPlayer.v = 0; window.fkPipes = []; window.fkScore = 0; window.fkIsPlaying = true; document.getElementById('fk-score').innerText = "0"; document.getElementById('fk-start-ui').classList.add('hidden'); window.fkLoop(); };
     window.stopFlappyGame = function() { window.fkIsPlaying = false; cancelAnimationFrame(window.fkLoopId); };
     window.fkJump = function(e) { if(e && e.cancelable) e.preventDefault(); if(window.fkIsPlaying) window.fkPlayer.v = -6; };
-    window.fkLoop = function() { if(!window.fkIsPlaying) return; window.fkCtx.clearRect(0,0,window.fkCanvas.width, window.fkCanvas.height); window.fkPlayer.v += 0.4; window.fkPlayer.y += window.fkPlayer.v; window.fkCtx.font = "30px Arial"; window.fkCtx.fillText("🎀", 40, window.fkPlayer.y); if(window.fkPipes.length === 0 || window.fkPipes[window.fkPipes.length-1].x < window.fkCanvas.width - 150) { let gapY = Math.random() * (window.fkCanvas.height - 150) + 50; window.fkPipes.push({ x: window.fkCanvas.width, gapY: gapY, passed: false }); } for(let i=window.fkPipes.length-1; i>=0; i--) { let p = window.fkPipes[i]; p.x -= 3; window.fkCtx.fillStyle = "#ec4899"; window.fkCtx.fillRect(p.x, 0, 40, p.gapY - 60); window.fkCtx.fillRect(p.x, p.gapY + 60, 40, window.fkCanvas.height); if(40 + 30 > p.x && 40 < p.x + 40) { if(window.fkPlayer.y - 20 < p.gapY - 60 || window.fkPlayer.y + 10 > p.gapY + 60) { window.fkGameOver(); return; } } if(p.x < 40 && !p.passed) { p.passed = true; window.fkScore++; document.getElementById('fk-score').innerText = window.fkScore; } if(p.x < -40) { window.fkPipes.splice(i, 1); } if(window.fkScore >= 15) { window.fkIsPlaying = false; window.state.cherries += 25; window.saveProgress(); window.updateUI(); window.showMessage("Tebrikler! +25 🍒 Kazandın!"); document.getElementById('fk-start-ui').classList.remove('hidden'); document.querySelector('#fk-start-ui p').innerText = "Tebrikler! Kazandın!"; return; } } if(window.fkPlayer.y > window.fkCanvas.height || window.fkPlayer.y < 0) { window.fkGameOver(); return; } window.fkLoopId = requestAnimationFrame(window.fkLoop); };
+    window.fkLoop = function() {
+        if(!window.fkIsPlaying) return;
+        window.fkCtx.clearRect(0,0,window.fkCanvas.width, window.fkCanvas.height);
+        window.fkPlayer.v += 0.4; window.fkPlayer.y += window.fkPlayer.v;
+        window.fkCtx.font = "30px Arial"; window.fkCtx.fillText("🎀", 40, window.fkPlayer.y);
+        
+        if(window.fkPipes.length === 0 || window.fkPipes[window.fkPipes.length-1].x < window.fkCanvas.width - 150) {
+            let gapY = Math.random() * (window.fkCanvas.height - 150) + 50;
+            window.fkPipes.push({ x: window.fkCanvas.width, gapY: gapY, passed: false });
+        }
+        
+        for(let i=window.fkPipes.length-1; i>=0; i--) {
+            let p = window.fkPipes[i]; p.x -= 3;
+            window.fkCtx.fillStyle = "#ec4899"; window.fkCtx.fillRect(p.x, 0, 40, p.gapY - 60); window.fkCtx.fillRect(p.x, p.gapY + 60, 40, window.fkCanvas.height);
+            if(40 + 30 > p.x && 40 < p.x + 40) { if(window.fkPlayer.y - 20 < p.gapY - 60 || window.fkPlayer.y + 10 > p.gapY + 60) { window.fkGameOver(); return; } }
+            if(p.x < 40 && !p.passed) { p.passed = true; window.fkScore++; document.getElementById('fk-score').innerText = window.fkScore; }
+            if(p.x < -40) { window.fkPipes.splice(i, 1); }
+            if(window.fkScore >= 15) { window.fkIsPlaying = false; window.state.cherries += 25; window.saveProgress(); window.updateUI(); window.showMessage("Tebrikler! +25 🍒 Kazandın!"); document.getElementById('fk-start-ui').classList.remove('hidden'); document.querySelector('#fk-start-ui p').innerText = "Tebrikler! Kazandın!"; return; }
+        }
+        if(window.fkPlayer.y > window.fkCanvas.height || window.fkPlayer.y < 0) { window.fkGameOver(); return; }
+        window.fkLoopId = requestAnimationFrame(window.fkLoop);
+    };
     window.fkGameOver = function() { window.fkIsPlaying = false; window.showMessage("Ah be! Tekrar dene."); document.getElementById('fk-start-ui').classList.remove('hidden'); };
 
     window.bbGridData = []; window.bbTray = []; window.bbScore = 0; window.bbBubbleTimer = null;
@@ -787,7 +1132,10 @@
     window.startAlienGame = function() { window.alienPlayer.x = window.alienCanvas.width / 2 - 20; window.alienPlayer.y = window.alienCanvas.height - 80; window.alienEnemies = []; window.alienScore = 0; window.alienIsPlaying = true; document.getElementById('alien-game-over').classList.add('hidden'); window.alienLoop(); };
     window.alienLoop = function() { if(!window.alienIsPlaying) return; window.alienCtx.fillStyle = 'rgba(0, 0, 0, 0.3)'; window.alienCtx.fillRect(0, 0, window.alienCanvas.width, window.alienCanvas.height); window.alienCtx.fillStyle = "white"; if(Math.random() < 0.2) { window.alienCtx.fillRect(Math.random() * window.alienCanvas.width, Math.random() * window.alienCanvas.height, 2, 2); } window.alienCtx.font = "40px Arial"; window.alienCtx.fillText("🚀", window.alienPlayer.x, window.alienPlayer.y + 35); if(Math.random() < 0.04 + (window.alienScore/10000)) { window.alienEnemies.push({ x: Math.random() * (window.alienCanvas.width - 30), y: -40, w: 30, h: 30, speed: 3 + Math.random() * 4 + (window.alienScore/1000), type: Math.random() > 0.4 ? "☄️" : "👾" }); } for(let i = window.alienEnemies.length - 1; i >= 0; i--) { let e = window.alienEnemies[i]; e.y += e.speed; window.alienCtx.font = "30px Arial"; window.alienCtx.fillText(e.type, e.x, e.y + 25); if(e.x < window.alienPlayer.x + window.alienPlayer.w - 15 && e.x + e.w > window.alienPlayer.x + 15 && e.y < window.alienPlayer.y + window.alienPlayer.h - 15 && e.h + e.y > window.alienPlayer.y + 15) { window.alienIsPlaying = false; document.getElementById('alien-game-msg').innerText = "Yakalandın!\nSkor: " + Math.floor(window.alienScore); document.getElementById('alien-game-over').classList.remove('hidden'); return; } if(e.y > window.alienCanvas.height) { window.alienEnemies.splice(i, 1); window.alienScore += 10; document.getElementById('alien-score').innerText = Math.floor(window.alienScore); if(window.alienScore > 0 && window.alienScore % 200 === 0) { window.state.cherries += 5; window.saveProgress(); window.showMessage("Mükemmel Kaçış! +5 🍒"); } } } window.alienGameLoopId = requestAnimationFrame(window.alienLoop); };
 
-    // --- OYUN DÖNGÜSÜ ---
+    window.stitchSingInterval = null;
+    window.playGuitar = function() { const guitar = document.getElementById('stitch-guitar'); const charContainer = document.getElementById('char-container'); if(!guitar || !charContainer) return; guitar.style.left = "45%"; guitar.style.bottom = "120px"; guitar.style.transform = "rotate(-20deg) scale(1.5)"; const notes = ["sEni ÇoK SeViyOruM 🎸", "A-aaaa--aa 🎵", "ohanaaaa... 🎶"]; let step = 0; clearInterval(window.stitchSingInterval); const bubble = document.getElementById('speech-bubble'); if(bubble) { bubble.innerText = notes[0]; bubble.style.opacity = '1'; bubble.style.color = '#3b82f6'; } step++; window.stitchSingInterval = setInterval(() => { if(bubble) { bubble.innerText = notes[step % notes.length]; bubble.style.opacity = '1'; } step++; }, 1500); setTimeout(() => { clearInterval(window.stitchSingInterval); if(bubble) { bubble.style.opacity = '0'; bubble.style.color = '#ff5c8d'; } if(window.state.room === 'garden') { guitar.style.left = "20%"; guitar.style.bottom = "20%"; guitar.style.transform = "rotate(0deg) scale(1)"; } }, 5000); };
+
+    // --- OYUN DÖNGÜSÜ VE BAŞLATMA ---
     window.mainLoop = function() {
         window.state.inGameTime += 0.5;
         if(window.state.inGameTime >= 24 * 60) {
@@ -814,7 +1162,6 @@
         window.updateUI(); if(!document.getElementById('phone-screen').classList.contains('hidden-screen') && document.getElementById('app-bank').classList.contains('open')) window.updateBankUI();
     };
 
-    // --- BAŞLATMA ---
     window.bootSequence = function() {
         if (window.initCanvasEvents) window.initCanvasEvents();
         const dc = document.getElementById('day-counter'); if(dc) dc.innerText = window.calculateDays();
