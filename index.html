@@ -147,6 +147,9 @@
         .vbank-bg { background: linear-gradient(135deg, #fff1f2, #ffe4e6); }
         .vbank-header { background: #e11d48; padding: 20px; color: white; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(225,29,72,0.3); }
         #fk-canvas { background: #7dd3fc; display: block; width: 100%; height: 100%; }
+        
+        /* Sohbet Uygulaması CSS */
+        .chat-bg { background: #e5ddd5; background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"); }
     </style>
 </head>
 <body id="main-body">
@@ -309,7 +312,7 @@
     <div id="time-overlay" class="time-overlay"></div>
     <div class="h-20 w-full flex items-center justify-between px-3 bg-white/95 backdrop-blur-md border-b-2 z-[300] overflow-x-auto gap-4 relative" style="background: var(--nav-bg); border-color: var(--border-color);">
         <div class="flex gap-2 flex-shrink-0">
-            <div class="flex flex-col items-center justify-center px-3 bg-indigo-50 border-2 border-indigo-200 rounded-xl shadow-sm"><span id="hud-time" class="text-xs font-black text-indigo-700 uppercase">GÜN 1 - 08:00</span></div>
+            <div class="flex items-center justify-center px-3 bg-indigo-50 border-2 border-indigo-200 rounded-xl shadow-sm gap-2"><span id="hud-time" class="text-xs font-black text-indigo-700 uppercase mt-0.5">GÜN 1 - 08:00</span><button id="time-speed-btn" onclick="window.toggleTimeSpeed()" class="bg-indigo-200 text-indigo-800 text-[9px] px-1.5 py-0.5 rounded font-black hover:bg-indigo-300 transition-colors">1X</button></div>
             <div class="hud-bar"><span class="hud-text">Açlık</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hunger" class="h-full bg-pink-400" style="width: 80%"></div></div></div>
             <div class="hud-bar"><span class="hud-text">Hijyen</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-hygiene" class="h-full bg-blue-400" style="width: 100%"></div></div></div>
             <div class="hud-bar"><span class="hud-text">Uyku</span><div class="w-10 h-2 bg-gray-100 rounded-full overflow-hidden"><div id="bar-energy" class="h-full bg-yellow-400" style="width: 100%"></div></div></div>
@@ -347,10 +350,21 @@
     <div class="phone-inner flex flex-col pt-10 px-4 pb-6">
         <div class="phone-notch"></div>
         <div id="phone-home" class="flex flex-wrap gap-4 mt-8">
-            <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="window.openApp('flappy')"><div class="w-14 h-14 bg-sky-400 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-sky-300">🎀</div><span class="text-[10px] text-white font-black drop-shadow-md">Flappy Kitty</span></div>
-            <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="window.openApp('bank')"><div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-rose-300">🍒</div><span class="text-[10px] text-white font-black drop-shadow-md">VişneBank</span></div>
-            <div class="flex flex-col items-center gap-1 opacity-50 cursor-not-allowed"><div class="w-14 h-14 bg-gray-600 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-gray-500">🔒</div><span class="text-[10px] text-white font-black drop-shadow-md">Yakında</span></div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="window.openApp('flappy')">
+                <div class="w-14 h-14 bg-sky-400 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-sky-300">🎀</div>
+                <span class="text-[10px] text-white font-black drop-shadow-md">Flappy</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="window.openApp('bank')">
+                <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-rose-300">🍒</div>
+                <span class="text-[10px] text-white font-black drop-shadow-md">VişneBank</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="window.openApp('chat')">
+                <div class="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-3xl shadow-[0_4px_10px_rgba(0,0,0,0.5)] border border-green-400">💬</div>
+                <span class="text-[10px] text-white font-black drop-shadow-md">Sohbet</span>
+            </div>
         </div>
+        
+        <!-- FLAPPY APP -->
         <div id="app-flappy" class="app-window flex flex-col">
             <div class="bg-sky-500 p-2 text-white font-black flex justify-between items-center z-10 shadow-md"><button onclick="window.closeApp('flappy')">◀ Geri</button><span>Skor: <span id="fk-score">0</span></span></div>
             <div class="flex-1 relative overflow-hidden bg-sky-200" id="fk-game-area" onmousedown="window.fkJump(event)" ontouchstart="window.fkJump(event)">
@@ -358,6 +372,8 @@
                 <div id="fk-start-ui" class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 z-20"><p class="text-white font-black text-center mb-4 leading-tight">Hedef: 15 Puan<br><span class="text-yellow-300 text-sm">Ödül: 25 🍒</span></p><button onclick="window.startFlappyGame()" class="bg-pink-500 text-white px-6 py-2 rounded-xl font-black shadow-lg animate-pulse">BAŞLA</button></div>
             </div>
         </div>
+
+        <!-- BANK APP -->
         <div id="app-bank" class="app-window vbank-bg flex flex-col overflow-y-auto">
             <div class="vbank-header flex justify-between items-center sticky top-0 z-10"><button onclick="window.closeApp('bank')" class="text-white font-black text-sm">◀ Çıkış</button><span class="font-black text-lg tracking-wider flex items-center gap-1">VişneBank 🍒</span></div>
             <div class="p-4 flex flex-col gap-4">
@@ -366,6 +382,38 @@
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-rose-100 text-center"><p class="text-xs text-rose-400 font-bold uppercase mb-1">Kredi Borcu</p><p class="text-3xl font-black text-rose-600" id="vb-debt-text">0</p><p class="text-[9px] text-gray-500 mt-1 font-bold">Limit: 200 🍒 | Vade: 3 Gün</p><div class="flex gap-2 mt-4"><button onclick="window.vbTakeLoan()" class="flex-1 bg-orange-500 text-white py-2 rounded-xl font-black text-xs shadow hover:bg-orange-600">Kredi Al</button><button onclick="window.vbPayLoan()" class="flex-1 bg-indigo-500 text-white py-2 rounded-xl font-black text-xs shadow hover:bg-indigo-600">Öde</button></div></div>
             </div>
         </div>
+
+        <!-- CHAT APP -->
+        <div id="app-chat" class="app-window chat-bg flex flex-col z-[60]">
+            <!-- Liste Görünümü -->
+            <div id="chat-list-view" class="flex-1 flex flex-col">
+                <div class="bg-[#075e54] p-4 text-white font-black flex justify-between items-center shadow-md">
+                    <button onclick="window.closeApp('chat')">◀ Çıkış</button>
+                    <span class="text-lg">Sohbetler</span>
+                </div>
+                <div id="chat-contacts" class="flex-1 overflow-y-auto p-2 space-y-2 bg-white"></div>
+            </div>
+            
+            <!-- Konuşma Görünümü -->
+            <div id="chat-conversation-view" class="flex-1 flex flex-col hidden h-full">
+                <div class="bg-[#075e54] p-3 text-white flex items-center gap-3 shadow-md z-10 shrink-0">
+                    <button onclick="window.closeChatConversation()" class="font-black text-xl">◀</button>
+                    <div id="active-chat-avatar" class="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-sm shrink-0"></div>
+                    <div class="flex flex-col leading-tight overflow-hidden">
+                        <span id="active-chat-name" class="font-black text-sm capitalize truncate">İsim</span>
+                        <span id="active-chat-status" class="text-[9px] font-bold opacity-90 truncate">Çevrimiçi</span>
+                    </div>
+                </div>
+                
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-3 space-y-3 flex flex-col"></div>
+                
+                <div class="p-2 bg-[#f0f0f0] flex gap-2 shrink-0 border-t border-gray-300">
+                    <input type="text" id="chat-input" class="flex-1 bg-white rounded-full px-4 py-2 outline-none text-sm font-bold text-gray-700" placeholder="Mesaj yaz..." onkeypress="if(event.key==='Enter') window.sendChatMessage()">
+                    <button onclick="window.sendChatMessage()" class="bg-[#128C7E] text-white w-10 h-10 rounded-full font-black flex items-center justify-center shadow-md hover:scale-105 transition-transform shrink-0">➤</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -475,7 +523,6 @@
             messagingSenderId: "376231350027",
             appId: "1:376231350027:web:952a1c5613e236cf535c0e"
         };
-        
         window.app = initializeApp(fbConfig); 
         window.auth = getAuth(window.app); 
         window.db = getFirestore(window.app);
@@ -552,6 +599,7 @@
         alien: [ { id: 'shuttle', name: 'Uzay Mekiği', icon: '🚀', locked: false, bg: '#3b82f6' }, { id: 'moon_mine', name: 'Ay Madeni', bgImg: 'https://t3.ftcdn.net/jpg/04/24/01/34/360_F_424013485_pUwKWK0BddTu35DurX2GeQ0Q0zCeMKL2.jpg', locked: true, price: 100, bg: '#1e293b' } ]
     };
 
+    // ÖZEL ÇİZİM (SVG) ARKA PLANLARI
     const kittyKitchenSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23fce7f3"/><stop offset="100%" stop-color="%23fbcfe8"/></linearGradient><pattern id="c" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="30" height="30" fill="%23fff1f2"/><rect x="30" width="30" height="30" fill="%23fecdd3"/><rect y="30" width="30" height="30" fill="%23fecdd3"/><rect x="30" y="30" width="30" height="30" fill="%23fff1f2"/></pattern><filter id="drop"><feDropShadow dx="2" dy="5" stdDeviation="5" flood-opacity="0.3"/></filter></defs><rect width="800" height="400" fill="url(%23bg)"/><rect y="400" width="800" height="200" fill="url(%23c)"/><rect x="50" y="100" width="200" height="300" rx="15" fill="%23ef4444" filter="url(%23drop)"/><rect x="60" y="110" width="180" height="120" rx="10" fill="%23fee2e2"/><rect x="60" y="240" width="180" height="150" rx="10" fill="%23fee2e2"/><text x="120" y="180" font-size="50">🎀</text><rect x="300" y="250" width="450" height="150" fill="%23fbcfe8" filter="url(%23drop)"/><rect x="300" y="250" width="450" height="25" fill="%23fda4af"/><rect x="350" y="250" width="120" height="25" fill="%23475569"/><circle cx="380" cy="262" r="6" fill="%23cbd5e1"/><circle cx="440" cy="262" r="6" fill="%23cbd5e1"/><rect x="550" y="250" width="120" height="35" rx="15" fill="%23bae6fd"/><path d="M590 200 L610 200 L600 250 Z" fill="%2394a3b8"/><text x="610" y="240" font-size="25">🎀</text><rect x="350" y="120" width="120" height="80" rx="10" fill="%23ef4444" filter="url(%23drop)"/><rect x="360" y="130" width="70" height="60" rx="5" fill="%23000"/><circle cx="450" cy="150" r="6" fill="white"/><circle cx="450" cy="180" r="6" fill="white"/><text x="375" y="170" font-size="30">🎀</text><text x="680" y="245" font-size="40">🍞</text><text x="730" y="245" font-size="30">🍯</text></svg>`;
     const kittyGardenSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%237dd3fc"/><stop offset="100%" stop-color="%23e0f2fe"/></linearGradient><linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2386efac"/><stop offset="100%" stop-color="%234ade80"/></linearGradient></defs><rect width="800" height="350" fill="url(%23sky)"/><circle cx="700" cy="100" r="60" fill="%23fef08a"/><rect y="350" width="800" height="250" fill="url(%23grass)"/><path d="M 0 350 L 800 350 M 50 280 L 50 400 M 150 280 L 150 400 M 250 280 L 250 400 M 350 280 L 350 400 M 450 280 L 450 400 M 550 280 L 550 400 M 650 280 L 650 400 M 750 280 L 750 400" stroke="%23f87171" stroke-width="12" stroke-linecap="round"/><rect x="150" y="150" width="30" height="200" fill="%2378350f" rx="10"/><path d="M165 30 C 80 30, 50 150, 165 240 C 280 150, 250 30, 165 30" fill="%23f472b6"/><rect x="600" y="100" width="30" height="250" fill="%2378350f" rx="10"/><path d="M615 0 C 530 0, 500 120, 615 210 C 730 120, 700 0, 615 0" fill="%23f472b6"/><text x="140" y="140" font-size="50">🎀</text><text x="590" y="110" font-size="50">🎀</text><text x="100" y="450" font-size="40">🌸</text><text x="250" y="520" font-size="40">🌺</text><text x="400" y="460" font-size="40">🌼</text><text x="550" y="530" font-size="40">🌷</text><text x="700" y="440" font-size="40">🌻</text><text x="50" y="540" font-size="60">🪴</text><text x="700" y="540" font-size="60">🪴</text><text x="600" y="450" font-size="60">🚿</text></svg>`;
     const kittyBathroomSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><pattern id="s" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="30" height="60" fill="%23fbcfe8"/><rect x="30" width="30" height="60" fill="%23fdf2f8"/></pattern><filter id="drop"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity="0.2"/></filter></defs><rect width="800" height="450" fill="url(%23s)"/><rect y="450" width="800" height="150" fill="%23e2e8f0"/><rect x="600" y="100" width="140" height="180" fill="%23cbd5e1" rx="15" filter="url(%23drop)"/><rect x="610" y="110" width="120" height="160" fill="%23f8fafc" rx="10"/><rect x="560" y="300" width="220" height="150" fill="%23fff" rx="10" filter="url(%23drop)"/><rect x="600" y="300" width="140" height="25" fill="%23bae6fd" rx="10"/><rect x="50" y="200" width="100" height="250" fill="%23fff" rx="25" filter="url(%23drop)"/><ellipse cx="100" cy="420" rx="70" ry="40" fill="%23fff" filter="url(%23drop)"/><path d="M 220 320 C 220 200, 420 200, 420 320 C 420 200, 620 200, 620 320 L 620 480 Q 420 550 220 480 Z" fill="%23f472b6" filter="url(%23drop)"/><path d="M 400 230 L 400 120" stroke="%2394a3b8" stroke-width="8"/><rect x="380" y="100" width="40" height="20" rx="10" fill="%23cbd5e1"/><text x="630" y="290" font-size="40">🪥</text><text x="680" y="290" font-size="40">🧼</text><text x="160" y="380" font-size="50">🧻</text><text x="40" y="480" font-size="50">🪠</text><text x="60" y="550" font-size="70">🌸</text><text x="400" y="400" font-size="80" opacity="0.6">🫧</text></svg>`;
@@ -861,6 +909,19 @@
         const transform = (t[char] && t[char][item.id]) ? t[char][item.id] : 'translate(50,50) scale(0.5)';
         return `<g transform="${transform}">${item.svg}</g>`;
     };
+    
+    // YENİ CHAT AVATAR SVG SİSTEMİ (Sadece Kafalar)
+    window.getChatAvatarSvg = function(char) {
+        const getSvgContent = (c) => {
+            if(c==='kitty') return `<ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>`;
+            if(c==='stitch') return `<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>`;
+            if(c==='chick') return `<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>`;
+            if(c==='alien') return `<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>`;
+            return "";
+        };
+        return `<svg viewBox="20 20 160 140" width="100%" height="100%">${getSvgContent(char)}</svg>`;
+    };
+    
     window.getKittySvg = function() { return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs('white')}<rect x="75" y="140" width="50" height="45" rx="${window.state.outfit==='dress'?0:15}" fill="${window.state.outfit==='black'?'#000':window.state.outfit==='nisan'?'#ff85a2':'#3b82f6'}" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-l" cx="65" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><ellipse class="limb limb-arm-r" cx="135" cy="160" rx="10" ry="16" fill="white" stroke="#000" stroke-width="2.5"/><path d="M40 50 L 40 25 Q 62 10 85 25 L 85 45" fill="white" stroke="#000" stroke-width="3.5"/><path d="M115 45 L 115 25 Q 138 10 160 25 L 160 50" fill="white" stroke="#000" stroke-width="3.5"/><g class="char-head"><ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g></g>${window.getOutfitSvg('kitty')}</svg>`; };
     window.getOtherSvg = function(char) {
         let outfitSvg = window.getOutfitSvg(char);
@@ -1067,7 +1128,12 @@
             let itemStr = window.state.selectedChar === 'alien' ? window.spaceFoods[window.currentFoodIdx % window.spaceFoods.length] : window.normalFoods[window.currentFoodIdx % window.normalFoods.length];
             interact.innerHTML += `<div id="food-item" class="draggable item-icon" style="left: 65%; top: 60%; pointer-events: auto; z-index: 400;">${itemStr}</div>`;
             if(window.state.selectedChar === 'alien') { interact.innerHTML += `<div class="absolute left-1/2 bottom-20 -translate-x-1/2 flex gap-2" style="pointer-events: auto;"><button onclick="window.startHunt()" class="soft-btn text-[9px] uppercase">${window.state.huntActive ? 'AVDA...' : 'VİŞNE AVI'}</button>${window.state.huntActive ? `<button id="hunt-speed-btn" class="bg-yellow-500 text-white px-2 py-1 rounded-lg text-[9px] font-black shadow-lg">2X</button>` : ''}</div>`; }
-            if(window.state.selectedChar === 'kitty') { interact.innerHTML += `<div onclick="window.openPhone()" class="absolute text-5xl cursor-pointer hover:scale-110 transition-transform drop-shadow-xl z-[150]" style="left: 10%; bottom: 40%; pointer-events: auto;" title="Telefonu Aç">📱</div>`; }
+            
+            // HER İKİ KARAKTER İÇİN TELEFON BUTONU BURADA
+            if(window.state.selectedChar === 'kitty' || window.state.selectedChar === 'stitch') { 
+                interact.innerHTML += `<div onclick="window.openPhone()" class="absolute text-5xl cursor-pointer hover:scale-110 transition-transform drop-shadow-xl z-[150]" style="left: 10%; bottom: 40%; pointer-events: auto;" title="Telefonu Aç">📱</div>`; 
+            }
+            
             setTimeout(() => { if(window.makeElementDraggable) window.makeElementDraggable(document.getElementById('food-item'), window.checkCollisions); }, 50);
         }
         if(r === 'bathroom') {
@@ -1144,8 +1210,121 @@
     // 7. TELEFON, BANKA, OYUNLAR VE MADEN FONKSİYONLARI
     window.openPhone = function() { document.getElementById('phone-screen').classList.remove('hidden-screen'); document.getElementById('phone-screen').style.opacity = '1'; document.getElementById('phone-screen').style.pointerEvents = 'auto'; };
     window.closePhone = function() { document.getElementById('phone-screen').classList.add('hidden-screen'); document.getElementById('phone-screen').style.opacity = ''; document.getElementById('phone-screen').style.pointerEvents = ''; document.querySelectorAll('.app-window').forEach(app => app.classList.remove('open')); };
-    window.openApp = function(appId) { document.getElementById('app-'+appId).classList.add('open'); if(appId==='bank') window.updateBankUI(); if(appId==='flappy') window.initFlappyGame(); };
-    window.closeApp = function(appId) { document.getElementById('app-'+appId).classList.remove('open'); if(appId==='flappy') window.stopFlappyGame(); };
+    
+    // AI CHAT STATE & FUNCTIONS
+    window.chatState = {
+        activeContact: null,
+        histories: { kitty: [], stitch: [], chick: [], alien: [] }
+    };
+    
+    window.chatSystemPrompts = {
+        kitty: "Senin adın Hello Kitty. Sevimli, kibar, tatlı bir çocuksun. Sohbet etmeyi çok seversin. Türkçe konuş. Kısa, samimi ve neşeli cevaplar ver. Mesajlarında tatlı emojiler kullan.",
+        stitch: "Senin adın Stitch. Kibar, centilmen bir çocuksun. Anneni çok seviyorsun ve ona çok saygılısın. İnsanlarla Türkçe konuş. Kısa, tatlı ve sevimli cevaplar ver.",
+        chick: "Senin adın Civcik. Minik, tatlı ve meraklı bir civcivsin. İnsanlara çok sevimli cevaplar ver. Bazen 'cik cik' de. Türkçe konuş."
+    };
+
+    window.openApp = function(appId) { 
+        document.getElementById('app-'+appId).classList.add('open'); 
+        if(appId==='bank') window.updateBankUI(); 
+        if(appId==='flappy') window.initFlappyGame(); 
+        if(appId==='chat') window.renderChatList();
+    };
+    
+    window.closeApp = function(appId) { 
+        document.getElementById('app-'+appId).classList.remove('open'); 
+        if(appId==='flappy') window.stopFlappyGame(); 
+    };
+    
+    window.renderChatList = function() {
+        const list = document.getElementById('chat-contacts');
+        list.innerHTML = '';
+        const contacts = ['kitty', 'stitch', 'chick', 'alien'];
+        
+        contacts.forEach(c => {
+            if(c === window.state.selectedChar) return;
+            
+            let isLocked = (c === 'alien');
+            let statusText = isLocked ? "Telefonunu uzay boşluğuna düşürdü :c" : "Hey! Ben buradayım.";
+            let history = window.chatState.histories[c] || [];
+            let lastMsg = history.length > 0 ? history[history.length-1].text : statusText;
+            
+            list.innerHTML += `
+            <div class="flex items-center gap-3 p-3 bg-white rounded-2xl shadow-sm ${isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}" onclick="${isLocked ? '' : `window.openChatConversation('${c}')`}">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border border-gray-200 shrink-0">
+                    ${window.getChatAvatarSvg(c)}
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h4 class="font-black text-[#4a1d2e] capitalize text-sm">${c === 'alien' ? 'Prospectus' : c} ${isLocked ? '🔒' : ''}</h4>
+                    <p class="text-[10px] text-gray-500 font-bold truncate">${lastMsg}</p>
+                </div>
+            </div>`;
+        });
+    };
+
+    window.openChatConversation = function(c) {
+        window.chatState.activeContact = c;
+        document.getElementById('chat-list-view').classList.add('hidden');
+        document.getElementById('chat-conversation-view').classList.remove('hidden');
+        document.getElementById('active-chat-name').innerText = c;
+        document.getElementById('active-chat-avatar').innerHTML = window.getChatAvatarSvg(c);
+        window.renderChatMessages();
+    };
+
+    window.closeChatConversation = function() {
+        window.chatState.activeContact = null;
+        document.getElementById('chat-conversation-view').classList.add('hidden');
+        document.getElementById('chat-list-view').classList.remove('hidden');
+        window.renderChatList();
+    };
+
+    window.renderChatMessages = function() {
+        const box = document.getElementById('chat-messages');
+        box.innerHTML = '';
+        const history = window.chatState.histories[window.chatState.activeContact] || [];
+        history.forEach(msg => {
+            const isMe = msg.sender === 'me';
+            box.innerHTML += `
+                <div class="flex w-full ${isMe ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[75%] p-3 rounded-2xl text-xs font-bold shadow-sm ${isMe ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'}">
+                        ${msg.text}
+                    </div>
+                </div>
+            `;
+        });
+        box.scrollTop = box.scrollHeight;
+    };
+
+    window.fetchGeminiWithRetry = async function(contactId, userText, retries = 5) {
+        return "Şuan için cevap veremiyorum yaa talha daha bu özelligi getirmemis";
+    };
+
+    window.sendChatMessage = async function() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        const contact = window.chatState.activeContact; // Aktif kişiyi sabitliyoruz
+        if(!text || !contact) return;
+        
+        input.value = '';
+        if(!window.chatState.histories[contact]) window.chatState.histories[contact] = [];
+        window.chatState.histories[contact].push({ sender: 'me', text: text });
+        window.renderChatMessages();
+        
+        document.getElementById('active-chat-status').innerText = "Yazıyor...";
+        
+        const waitTime = 1000 + Math.random() * 2000;
+        
+        setTimeout(async () => {
+            const reply = await window.fetchGeminiWithRetry(contact, text);
+            window.chatState.histories[contact].push({ sender: 'them', text: reply });
+            
+            // Kullanıcı başka bir sohbete geçmediyse UI'ı güncelle
+            if(window.chatState.activeContact === contact) {
+                document.getElementById('active-chat-status').innerText = "Çevrimiçi";
+                window.renderChatMessages();
+            }
+        }, waitTime);
+    };
+
     window.updateBankUI = function() { document.getElementById('vb-wallet').innerText = Math.floor(window.state.cherries) + " 🍒"; document.getElementById('vb-balance').innerText = Math.floor(window.state.bankCherries) + " 🍒"; document.getElementById('vb-debt-text').innerText = Math.floor(window.state.bankDebt) + " 🍒"; if(window.state.bankDebt > 0) { document.getElementById('vb-debt-text').innerHTML += `<br><span class="text-[10px] text-gray-500">Son Gün: ${window.state.debtDueDay}. Gün</span>`; } };
     window.vbDeposit = function() { if(window.state.cherries > 0) { window.state.bankCherries += window.state.cherries; window.state.cherries = 0; window.saveProgress(); window.updateUI(); window.updateBankUI(); window.showMessage("Bankaya yatırıldı! 🏦"); } };
     window.vbWithdraw = function() { if(window.state.bankCherries > 0) { window.state.cherries += window.state.bankCherries; window.state.bankCherries = 0; window.saveProgress(); window.updateUI(); window.updateBankUI(); window.showMessage("Hesaptan çekildi! 🏦"); } };
@@ -1194,6 +1373,7 @@
     window.renderBBGrid = function() { const gridEl = document.getElementById('bb-grid'); gridEl.innerHTML = ''; for(let r=0; r<8; r++){ for(let c=0; c<8; c++){ const val = window.bbGridData[r][c]; gridEl.innerHTML += `<div class="bb-cell ${val?'filled':''}" data-r="${r}" data-c="${c}" style="background: ${val ? val : ''}"></div>`; } } };
     window.generateBBShapes = function() { window.bbTray = []; for(let i=0; i<3; i++) { let t = window.bbTemplates[Math.floor(Math.random()*window.bbTemplates.length)]; let c = window.bbColors[Math.floor(Math.random()*window.bbColors.length)]; window.bbTray.push({matrix: t, color: c, used: false}); } window.renderBBTray(); window.checkBBGameOver(); };
     window.renderBBTray = function() { const trayEl = document.getElementById('bb-tray'); trayEl.innerHTML = ''; window.bbTray.forEach((shape, idx) => { if(shape.used) { trayEl.innerHTML += `<div class="flex-1"></div>`; return; } let html = `<div class="bb-shape-wrapper" data-idx="${idx}"><div class="bb-shape-inner" style="grid-template-columns: repeat(${shape.matrix[0].length}, 14px);">`; shape.matrix.forEach(row => { row.forEach(val => { html += `<div class="bb-shape-cell ${val?'':'empty'}" style="${val?'background:'+shape.color:''}"></div>`; }); }); html += `</div></div>`; trayEl.innerHTML += html; }); document.querySelectorAll('.bb-shape-wrapper').forEach(el => { el.addEventListener('mousedown', window.startBBDrag); el.addEventListener('touchstart', window.startBBDrag, {passive: false}); }); };
+    
     window.bbDragState = null;
     window.startBBDrag = function(e) { 
         if(e.cancelable) e.preventDefault(); 
@@ -1295,8 +1475,20 @@
     };
 
     // --- OYUN DÖNGÜSÜ VE BAŞLATMA ---
+    window.timeMultiplier = 1;
+    window.toggleTimeSpeed = function() {
+        window.timeMultiplier = window.timeMultiplier === 1 ? 3 : 1;
+        const btn = document.getElementById('time-speed-btn');
+        if(btn) {
+            btn.innerText = window.timeMultiplier + 'X';
+            btn.className = window.timeMultiplier === 3 
+                ? 'bg-yellow-400 text-white text-[9px] px-1.5 py-0.5 rounded font-black hover:bg-yellow-500 transition-colors'
+                : 'bg-indigo-200 text-indigo-800 text-[9px] px-1.5 py-0.5 rounded font-black hover:bg-indigo-300 transition-colors';
+        }
+    };
+
     window.mainLoop = function() {
-        window.state.inGameTime += 0.5;
+        window.state.inGameTime += 6 * window.timeMultiplier; // 1 saniyede 6 dk (1 saat 10 saniyede)
         if(window.state.inGameTime >= 24 * 60) {
             window.state.inGameTime = 0; window.state.inGameDay++;
             if(window.state.bankDebt > 0 && window.state.inGameDay >= window.state.debtDueDay) {
@@ -1309,15 +1501,15 @@
         window.updateTimeOverlay();
         
         if(!window.state.isSleeping && !window.state.huntActive && !window.state.schoolActive) { 
-            window.state.stats.hunger = Math.max(0, window.state.stats.hunger - 0.05); 
-            window.state.stats.energy = Math.max(0, window.state.stats.energy - 0.03); 
-            window.state.stats.hygiene = Math.max(0, window.state.stats.hygiene - 0.04); 
+            window.state.stats.hunger = Math.max(0, window.state.stats.hunger - (0.05 * window.timeMultiplier)); 
+            window.state.stats.energy = Math.max(0, window.state.stats.energy - (0.03 * window.timeMultiplier)); 
+            window.state.stats.hygiene = Math.max(0, window.state.stats.hygiene - (0.04 * window.timeMultiplier)); 
         }
         
-        if(window.state.isSleeping) window.state.stats.energy = Math.min(100, window.state.stats.energy + 2);
+        if(window.state.isSleeping) window.state.stats.energy = Math.min(100, window.state.stats.energy + (2 * window.timeMultiplier));
         
         if(window.state.huntActive) { 
-            window.state.huntTimer = Math.max(0, window.state.huntTimer - window.state.huntSpeed); 
+            window.state.huntTimer = Math.max(0, window.state.huntTimer - (window.state.huntSpeed * window.timeMultiplier)); 
             if(window.state.huntTimer <= 0) { 
                 window.state.huntActive = false; 
                 window.state.cherries += 30; 
@@ -1328,7 +1520,7 @@
         }
         
         if(window.state.schoolActive) { 
-            window.state.schoolTimer = Math.max(0, window.state.schoolTimer - window.state.schoolSpeed); 
+            window.state.schoolTimer = Math.max(0, window.state.schoolTimer - (window.state.schoolSpeed * window.timeMultiplier)); 
             if(window.state.schoolTimer <= 0) { 
                 window.state.schoolActive = false; 
                 window.state.cherries += 40; 
@@ -1356,7 +1548,7 @@
             timerEl.innerText = `Yenilenmesine: ${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`; 
         }
         
-        window.state.lastSpeech++;
+        window.state.lastSpeech += (1 * window.timeMultiplier);
         if(window.state.lastSpeech >= 12 && !window.state.isSleeping && !(window.state.huntActive && window.state.selectedChar === 'alien')) {
             window.state.lastSpeech = 0; 
             const bubble = document.getElementById('speech-bubble'); 
