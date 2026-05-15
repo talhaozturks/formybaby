@@ -132,9 +132,19 @@
         @keyframes stitchBodyTurn { 0%, 25% { transform: scaleX(1); } 30%, 40% { transform: scaleX(1); } 45%, 55% { transform: scaleX(-1); } 60%, 100% { transform: scaleX(1); } }
         .anim-nerd-body { animation: stitchBodyTurn 3.5s ease-in-out forwards; transform-origin: center center; }
 
-        /* YENİ KAVANOZ ANİMASYONLARI */
+        /* YENİ KAVANOZ ANİMASYONLARI VE KAĞIT DOKUSU */
         @keyframes paperPop { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-60px) scale(1.5); opacity: 1; } }
         @keyframes paperHide { 0% { transform: translateY(-60px) scale(1.5); opacity: 1; } 100% { transform: translateY(-60px) scale(0); opacity: 0; } }
+
+        .vintage-texture {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.12'/%3E%3C/svg%3E");
+            box-shadow: inset 0 0 60px rgba(139, 69, 19, 0.15), 0 15px 30px rgba(0,0,0,0.3);
+            border-radius: 4px 25px 6px 30px;
+            position: relative;
+        }
+        .vintage-texture::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; border: 1.5px dashed rgba(139, 69, 19, 0.3); border-radius: inherit; margin: 4px;
+        }
 
         #selection-preview svg { width: 100%; height: auto; max-height: 45vh; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); transform-origin: center bottom; }
         #shop-timer { font-size: 10px; font-weight: 800; color: #ff5c8d; background: rgba(255, 92, 141, 0.1); padding: 4px 8px; border-radius: 10px; margin-top: 5px; }
@@ -550,14 +560,14 @@
 
 <!-- KAVANOZ (JAR) MODALI -->
 <div id="jar-modal" class="fixed inset-0 bg-black/80 z-[800] hidden items-center justify-center p-4">
-    <div class="soft-panel p-6 max-w-sm w-full relative flex flex-col items-center border-4 border-pink-300">
+    <div class="vintage-texture bg-[#fef6e4] p-8 max-w-sm w-full relative flex flex-col items-center">
         <button onclick="window.closeJarMenu()" class="absolute -top-4 -right-4 bg-red-500 text-white w-10 h-10 rounded-full font-black border-2 border-white z-50 shadow-lg hover:scale-110 transition-transform">X</button>
         
         <!-- Ana Menü -->
         <div id="jar-main-view" class="w-full flex flex-col items-center">
-            <h2 class="text-2xl font-black text-pink-500 mb-2 drop-shadow-sm flex items-center gap-2">💖 Keeeeeeeey 💖</h2>
+            <h2 class="text-3xl font-black text-pink-600 mb-2 drop-shadow-sm flex items-center gap-2" style="font-family: 'Comic Sans MS', cursive;">💖 Keeeeeeeey 💖</h2>
             
-            <div class="w-24 h-24 mb-4">
+            <div class="w-24 h-24 mb-4 drop-shadow-xl hover:rotate-3 transition-transform">
                 <svg viewBox="0 0 100 120" width="100%" height="100%">
                    <path d="M 30 20 L 70 20 L 75 30 L 85 100 Q 85 110 75 110 L 25 110 Q 15 110 15 100 L 25 30 Z" fill="rgba(255,255,255,0.7)" stroke="#4a1d2e" stroke-width="4"/>
                    <rect x="25" y="10" width="50" height="10" fill="#fca5a5" stroke="#4a1d2e" stroke-width="4" rx="3"/>
@@ -565,17 +575,17 @@
                 </svg>
             </div>
             
-            <div class="w-full flex flex-col gap-3">
-                <button onclick="window.jarAction('yellow')" class="bg-yellow-100 border-2 border-yellow-400 text-yellow-700 font-black py-3 rounded-xl shadow-sm hover:scale-105 transition-transform uppercase text-xs">(Sarı) When you feel happy</button>
-                <button onclick="window.jarAction('purple')" class="bg-purple-100 border-2 border-purple-400 text-purple-700 font-black py-3 rounded-xl shadow-sm hover:scale-105 transition-transform uppercase text-xs">(Mor) when you feel sad</button>
-                <button onclick="window.jarAction('orange')" class="bg-orange-100 border-2 border-orange-400 text-orange-700 font-black py-3 rounded-xl shadow-sm hover:scale-105 transition-transform uppercase text-xs">(Turuncu) when you feel alone</button>
-                <button onclick="window.jarAction('blue')" class="bg-blue-100 border-2 border-blue-400 text-blue-700 font-black py-3 rounded-xl shadow-sm hover:scale-105 transition-transform uppercase text-xs">(Mavi) our memories</button>
-                <button onclick="window.jarAction('white')" class="bg-white border-2 border-gray-300 text-gray-700 font-black py-3 rounded-xl shadow-sm hover:scale-105 transition-transform uppercase text-xs">(Beyaz) KISS</button>
+            <div class="w-full flex flex-col gap-3 relative z-10">
+                <button onclick="window.jarAction('yellow')" class="bg-yellow-100/90 border border-yellow-400 text-yellow-800 font-black py-3 rounded-xl shadow-md hover:scale-105 transition-transform uppercase text-xs backdrop-blur-sm">(Sarı) When you feel happy</button>
+                <button onclick="window.jarAction('purple')" class="bg-purple-100/90 border border-purple-400 text-purple-800 font-black py-3 rounded-xl shadow-md hover:scale-105 transition-transform uppercase text-xs backdrop-blur-sm">(Mor) when you feel sad</button>
+                <button onclick="window.jarAction('orange')" class="bg-orange-100/90 border border-orange-400 text-orange-800 font-black py-3 rounded-xl shadow-md hover:scale-105 transition-transform uppercase text-xs backdrop-blur-sm">(Turuncu) when you feel alone</button>
+                <button onclick="window.jarAction('blue')" class="bg-blue-100/90 border border-blue-400 text-blue-800 font-black py-3 rounded-xl shadow-md hover:scale-105 transition-transform uppercase text-xs backdrop-blur-sm">(Mavi) our memories</button>
+                <button onclick="window.jarAction('white')" class="bg-white/90 border border-gray-300 text-gray-800 font-black py-3 rounded-xl shadow-md hover:scale-105 transition-transform uppercase text-xs backdrop-blur-sm">(Beyaz) KISS</button>
             </div>
         </div>
         
         <!-- Kağıt Animasyon ve Okuma Görünümü -->
-        <div id="jar-paper-view" class="w-full hidden flex-col items-center">
+        <div id="jar-paper-view" class="w-full hidden flex-col items-center z-10">
             <div id="jar-anim-container" class="w-24 h-24 relative mb-4">
                  <svg viewBox="0 0 100 120" width="100%" height="100%">
                    <path d="M 30 20 L 70 20 L 75 30 L 85 100 Q 85 110 75 110 L 25 110 Q 15 110 15 100 L 25 30 Z" fill="rgba(255,255,255,0.7)" stroke="#4a1d2e" stroke-width="4"/>
@@ -584,11 +594,11 @@
                 <div id="anim-paper" class="absolute w-12 h-12 bg-yellow-200 border-2 border-yellow-500 rounded-sm top-[30px] left-[24px] origin-bottom transition-all duration-[1000ms] z-10" style="transform: scale(0); opacity: 0;"></div>
             </div>
             
-            <div id="jar-message-box" class="w-full bg-yellow-100 border-4 border-yellow-400 p-6 rounded-xl text-center shadow-lg transform scale-0 transition-transform duration-500 hidden">
-                <p id="jar-message-text" class="font-black text-yellow-800 text-lg"></p>
+            <div id="jar-message-box" class="w-full p-8 text-center shadow-2xl transform scale-0 transition-transform duration-500 vintage-texture hidden mt-4">
+                <p id="jar-message-text" class="font-black text-xl drop-shadow-sm" style="font-family: 'Comic Sans MS', cursive;"></p>
             </div>
             
-            <button id="jar-back-btn" onclick="window.resetJarView()" class="mt-6 bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-black uppercase shadow hover:bg-gray-300 hidden">Geri Dön</button>
+            <button id="jar-back-btn" onclick="window.resetJarView()" class="mt-8 bg-gray-800 text-white px-6 py-2 rounded-xl font-black uppercase shadow hover:bg-gray-700 hidden">Geri Dön</button>
         </div>
     </div>
 </div>
@@ -1809,15 +1819,17 @@
         const textEl = document.getElementById('jar-message-text');
         
         let colorClasses = {
-            yellow: { bg: 'bg-yellow-200', border: 'border-yellow-500', text: 'text-yellow-800' },
-            purple: { bg: 'bg-purple-200', border: 'border-purple-500', text: 'text-purple-800' },
-            orange: { bg: 'bg-orange-200', border: 'border-orange-500', text: 'text-orange-800' },
-            blue: { bg: 'bg-blue-200', border: 'border-blue-500', text: 'text-blue-800' }
+            yellow: { bg: 'bg-[#fef9c3]', border: 'border-yellow-500', text: 'text-yellow-900' },
+            purple: { bg: 'bg-[#f3e8ff]', border: 'border-purple-500', text: 'text-purple-900' },
+            orange: { bg: 'bg-[#ffedd5]', border: 'border-orange-500', text: 'text-orange-900' },
+            blue: { bg: 'bg-[#dbeafe]', border: 'border-blue-500', text: 'text-blue-900' }
         };
 
         paper.className = `absolute w-12 h-12 rounded-sm top-[30px] left-[24px] origin-bottom transition-all duration-[1000ms] z-10 border-2 ${colorClasses[color].bg} ${colorClasses[color].border}`;
-        box.className = `w-full p-6 rounded-xl text-center shadow-lg transform scale-0 transition-transform duration-500 border-4 ${colorClasses[color].bg} ${colorClasses[color].border}`;
-        textEl.className = `font-black text-lg ${colorClasses[color].text}`;
+        
+        // Kutuyu vintage-texture sınıfı ile eskitilmiş kağıda çeviriyoruz
+        box.className = `w-full p-8 mt-4 text-center shadow-2xl transform scale-0 transition-transform duration-500 vintage-texture ${colorClasses[color].bg}`;
+        textEl.className = `font-black text-xl ${colorClasses[color].text}`;
         
         let msgArray = window.jarQuotes[color];
         let randomMsg = msgArray[Math.floor(Math.random() * msgArray.length)];
