@@ -506,6 +506,9 @@
                 <p>Senin Vişnen: <span id="bm-user-cherries" class="text-red-500">0</span></p>
                 <p>Elmasın: <span id="bm-user-diamonds" class="text-blue-500">0</span></p>
             </div>
+            
+            <!-- NERD STITCH ÖZEL TAHMİN ALANI -->
+            <div id="nerd-stitch-bm-container" class="w-full mt-2"></div>
         </div>
     </div>
 </div>
@@ -602,6 +605,7 @@
             savedDrawings: { 1: null, 2: null, 3: null, 4: null, 5: null }, 
             unlockedChars: ['kitty'], unlockedSubWorlds: [], 
             kittySkin: 'white', unlockedKittySkins: ['white'], gothDiamondTimer: 0,
+            stitchSkin: 'white', unlockedStitchSkins: ['white'],
             mineResources: 5, lastMinedTime: 0, hasPickaxe: false, isMining: false, 
             usedCodes: [], bankCherries: 0, bankDebt: 0, debtDueDay: 0, 
             inGameDay: 1, inGameTime: 8 * 60
@@ -701,6 +705,9 @@
                 if(data.unlockedKittySkins) window.state.unlockedKittySkins = data.unlockedKittySkins;
                 if(data.gothDiamondTimer !== undefined) window.state.gothDiamondTimer = data.gothDiamondTimer;
                 
+                if(data.stitchSkin) window.state.stitchSkin = data.stitchSkin;
+                if(data.unlockedStitchSkins) window.state.unlockedStitchSkins = data.unlockedStitchSkins;
+                
                 if(data.usedCodes) window.state.usedCodes = data.usedCodes;
                 if(data.bankCherries !== undefined) window.state.bankCherries = data.bankCherries;
                 if(data.bankDebt !== undefined) window.state.bankDebt = data.bankDebt;
@@ -733,6 +740,7 @@
                 blockHighScore: window.state.blockHighScore, savedDrawings: window.state.savedDrawings,
                 unlockedChars: window.state.unlockedChars, unlockedSubWorlds: window.state.unlockedSubWorlds,
                 kittySkin: window.state.kittySkin, unlockedKittySkins: window.state.unlockedKittySkins, gothDiamondTimer: window.state.gothDiamondTimer,
+                stitchSkin: window.state.stitchSkin, unlockedStitchSkins: window.state.unlockedStitchSkins,
                 mineResources: window.state.mineResources, lastMinedTime: window.state.lastMinedTime,
                 usedCodes: window.state.usedCodes, bankCherries: window.state.bankCherries, bankDebt: window.state.bankDebt,
                 debtDueDay: window.state.debtDueDay, inGameDay: window.state.inGameDay, inGameTime: window.state.inGameTime,
@@ -935,7 +943,16 @@
     window.getChatAvatarSvg = function(char) {
         const getSvgContent = (c) => {
             if(c==='kitty') return `<ellipse cx="100" cy="90" rx="75" ry="65" fill="white" stroke="#000" stroke-width="3"/><g transform="translate(160, 55)"><ellipse cx="0" cy="0" r="14" fill="#ef4444" stroke="#000" stroke-width="2.5"/><ellipse cx="-13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><ellipse cx="13" cy="0" rx="11" ry="13" fill="#ef4444" stroke="#000" stroke-width="2"/><circle cx="0" cy="0" r="4" fill="white" opacity="0.4"/></g><ellipse cx="75" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="125" cy="100" rx="6" ry="9" fill="black"/><ellipse cx="100" cy="115" rx="9" ry="7" fill="#facc15" stroke="#000"/><g stroke="black" stroke-width="2.5" stroke-linecap="round"><line x1="45" y1="90" x2="20" y2="85"/><line x1="45" y1="100" x2="15" y2="100"/><line x1="45" y1="110" x2="20" y2="115"/><line x1="155" y1="90" x2="180" y2="85"/><line x1="155" y1="100" x2="185" y2="100"/><line x1="155" y1="110" x2="180" y2="115"/></g>`;
-            if(c==='stitch') return `<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>`;
+            if(c==='stitch') {
+                let skin = window.state.stitchSkin || 'white';
+                let headExtra = "";
+                if(skin === 'nerd') {
+                    headExtra = `<rect x="55" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/><rect x="110" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/><line x1="90" y1="85" x2="110" y2="85" stroke="#111827" stroke-width="5"/>`;
+                } else if(skin === 'tongue') {
+                    headExtra = `<path d="M 90 130 Q 100 135 110 130" fill="none" stroke="#000" stroke-width="2"/><path d="M 95 132 L 105 132 L 105 145 Q 100 150 95 145 Z" fill="#ec4899" stroke="#000" stroke-width="1.5"/>`;
+                }
+                return `<path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>${headExtra}`;
+            }
             if(c==='chick') return `<circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>`;
             if(c==='alien') return `<path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/>`;
             return "";
@@ -1087,12 +1104,59 @@
 
         return svgBase;
     };
+
+    // YENİ SKIN SİSTEMİ EKLENTİSİ İLE GETSTITCH
+    window.getStitchSvg = function(isAnimContext = false, skinOverride = null) {
+        let skin = skinOverride || window.state.stitchSkin || 'white';
+        let color = '#2563eb';
+        let animClass = isAnimContext ? "anim-somersault" : "";
+        let bodyExtra = "";
+        let headExtra = "";
+
+        if (skin === 'nerd') {
+            bodyExtra = `
+                <path d="M 65 130 L 135 130 L 140 180 L 60 180 Z" fill="#f3f4f6" stroke="#000" stroke-width="2.5"/>
+                <path d="M 100 130 L 90 145 L 110 145 Z" fill="#f3f4f6" stroke="#000" stroke-width="1.5"/>
+                <polygon points="95,145 105,145 100,180" fill="#ef4444" stroke="#000" stroke-width="1.5"/>
+            `;
+            headExtra = `
+                <rect x="55" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/>
+                <rect x="110" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/>
+                <line x1="90" y1="85" x2="110" y2="85" stroke="#111827" stroke-width="5"/>
+            `;
+        } else if (skin === 'tongue') {
+            headExtra = `
+                <path d="M 90 130 Q 100 135 110 130" fill="none" stroke="#000" stroke-width="2"/>
+                <path d="M 95 132 L 105 132 L 105 145 Q 100 150 95 145 Z" fill="#ec4899" stroke="#000" stroke-width="1.5"/>
+            `;
+        }
+
+        return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" class="${isAnimContext ? animClass : ''}">
+            ${window.getLegs(color)}
+            <ellipse cx="100" cy="155" rx="50" ry="55" fill="${color}" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/>
+            ${bodyExtra}
+            <ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
+            <ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="${color}" stroke="#000"/>
+            <g class="char-head">
+                <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
+                <path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/>
+                <ellipse cx="100" cy="95" rx="72" ry="62" fill="${color}" stroke="#000" stroke-width="3"/>
+                <ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/>
+                <circle cx="75" cy="85" r="5" fill="white"/>
+                <ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/>
+                <circle cx="125" cy="85" r="5" fill="white"/>
+                <ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/>
+                ${headExtra}
+            </g>
+            ${window.getOutfitSvg('stitch')}
+        </svg>`;
+    };
     
     window.getOtherSvg = function(char) {
         let outfitSvg = window.getOutfitSvg(char);
         if (char === 'talha') { return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><rect class="limb limb-leg-l" x="75" y="160" width="16" height="35" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2"/><rect class="limb limb-leg-r" x="109" y="160" width="16" height="35" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2"/><ellipse class="limb limb-leg-l" cx="83" cy="198" rx="14" ry="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/><ellipse class="limb limb-leg-r" cx="117" cy="198" rx="14" ry="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/><rect x="65" y="105" width="70" height="60" rx="12" fill="#ef4444" stroke="#991b1b" stroke-width="2"/><text x="100" y="145" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="900" font-family="Arial">T</text><g class="limb limb-arm-l" transform-origin="55px 110px"><rect x="48" y="110" width="14" height="40" rx="7" fill="#ef4444" stroke="#991b1b" stroke-width="2"/><ellipse cx="55" cy="150" rx="7" ry="9" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/></g><g class="limb limb-arm-r" transform-origin="145px 110px"><rect x="138" y="110" width="14" height="40" rx="7" fill="#ef4444" stroke="#991b1b" stroke-width="2"/><ellipse cx="145" cy="150" rx="7" ry="9" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/></g><g class="char-head"><ellipse cx="62" cy="70" rx="7" ry="10" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/><ellipse cx="138" cy="70" rx="7" ry="10" fill="#ffedd5" stroke="#fdba74" stroke-width="1.5"/><ellipse cx="100" cy="65" rx="35" ry="38" fill="#ffedd5" stroke="#fdba74" stroke-width="2"/><path d="M 60 50 C 60 10, 140 10, 140 50 C 120 20, 80 20, 60 50 Z" fill="#111827" stroke="#000" stroke-width="1"/><path d="M 70 40 Q 80 60 90 40" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round"/><path d="M 110 35 Q 120 55 130 38" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round"/><circle cx="88" cy="60" r="4" fill="#000"/><circle cx="112" cy="60" r="4" fill="#000"/><path d="M 92 80 Q 100 88 108 80" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></g>${outfitSvg}</svg>`; }
-        let color = char === 'stitch' ? '#2563eb' : (char === 'alien' ? '#4ade80' : '#fb923c');
-        if(char === 'stitch') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<ellipse cx="100" cy="155" rx="50" ry="55" fill="#2563eb" stroke="#000" stroke-width="2.5"/><ellipse cx="100" cy="165" rx="35" ry="30" fill="#1e3a8a" opacity="1"/><ellipse class="limb limb-arm-l" cx="50" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><ellipse class="limb limb-arm-r" cx="150" cy="155" rx="12" ry="25" fill="#2563eb" stroke="#000"/><g class="char-head"><path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/></g>${outfitSvg}</svg>`;
+        let color = (char === 'alien' ? '#4ade80' : '#fb923c');
         if(char === 'chick') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<ellipse class="limb limb-arm-l" cx="35" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><ellipse class="limb limb-arm-r" cx="165" cy="110" rx="20" ry="15" fill="#f472b6" stroke="#db2777"/><g class="char-head"><circle cx="100" cy="115" r="78" fill="#f472b6" stroke="#db2777" stroke-width="4"/><circle cx="75" cy="100" r="10" fill="black"/><circle cx="125" cy="100" r="10" fill="black"/><path d="M85 120 L115 120 L100 155 Z" fill="#fb923c" stroke="#c2410c" stroke-width="2"/></g>${outfitSvg}</svg>`;
         if(char === 'alien') return `<svg id="char-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">${window.getLegs(color)}<ellipse cx="100" cy="165" rx="40" ry="45" fill="#4ade80" stroke="#166534" stroke-width="2.5"/><rect class="limb limb-arm-l" x="50" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><rect class="limb limb-arm-r" x="138" y="150" width="12" height="30" rx="5" fill="#4ade80" stroke="#166534"/><g class="char-head"><path d="M70 45 L60 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M130 45 L140 20" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="95" rx="65" ry="60" fill="#4ade80" stroke="#166534" stroke-width="3"/><ellipse cx="65" cy="90" rx="20" ry="35" fill="black"/><circle cx="68" cy="78" r="4" fill="white"/><ellipse cx="135" cy="90" rx="20" ry="35" fill="black"/><circle cx="132" cy="78" r="4" fill="white"/><circle cx="100" cy="122" r="4" fill="black"/></g>${outfitSvg}</svg>`;
         return "";
@@ -1176,6 +1240,9 @@
         
         if (char !== 'kitty') window.state.previewKittySkin = null;
         if (char === 'kitty' && !window.state.previewKittySkin) window.state.previewKittySkin = window.state.kittySkin || 'white';
+        
+        if (char !== 'stitch') window.state.previewStitchSkin = null;
+        if (char === 'stitch' && !window.state.previewStitchSkin) window.state.previewStitchSkin = window.state.stitchSkin || 'white';
 
         let activeSkin = char === 'kitty' ? (window.state.previewKittySkin || 'white') : null;
 
@@ -1249,12 +1316,56 @@
                 </div>
             `;
             
-            // Çakışmayı engellemek için SVG'yi ve Buton panelini düzenli bir esnek sütun (flex-col) olarak ekliyoruz
             prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-start overflow-y-auto pb-4 custom-scrollbar">` + window.getKittySvg(true, activeSkin) + skinControls + `</div>`;
+        } else if (char === 'stitch') {
+            let activeSkin = window.state.previewStitchSkin || 'white';
+            let isUnlocked = window.state.unlockedStitchSkins.includes(activeSkin);
+            let isEquipped = window.state.stitchSkin === activeSkin;
+            let price = {'white': 0, 'nerd': 450, 'tongue': 50}[activeSkin];
+
+            let actionBtn = '';
+            if(isEquipped) {
+                actionBtn = `<button class="bg-gray-400 text-white font-black text-[10px] px-6 py-2 rounded-full shadow-md cursor-not-allowed">GİYİLDİ</button>`;
+            } else if(isUnlocked) {
+                actionBtn = `<button onclick="window.equipStitchSkin('${activeSkin}')" class="bg-green-500 hover:bg-green-600 text-white font-black text-[10px] px-6 py-2 rounded-full shadow-md transition-transform hover:scale-105">GİY</button>`;
+            } else {
+                actionBtn = `<button onclick="window.buyStitchSkin('${activeSkin}')" class="bg-pink-500 hover:bg-pink-600 text-white font-black text-[10px] px-6 py-2 rounded-full shadow-md transition-transform hover:scale-105">SATIN AL (${price} 🍒)</button>`;
+            }
+
+            let descHtml = "";
+            if (activeSkin === 'white') {
+                descHtml = `<div class="text-[10px] font-black text-gray-500 text-center w-full px-2"><span class="text-gray-400 block text-[9px] uppercase border-b border-gray-200 mb-1 pb-0.5">Normal</span>Orjinal</div>`;
+            } else if (activeSkin === 'nerd') {
+                descHtml = `<div class="text-[9px] font-bold text-gray-700 w-full px-2 leading-[1.3] pb-1 text-left">
+                    <span class="text-yellow-500 block text-[11px] font-black uppercase border-b border-gray-300 mb-1 pb-0.5 text-center drop-shadow-sm tracking-wider">Destansı</span>
+                    <span class="font-black block text-[8px] text-gray-500 mb-0.5">Özellikler:</span>
+                    <span class="text-purple-600 block">+ Özel Sohbet Balonları</span>
+                    <span class="text-blue-500 block">+ Özel Kıyafet</span>
+                    <span class="text-pink-500 block">+ Borsa Tahmini Özelliği</span>
+                </div>`;
+            } else if (activeSkin === 'tongue') {
+                descHtml = `<div class="text-[10px] font-black text-pink-500 text-center w-full px-2"><span class="text-emerald-500 block text-[11px] font-black uppercase border-b border-pink-100 mb-1 pb-0.5 drop-shadow-sm tracking-wider">Ender</span>dilini yerimmmm :P</div>`;
+            }
+
+            const skinControls = `
+                <div class="w-[200px] flex flex-col items-center gap-1.5 pointer-events-auto z-[200] bg-white/95 p-2 rounded-2xl border-2 border-pink-200 shadow-xl backdrop-blur-sm mt-3 shrink-0">
+                    <div class="flex gap-4">
+                        <button onclick="window.previewStitchSkin('white')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='white'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">⚪</button>
+                        <button onclick="window.previewStitchSkin('nerd')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='nerd'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">🤓${!window.state.unlockedStitchSkins.includes('nerd') ? '<span class="absolute -top-1 -right-2 bg-red-500 text-white text-[8px] px-1 rounded-full font-black shadow">🔒</span>' : ''}</button>
+                        <button onclick="window.previewStitchSkin('tongue')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='tongue'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">😛${!window.state.unlockedStitchSkins.includes('tongue') ? '<span class="absolute -top-1 -right-2 bg-red-500 text-white text-[8px] px-1 rounded-full font-black shadow">🔒</span>' : ''}</button>
+                    </div>
+                    <div class="w-full bg-gray-50/80 rounded-lg p-1 min-h-[30px] flex items-center justify-center border border-gray-100">
+                        ${descHtml}
+                    </div>
+                    ${actionBtn}
+                </div>
+            `;
+            
+            prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-start overflow-y-auto pb-4 custom-scrollbar">` + window.getStitchSvg(true, activeSkin) + skinControls + `</div>`;
         } else {
             prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-center">` + window.getOtherSvg(char) + `</div>`;
             const svg = prev.querySelector('svg');
-            if(svg) { void svg.offsetWidth; if(char === 'chick') svg.classList.add('anim-wave'); if(char === 'stitch') svg.classList.add('anim-somersault'); if(char === 'alien') svg.classList.add('anim-shrink'); }
+            if(svg) { void svg.offsetWidth; if(char === 'chick') svg.classList.add('anim-wave'); if(char === 'alien') svg.classList.add('anim-shrink'); }
         }
     };
 
@@ -1288,6 +1399,36 @@
         }
     };
 
+    window.previewStitchSkin = function(skin) {
+        window.state.previewStitchSkin = skin;
+        window.updateSelection('stitch');
+    };
+
+    window.equipStitchSkin = function(skin) {
+        window.state.stitchSkin = skin;
+        window.saveProgress();
+        window.updateSelection('stitch');
+        window.updateUI();
+        window.showMessage("Görünüm Kuşanıldı! ✨");
+    };
+
+    window.buyStitchSkin = function(skin) {
+        const prices = { 'white': 0, 'nerd': 450, 'tongue': 50 };
+        if(!window.state.unlockedStitchSkins) window.state.unlockedStitchSkins = ['white'];
+        
+        if(window.state.cherries >= prices[skin]) {
+            window.state.cherries -= prices[skin];
+            window.state.unlockedStitchSkins.push(skin);
+            window.state.stitchSkin = skin;
+            window.saveProgress();
+            window.updateSelection('stitch');
+            window.updateUI();
+            window.showMessage("Yeni Görünüm Açıldı ve Giyildi! 🎉");
+        } else {
+            window.showMessage(`Vişnen yetmiyor! 🍒 (${prices[skin]} lazım)`);
+        }
+    };
+
     window.updateUI = function() {
         const id = (el) => document.getElementById(el);
         if(id('bar-hunger')) id('bar-hunger').style.width = window.state.stats.hunger + '%';
@@ -1311,7 +1452,11 @@
             } 
         });
         const wrap = id('char-svg-wrap'); const cont = id('char-container');
-        if(wrap) wrap.innerHTML = (window.state.selectedChar === 'kitty') ? window.getKittySvg() : window.getOtherSvg(window.state.selectedChar);
+        if(wrap) {
+            if (window.state.selectedChar === 'kitty') wrap.innerHTML = window.getKittySvg();
+            else if (window.state.selectedChar === 'stitch') wrap.innerHTML = window.getStitchSvg();
+            else wrap.innerHTML = window.getOtherSvg(window.state.selectedChar);
+        }
         if(id('zzz-emoji')) id('zzz-emoji').style.display = (window.state.isSleeping && window.state.room === 'bedroom') ? "block" : "none";
         
         const eqPx = id('equipped-pickaxe');
@@ -1516,10 +1661,62 @@
 
     // 6. MAĞAZA VE BORSA FONKSİYONLARI
     window.switchShopTab = function(tab, element) { document.querySelectorAll('.shop-tab').forEach(el => el.classList.remove('active')); element.classList.add('active'); if (tab === 'items') { document.getElementById('shop-items-section').classList.remove('hidden'); document.getElementById('black-market-container').classList.add('hidden'); } else { document.getElementById('shop-items-section').classList.add('hidden'); document.getElementById('black-market-container').classList.remove('hidden'); window.renderBlackMarket(); } };
-    window.bmData = { currentPrice: 35, history: [20,35,15,45,25,40,10,30,25,35], lastUpdate: Date.now() };
-    window.initBlackMarketEngine = function() { setInterval(() => { if(Date.now() - window.bmData.lastUpdate > 60000) { let newPrice = Math.floor(Math.random() * 41) + 10; window.bmData.history.push(newPrice); if(window.bmData.history.length > 10) window.bmData.history.shift(); window.bmData.currentPrice = newPrice; window.bmData.lastUpdate = Date.now(); if(!document.getElementById('black-market-container').classList.contains('hidden')) { window.renderBlackMarket(); } } }, 5000); };
+    window.bmData = { currentPrice: 35, nextPrice: Math.floor(Math.random() * 41) + 10, history: [20,35,15,45,25,40,10,30,25,35], lastUpdate: Date.now() };
+    
+    window.initBlackMarketEngine = function() { 
+        setInterval(() => { 
+            if(Date.now() - window.bmData.lastUpdate > 60000) { 
+                let newPrice = window.bmData.nextPrice; 
+                window.bmData.history.push(newPrice); 
+                if(window.bmData.history.length > 10) window.bmData.history.shift(); 
+                window.bmData.currentPrice = newPrice; 
+                window.bmData.nextPrice = Math.floor(Math.random() * 41) + 10;
+                window.bmData.lastUpdate = Date.now(); 
+                if(!document.getElementById('black-market-container').classList.contains('hidden')) { 
+                    window.renderBlackMarket(); 
+                } 
+            } 
+        }, 5000); 
+    };
     window.initBlackMarketEngine();
-    window.renderBlackMarket = function() { document.getElementById('bm-current-price').innerText = window.bmData.currentPrice; document.getElementById('bm-user-cherries').innerText = window.state.cherries; document.getElementById('bm-user-diamonds').innerText = window.state.diamonds; let pts = window.bmData.history.map((val, i) => `${i * 20},${100 - (val * 2)}`).join(" "); let circles = window.bmData.history.map((val, i) => `<circle cx="${i * 20}" cy="${100 - (val * 2)}" r="3" fill="#fff"/>`).join(''); document.getElementById('market-graph-container').innerHTML = `<svg viewBox="0 0 180 100" class="w-full h-24"><line x1="0" y1="0" x2="180" y2="0" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><line x1="0" y1="50" x2="180" y2="50" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><line x1="0" y1="100" x2="180" y2="100" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><polyline fill="none" stroke="#ef4444" stroke-width="3" stroke-linejoin="round" points="${pts}"/>${circles}</svg>`; };
+
+    window.askNerdStitch = function() {
+        const pred = document.getElementById('nerd-stitch-prediction');
+        if(pred) {
+            pred.innerText = `Nerd Stitch Diyor ki: "Matematiksel analizlere göre bir sonraki fiyat kesinlikle ${window.bmData.nextPrice} 🍒 olacak! Mantık asla yalan söylemez."`;
+            pred.classList.remove('hidden');
+            setTimeout(() => pred.classList.add('hidden'), 4500);
+        }
+    };
+
+    window.renderBlackMarket = function() { 
+        document.getElementById('bm-current-price').innerText = window.bmData.currentPrice; 
+        document.getElementById('bm-user-cherries').innerText = window.state.cherries; 
+        document.getElementById('bm-user-diamonds').innerText = window.state.diamonds; 
+        let pts = window.bmData.history.map((val, i) => `${i * 20},${100 - (val * 2)}`).join(" "); let circles = window.bmData.history.map((val, i) => `<circle cx="${i * 20}" cy="${100 - (val * 2)}" r="3" fill="#fff"/>`).join(''); document.getElementById('market-graph-container').innerHTML = `<svg viewBox="0 0 180 100" class="w-full h-24"><line x1="0" y1="0" x2="180" y2="0" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><line x1="0" y1="50" x2="180" y2="50" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><line x1="0" y1="100" x2="180" y2="100" stroke="#374151" stroke-width="1" stroke-dasharray="4"/><polyline fill="none" stroke="#ef4444" stroke-width="3" stroke-linejoin="round" points="${pts}"/>${circles}</svg>`; 
+        
+        let nerdHtml = '';
+        if (window.state.unlockedStitchSkins && window.state.unlockedStitchSkins.includes('nerd')) {
+            nerdHtml = `
+                <div class="mt-4 w-full p-3 bg-indigo-50 border-2 border-indigo-200 rounded-xl flex items-center justify-between cursor-pointer hover:bg-indigo-100 transition-colors shadow-sm" onclick="window.askNerdStitch()">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-indigo-300 shadow-sm shrink-0 overflow-hidden">
+                        <svg viewBox="20 20 160 140" width="100%" height="100%">
+                            <path d="M40 70 Q-30 -20 60 50 L60 90 L35 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><path d="M160 70 Q230 -20 140 50 L140 90 L165 100 Z" fill="#1e40af" stroke="#000" stroke-width="2"/><ellipse cx="100" cy="95" rx="72" ry="62" fill="#2563eb" stroke="#000" stroke-width="3"/><ellipse cx="70" cy="95" rx="20" ry="25" fill="black"/><circle cx="75" cy="85" r="5" fill="white"/><ellipse cx="130" cy="95" rx="20" ry="25" fill="black"/><circle cx="125" cy="85" r="5" fill="white"/><ellipse cx="100" cy="118" rx="16" ry="11" fill="#1d4ed8" stroke="#000" stroke-width="2"/><rect x="55" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/><rect x="110" y="70" width="35" height="30" rx="4" fill="none" stroke="#111827" stroke-width="5"/><line x1="90" y1="85" x2="110" y2="85" stroke="#111827" stroke-width="5"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 ml-3 text-left">
+                        <p class="text-xs font-black text-indigo-700 uppercase">Nerd Stitch'e Sor</p>
+                        <p class="text-[9px] text-indigo-500 font-bold">Gelecekteki fiyatı tahmin eder 🤓</p>
+                    </div>
+                    <div class="text-2xl animate-bounce">📈</div>
+                </div>
+                <div id="nerd-stitch-prediction" class="w-full text-center text-[10px] font-black text-indigo-600 mt-2 hidden bg-white p-2 rounded-lg border border-indigo-100 shadow-inner"></div>
+            `;
+        }
+        const nerdContainer = document.getElementById('nerd-stitch-bm-container');
+        if(nerdContainer) nerdContainer.innerHTML = nerdHtml;
+    };
+    
     window.buyDiamond = function() { if(window.state.cherries >= window.bmData.currentPrice) { window.state.cherries -= window.bmData.currentPrice; window.state.diamonds++; window.saveProgress(); window.renderBlackMarket(); window.updateUI(); window.showMessage("1 Elmas Satın Alındı! 💎"); } else { window.showMessage("Vişnen yetmiyor! 🍒"); } };
     window.sellDiamond = function() { if(window.state.diamonds > 0) { window.state.diamonds--; window.state.cherries += window.bmData.currentPrice; window.saveProgress(); window.renderBlackMarket(); window.updateUI(); window.showMessage(`1 Elmas Satıldı! +${window.bmData.currentPrice} 🍒`); } else { window.showMessage("Hiç elmasın yok! 💎"); } };
     window.redeemPromoCode = function() { const input = document.getElementById('promo-code-input').value.toLowerCase().trim(); if(input === 'pofuduk') { if(window.state.usedCodes && window.state.usedCodes.includes('pofuduk')) { window.showMessage("Bu kodu zaten kullandın! ❌"); } else { window.state.diamonds += 300; if(!window.state.usedCodes) window.state.usedCodes = []; window.state.usedCodes.push('pofuduk'); window.saveProgress(); window.updateUI(); window.showMessage("Kod Başarılı! +300 💎 Kazandın!"); document.getElementById('promo-code-input').value = ""; } } else { window.showMessage("Geçersiz Kod! ❌"); } };
@@ -1928,7 +2125,26 @@
             const isSinging = document.getElementById('stitch-guitar') && document.getElementById('stitch-guitar').style.left === "45%";
             
             if(bubble && !isSinging) { 
-                bubble.innerText = (window.state.stats.energy < 30) ? "anne uykum geldi" : (window.state.stats.hunger < 30) ? "anne çok açımmm" : (window.state.stats.hygiene < 30) ? "anne duş almam gerek" : window.quotes[window.state.selectedChar][Math.floor(Math.random()*window.quotes[window.state.selectedChar].length)]; 
+                let quote = window.quotes[window.state.selectedChar][Math.floor(Math.random()*window.quotes[window.state.selectedChar].length)];
+                
+                // NERD STITCH ÖZEL BALONU VE MESAJLARI
+                if (window.state.selectedChar === 'stitch' && window.state.stitchSkin === 'nerd') {
+                    bubble.style.borderRadius = "5px";
+                    bubble.style.borderColor = "#1e3a8a";
+                    bubble.style.color = "#1e3a8a";
+                    bubble.style.fontFamily = "monospace";
+                    bubble.style.boxShadow = "4px 4px 0px rgba(0,0,0,0.1)";
+                    const nerdQuotes = ["İstatistiklere göre...", "Borsa artıyor...", "Ohana mantıksal bir kavramdır.", "Hesaplamalarıma göre...", "Gözlüklerim nerede?"];
+                    quote = nerdQuotes[Math.floor(Math.random()*nerdQuotes.length)];
+                } else {
+                    bubble.style.borderRadius = "20px";
+                    bubble.style.borderColor = "#ffc2d1";
+                    bubble.style.color = "#ff5c8d";
+                    bubble.style.fontFamily = "inherit";
+                    bubble.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
+                }
+
+                bubble.innerText = (window.state.stats.energy < 30) ? "anne uykum geldi" : (window.state.stats.hunger < 30) ? "anne çok açımmm" : (window.state.stats.hygiene < 30) ? "anne duş almam gerek" : quote; 
                 bubble.style.opacity = "1"; 
                 setTimeout(() => { 
                     if(!document.getElementById('stitch-guitar') || document.getElementById('stitch-guitar').style.left !== "45%") { 
