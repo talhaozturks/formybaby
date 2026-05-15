@@ -124,6 +124,9 @@
         .bb-civcik-support { position: absolute; left: 10px; bottom: 150px; width: 100px; height: 100px; pointer-events: none; z-index: 50; transition: transform 0.3s; }
         @media (min-width: 768px) { .bb-civcik-support { width: 140px; height: 140px; left: 20px; bottom: 80px; } }
 
+        @keyframes floatCute { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .cute-float { animation: floatCute 3s ease-in-out infinite; }
+
         /* Drawing Canvas Tool */
         .color-btn { width: 35px; height: 35px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.2s; }
         .color-btn:active, .color-btn.selected { transform: scale(1.2); border-color: #4a1d2e; }
@@ -149,6 +152,40 @@
 <body id="main-body">
 
 <div id="initial-loading">
+    <svg viewBox="0 0 100 100" width="120" height="120" class="mb-4 cute-float">
+        <!-- Kulaklar -->
+        <polygon points="15,40 25,10 45,30" fill="white" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+        <polygon points="85,40 75,10 55,30" fill="white" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Kafa -->
+        <ellipse cx="50" cy="50" rx="45" ry="35" fill="white" stroke="#000" stroke-width="2.5"/>
+        <!-- Kurdele -->
+        <g transform="translate(75, 22)">
+            <ellipse cx="-10" cy="0" rx="10" ry="12" fill="#ef4444" stroke="#000" stroke-width="2" transform="rotate(-20)"/>
+            <ellipse cx="10" cy="0" rx="10" ry="12" fill="#ef4444" stroke="#000" stroke-width="2" transform="rotate(20)"/>
+            <circle cx="0" cy="0" r="5" fill="#ef4444" stroke="#000" stroke-width="2"/>
+            <circle cx="-5" cy="-3" r="2" fill="white" opacity="0.5"/>
+            <circle cx="5" cy="-3" r="2" fill="white" opacity="0.5"/>
+        </g>
+        <!-- Gözler ve Göz Kırpma Animasyonu -->
+        <ellipse cx="30" cy="55" rx="4" ry="6" fill="#000">
+            <animate attributeName="ry" values="6;6;0;6;6" keyTimes="0;0.9;0.93;0.96;1" dur="3s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="70" cy="55" rx="4" ry="6" fill="#000">
+            <animate attributeName="ry" values="6;6;0;6;6" keyTimes="0;0.9;0.93;0.96;1" dur="3s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Burun -->
+        <ellipse cx="50" cy="62" rx="6" ry="4" fill="#facc15" stroke="#000" stroke-width="1.5"/>
+        <!-- Bıyıklar -->
+        <g stroke="#000" stroke-width="2.5" stroke-linecap="round">
+            <line x1="20" y1="50" x2="5" y2="45"/>
+            <line x1="16" y1="58" x2="0" y2="58"/>
+            <line x1="20" y1="66" x2="5" y2="71"/>
+            
+            <line x1="80" y1="50" x2="95" y2="45"/>
+            <line x1="84" y1="58" x2="100" y2="58"/>
+            <line x1="80" y1="66" x2="95" y2="71"/>
+        </g>
+    </svg>
     <h2 class="text-xl font-extrabold text-[#ff5c8d] mb-2 text-center px-4">Talha tarafından ❤️ ile hazırlandı.</h2>
     <p id="loading-text" class="text-xs font-bold uppercase opacity-70 text-pink-600">sistemler kontrol ediliyor...</p>
     <div class="loading-bar-container"><div id="loading-progress"></div></div>
@@ -160,7 +197,7 @@
 <!-- LOGIN EKRANI -->
 <div id="login-screen" class="screen items-center justify-center p-4 hidden-screen">
     <div class="soft-panel p-8 w-full max-w-sm text-center relative z-10">
-        <h2 class="text-2xl font-black text-[#ff5c8d] mb-6 uppercase">Hoş Geldin</h2>
+        <h2 class="text-xl font-black text-[#ff5c8d] mb-6 uppercase leading-tight">Nisan'ın Dünyasına<br>Hoş Geldin!</h2>
         <input type="text" id="login-username" class="login-input" placeholder="Kullanıcı Adı">
         <input type="password" id="login-password" class="login-input" placeholder="Şifre">
         <button onclick="window.handleLogin()" class="soft-btn w-full py-4 text-sm uppercase mb-4 shadow-lg">GİRİŞ YAP</button>
@@ -425,10 +462,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     window.app = null; window.auth = null; window.db = null;
-    window.appId = (typeof __app_id !== 'undefined' && __app_id) ? String(__app_id) : 'nisan-dunyam';
 
     try {
         let fbConfig = {
@@ -448,7 +484,7 @@
             try {
                 await signInAnonymously(window.auth);
             } catch (err) {
-                console.warn("Auth Init Error (Lütfen Firebase'den Anonymous Girişi Açın):", err);
+                console.warn("Auth Init Error:", err);
             }
         };
         initAuth();
@@ -457,6 +493,7 @@
     }
 
     // --- GLOBAL DEĞİŞKENLER ---
+    window.appId = 'nisan-dunyam';
     window.user = null; 
     window.isGuest = true; 
     window.currentUserId = "anonymous"; 
@@ -543,7 +580,7 @@
 
     // --- GİRİŞ & FIREBASE VERİ SİSTEMLERİ ---
     window.setupGlobalListeners = function() {
-        if (!window.db || !window.user) return;
+        if (!window.db) return;
         
         if(window.shopUnsub) window.shopUnsub();
         window.shopUnsub = onSnapshot(collection(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems'), (snap) => {
@@ -559,7 +596,7 @@
             if(document.getElementById('admin-screen') && !document.getElementById('admin-screen').classList.contains('hidden-screen')) {
                 if(window.renderAdminShopList) window.renderAdminShopList();
             }
-        });
+        }, (error) => console.error("Mağaza Verisi Çekilemedi:", error));
 
         if(window.accountsUnsub) window.accountsUnsub();
         window.accountsUnsub = onSnapshot(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), (snap) => {
@@ -571,11 +608,11 @@
             if(document.getElementById('admin-screen') && !document.getElementById('admin-screen').classList.contains('hidden-screen')) {
                 if(window.setupAdminRealtime) window.setupAdminRealtime();
             }
-        });
+        }, (error) => console.error("Hesap Verisi Çekilemedi:", error));
     };
 
     window.setupUserProgress = function() {
-        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
         
         if(window.userProgressUnsub) window.userProgressUnsub();
         const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
@@ -611,11 +648,11 @@
                     window.renderBlackMarket();
                 }
             }
-        });
+        }, (error) => console.error("İlerleme Verisi Çekilemedi:", error));
     };
 
     window.saveProgress = async function() {
-        if (!window.db || !window.user || window.isGuest || window.currentUserId === 'admin_user') return;
+        if (!window.db || window.isGuest || window.currentUserId === 'admin_user') return;
         try {
             const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', window.currentUserId);
             await setDoc(userRef, {
@@ -677,7 +714,7 @@
 
     // --- ADMIN PANEL FONKSİYONLARI ---
     window.setupAdminRealtime = function() {
-        if (!window.db || !window.user) return; 
+        if (!window.db) return; 
         if(window.adminUsersUnsubList) window.adminUsersUnsubList.forEach(u => u()); 
         window.adminUsersUnsubList = []; window.allUsersData = {};
         Object.keys(window.registeredAccounts).forEach(username => {
@@ -686,7 +723,7 @@
                 const unsub = onSnapshot(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', acc.uid), (snap) => { 
                     window.allUsersData[username] = snap.exists() ? snap.data() : { cherries: 0 }; 
                     if(window.renderAdminUserList) window.renderAdminUserList(); 
-                });
+                }, (error) => console.error("Kullanıcı Durumu Çekilemedi:", error));
                 window.adminUsersUnsubList.push(unsub);
             }
         });
@@ -703,7 +740,7 @@
     };
 
     window.adminAddShopItem = async function() { 
-        if (!window.db || !window.user) return; 
+        if (!window.db) { window.showMessage("Veritabanı bağlı değil!"); return; } 
         const id = document.getElementById('admin-item-id').value.trim(); 
         const name = document.getElementById('admin-item-name').value.trim(); 
         const price = parseInt(document.getElementById('admin-item-price').value); 
@@ -717,17 +754,17 @@
             document.getElementById('admin-item-id').value = ''; document.getElementById('admin-item-name').value = ''; 
             document.getElementById('admin-item-price').value = ''; document.getElementById('admin-item-rarity').value = ''; 
             document.getElementById('admin-item-svg').value = ''; 
-        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
+        } catch(e) { window.showMessage("Yetki Hatası! (Kuralları kontrol et)"); console.error(e); } 
     };
 
     window.adminDeleteShopItem = async function(id) { 
-        if (!window.db || !window.user) return; 
+        if (!window.db) { window.showMessage("Veritabanı bağlı değil!"); return; } 
         if(window.defaultShopItems[id]) { window.showMessage("Varsayılanları silemezsiniz!"); return; } 
         try { 
             await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'shopItems', id)); 
             delete window.dynamicShopItems[id]; window.showMessage("Eşya Silindi!"); 
             if(window.renderAdminShopList) window.renderAdminShopList(); 
-        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
+        } catch(e) { window.showMessage("Yetki Hatası! (Kuralları kontrol et)"); console.error(e); } 
     };
 
     window.renderAdminShopList = function() { 
@@ -741,7 +778,7 @@
     window.renderAdminUserList = function() { 
         const list = document.getElementById('admin-user-list'); const select = document.getElementById('admin-user-select'); 
         if(!list || !select) return; 
-        list.innerHTML = ''; let optionsHtml = ''; 
+        list.innerHTML = ''; let optionsHtml = '<option value="">-- Kullanıcı Seç --</option>'; 
         Object.keys(window.registeredAccounts).forEach(username => { 
             const acc = window.registeredAccounts[username]; 
             if(acc.role !== 'admin') { 
@@ -754,44 +791,62 @@
     };
 
     window.adminDeleteAccount = async function(username, uid) { 
-        if (!window.db || !window.user) return; 
+        if (!window.db) { window.showMessage("Veritabanı bağlı değil!"); return; } 
         if(username === 'nisan') { window.showMessage("Ana hesabı silemezsin! ❤️"); return; } 
         try { 
             const newAccounts = { ...window.registeredAccounts }; delete newAccounts[username]; 
             await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); 
             await deleteDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', uid)); 
-            delete window.allUsersData[username]; window.showMessage(`Hesap tamamen silindi: ${username} 🗑️`); 
+            
+            delete window.allUsersData[username]; 
+            window.registeredAccounts = newAccounts; 
+            
+            window.showMessage(`Hesap tamamen silindi: ${username} 🗑️`); 
             if(window.renderAdminUserList) window.renderAdminUserList(); 
-        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
+        } catch(e) { window.showMessage("Yetki Hatası! (Kuralları kontrol et)"); console.error(e); } 
     };
 
     window.adminModifyCherries = async function(multiplier) { 
-        if (!window.db || !window.user) return; 
+        if (!window.db) { window.showMessage("Veritabanı bağlı değil!"); return; } 
         const uid = document.getElementById('admin-user-select').value; 
         const val = parseInt(document.getElementById('admin-cherry-amount').value); 
-        if(!uid || isNaN(val)) { window.showMessage("Geçersiz miktar!"); return; } 
+        if(!uid || isNaN(val)) { window.showMessage("Kullanıcı seçilmedi veya miktar geçersiz!"); return; } 
         const amount = val * multiplier;
         try { 
             const userRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', uid); 
             const snap = await getDoc(userRef); let current = 0; 
-            if(snap.exists() && snap.data().cherries) current = snap.data().cherries; 
+            if(snap.exists() && snap.data().cherries !== undefined) current = snap.data().cherries; 
             await setDoc(userRef, { cherries: Math.max(0, current + amount) }, { merge: true }); 
-            window.showMessage(multiplier > 0 ? "Vişneler eklendi!" : "Vişneler çıkarıldı!"); 
+            
+            const username = Object.keys(window.registeredAccounts).find(k => window.registeredAccounts[k].uid === uid);
+            if(username) {
+                if(!window.allUsersData[username]) window.allUsersData[username] = {};
+                window.allUsersData[username].cherries = Math.max(0, current + amount);
+                if(window.renderAdminUserList) window.renderAdminUserList();
+            }
+
+            window.showMessage(multiplier > 0 ? val + " Vişne Eklendi! 🍒" : val + " Vişne Çıkarıldı! 🍒"); 
             document.getElementById('admin-cherry-amount').value = ''; 
-        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
+        } catch(e) { window.showMessage("Yetki Hatası! (Kuralları kontrol et)"); console.error(e); } 
     };
 
     window.adminCreateAccount = async function() { 
-        if (!window.db || !window.user) return; 
+        if (!window.db) { window.showMessage("Veritabanı bağlı değil!"); return; } 
         const u = document.getElementById('admin-new-user').value.toLowerCase().trim(); const p = document.getElementById('admin-new-pass').value; 
         if(!u || !p) { window.showMessage("Bilgileri girin!"); return; } 
         if(window.registeredAccounts[u]) { window.showMessage("Bu kullanıcı zaten var!"); return; } 
         const newUid = u + "_" + Date.now().toString(); const newAccounts = { ...window.registeredAccounts }; newAccounts[u] = { pass: p, uid: newUid, role: 'user' }; 
         try { 
             await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'system', 'accounts'), { users: newAccounts }); 
-            window.showMessage(`Hesap Oluşturuldu: ${u}`); document.getElementById('admin-new-user').value = ''; document.getElementById('admin-new-pass').value = ''; 
+            await setDoc(doc(window.db, 'artifacts', window.appId, 'public', 'data', 'userProgress', newUid), { cherries: 0, diamonds: 0 }); 
+            
+            window.registeredAccounts = newAccounts; 
+            window.showMessage(`Hesap Oluşturuldu: ${u} 🎉`); 
+            document.getElementById('admin-new-user').value = ''; document.getElementById('admin-new-pass').value = ''; 
+            
             if(window.setupAdminRealtime) window.setupAdminRealtime();
-        } catch(e) { window.showMessage("Hata: " + e.message); console.error(e); } 
+            if(window.renderAdminUserList) window.renderAdminUserList(); 
+        } catch(e) { window.showMessage("Yetki Hatası! (Kuralları kontrol et)"); console.error(e); } 
     };
 
     // --- Uİ YÖNETİMİ & ÇİZİM SİSTEMLERİ ---
@@ -1177,7 +1232,7 @@
         const interval = setInterval(() => { prg += 2; const lp = document.getElementById('loading-progress'); if (lp) lp.style.width = prg + "%"; const lt = document.getElementById('loading-text'); if (lt && prg % 20 === 0) lt.innerText = texts[Math.floor(prg/25)] || "başlıyor..."; if(prg >= 100) { clearInterval(interval); const initL = document.getElementById('initial-loading'); if (initL) initL.style.display = 'none'; window.changeScreen('login-screen'); } }, 30);
     };
 
-    if (window.auth) onAuthStateChanged(window.auth, (u) => { window.user = u; window.setupGlobalListeners(); });
+    if (window.auth) onAuthStateChanged(window.auth, (u) => { window.user = u; if (u) window.setupGlobalListeners(); });
     
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', window.bootSequence); } else { window.bootSequence(); }
 </script>
