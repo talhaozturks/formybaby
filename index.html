@@ -120,6 +120,15 @@
         }
         .anim-nerd-body { animation: stitchBodyTurn 4s ease-in-out forwards; transform-origin: center center; }
 
+        @keyframes droolDrop { 
+            0% { transform: translateY(0) scale(0); opacity: 0; } 
+            20% { transform: translateY(0) scale(1); opacity: 0.9; } 
+            60% { transform: translateY(35px) scale(0.8, 1.2); opacity: 0.9; } 
+            80% { transform: translateY(45px) scale(1.5, 0.4); opacity: 0.6; } 
+            100% { transform: translateY(45px) scale(2, 0); opacity: 0; } 
+        }
+        .anim-drool { animation: droolDrop 1s ease-in 1 forwards; transform-origin: 100px 148px; }
+
         #selection-preview svg { width: 100%; height: auto; max-height: 45vh; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); transform-origin: center bottom; }
         #shop-timer { font-size: 10px; font-weight: 800; color: #ff5c8d; background: rgba(255, 92, 141, 0.1); padding: 4px 8px; border-radius: 10px; margin-top: 5px; }
         .admin-tab, .shop-tab { padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.2s; }
@@ -303,9 +312,14 @@
 
 <!-- KARAKTER SEÇİM EKRANI -->
 <div id="selection-screen" class="screen hidden-screen p-2 md:p-10">
-    <div class="flex flex-row h-full items-center justify-center gap-1 md:gap-8 max-w-6xl mx-auto w-full overflow-y-auto px-2">
-        <div class="soft-panel w-[55%] md:w-[60%] lg:max-w-sm p-3 md:p-6 z-20 relative flex flex-col max-h-[95vh] overflow-y-auto">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2">
+    <div class="flex flex-col md:flex-row h-full items-center justify-start md:justify-center gap-2 md:gap-8 max-w-6xl mx-auto w-full overflow-hidden px-2 pt-8 md:pt-0">
+        
+        <!-- Animasyon & Skin Önizleme Alanı (Mobil için Üstte) -->
+        <div id="selection-preview" class="w-full md:w-[40%] h-[340px] md:h-[500px] max-w-[300px] shrink-0 flex items-center justify-center relative pointer-events-auto mt-2 md:mt-0 order-1 md:order-2"></div>
+
+        <!-- Karakter Listesi Alanı -->
+        <div class="soft-panel w-full md:w-[60%] lg:max-w-sm p-3 md:p-6 z-20 relative flex flex-col flex-1 min-h-[250px] max-h-[50vh] md:max-h-[95vh] overflow-y-auto order-2 md:order-1">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-6 gap-2 shrink-0">
                 <div>
                     <h2 class="text-base md:text-xl font-black text-[#ff5c8d] uppercase flex items-center">
                         Arkadaş Seç
@@ -329,9 +343,8 @@
                 <button onclick="window.updateSelection('chick')" id="opt-chick" class="char-btn char-btn-chick relative overflow-hidden p-2 md:p-3"><div id="chick-lock-ui" class="lock-overlay"><span>🍒 150</span><p>Kilidi Aç</p></div><div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">🐣</div><div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Civcik</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Minik</p></div></button>
                 <button onclick="window.updateSelection('talha')" id="opt-talha" class="char-btn char-btn-talha relative overflow-hidden p-2 md:p-3"><div id="talha-lock-ui" class="lock-overlay"><span>🍒 200</span><p>Kilidi Aç</p></div><div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center text-lg md:text-xl shadow-sm shrink-0">❤️</div><div class="flex-1"><h3 class="font-bold text-xs md:text-sm text-inherit whitespace-nowrap">Talha</h3><p class="text-[7px] md:text-[8px] uppercase opacity-70">Seni Seviyor</p></div></button>
             </div>
-            <button onclick="window.enterWorld()" class="w-full mt-4 soft-btn py-3 md:py-4 text-xs md:text-base">DÜNYAYA GİT</button>
+            <button onclick="window.enterWorld()" class="w-full mt-4 soft-btn py-3 md:py-4 text-xs md:text-base shrink-0">DÜNYAYA GİT</button>
         </div>
-        <div id="selection-preview" class="w-[45%] md:w-[40%] max-w-[250px] shrink-0 flex items-center justify-center relative pointer-events-auto"></div>
     </div>
 </div>
 
@@ -1123,9 +1136,9 @@
 
         if(isAnimContext && skin === 'black') {
             return `
-            <div class="relative w-full flex-1 flex flex-col items-center justify-end pb-8">
+            <div class="relative w-full flex-1 flex flex-col items-center justify-end pb-4 min-h-[220px]">
                 <div class="absolute bottom-[30px] z-10 w-[80%] h-[80%]">${svgBase}</div>
-                <svg class="absolute bottom-0 z-20 w-[120%] h-[120px]" viewBox="0 0 200 100">
+                <svg class="absolute bottom-0 z-20 w-[120%] max-w-[200px] h-[70px]" viewBox="0 0 200 100">
                     <path d="M 50 100 L 50 40 Q 100 0 150 40 L 150 100 Z" fill="#4b5563" stroke="#1f2937" stroke-width="4"/>
                     <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Herkes Kendine</text>
                     <text x="100" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Yakışanı Yapsın</text>
@@ -1166,7 +1179,9 @@
             headExtra = `
                 <path d="M 90 130 Q 100 135 110 130" fill="none" stroke="#000" stroke-width="2"/>
                 <path d="M 95 132 L 105 132 L 105 145 Q 100 150 95 145 Z" fill="#ec4899" stroke="#000" stroke-width="1.5"/>
+                <path class="${isAnimContext ? 'anim-drool' : 'opacity-0'}" d="M 100 148 C 96 154 96 158 100 162 C 104 158 104 154 100 148 Z" fill="#7dd3fc" opacity="0"/>
             `;
+            if(isAnimContext) animClass = ""; // Ana gövde taklasını iptal ediyoruz
         }
 
         let faceGroup = `
@@ -1208,14 +1223,29 @@
 
         if(isAnimContext && skin === 'nerd') {
             return `
-            <div class="relative w-full flex-1 flex flex-col items-center justify-center shrink-0 min-h-[220px] mb-2 mt-4 px-4 w-[200px]">
-                <div class="absolute inset-0 z-0 bg-[#0f172a] rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.3)] flex flex-col justify-end opacity-90 border-2 border-[#1e293b]">
-                    <svg viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="none" class="animate-pulse">
-                        <polyline points="0,50 15,35 30,40 50,15 70,25 100,5" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="100" cy="5" r="2" fill="#22c55e" filter="drop-shadow(0 0 4px #22c55e)"/>
-                        <path d="M 0 50 L 15 35 L 30 40 L 50 15 L 70 25 L 100 5 L 100 50 Z" fill="rgba(34,197,94,0.1)"/>
+            <div class="relative w-full flex-1 flex flex-col items-center justify-center shrink-0 min-h-[220px] mb-2 mt-4 px-2 w-full max-w-[220px] mx-auto">
+                <div class="absolute inset-0 z-0 flex items-center justify-center opacity-95 pointer-events-none">
+                    <svg viewBox="0 0 200 150" width="100%" height="100%" class="drop-shadow-lg" preserveAspectRatio="xMidYMid meet">
+                        <!-- Kağıt Gölge & Zemin -->
+                        <rect x="15" y="15" width="170" height="120" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" rx="4" transform="rotate(-3 100 75)"/>
+                        <!-- Tepe Bant -->
+                        <rect x="15" y="15" width="170" height="22" fill="#f8fafc" rx="4" transform="rotate(-3 100 75)"/>
+                        <circle cx="30" cy="26" r="3" fill="#cbd5e1" transform="rotate(-3 100 75)"/>
+                        <circle cx="170" cy="26" r="3" fill="#cbd5e1" transform="rotate(-3 100 75)"/>
+                        <text x="100" y="30" text-anchor="middle" fill="#334155" font-size="11" font-weight="900" transform="rotate(-3 100 75)">📈 BORSA GRAFİĞİ</text>
+                        
+                        <!-- Izgara -->
+                        <g stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="3" transform="rotate(-3 100 75)">
+                            <line x1="25" y1="55" x2="175" y2="55"/>
+                            <line x1="25" y1="75" x2="175" y2="75"/>
+                            <line x1="25" y1="95" x2="175" y2="95"/>
+                            <line x1="25" y1="115" x2="175" y2="115"/>
+                        </g>
+                        
+                        <!-- Kırmızı/Yeşil Çizgi -->
+                        <polyline points="25,110 50,85 75,95 100,55 125,65 150,35 175,40" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-3 100 75)"/>
+                        <circle cx="175" cy="40" r="3" fill="#22c55e" transform="rotate(-3 100 75)"/>
                     </svg>
-                    <div class="text-[14px] text-green-400 font-black absolute top-2 left-2 drop-shadow-md">📈 Vişneler Borsası</div>
                 </div>
                 <div class="z-10 w-[80%]">${svgBase}</div>
             </div>
@@ -1383,7 +1413,7 @@
             }
 
             const skinControls = `
-                <div class="w-[200px] flex flex-col items-center gap-1.5 pointer-events-auto z-[200] bg-white/95 p-2 rounded-2xl border-2 border-pink-200 shadow-xl backdrop-blur-sm mt-3 shrink-0">
+                <div class="relative w-[90%] max-w-[240px] flex flex-col items-center gap-1.5 pointer-events-auto z-[200] bg-white/95 p-2 rounded-2xl border-2 border-pink-200 shadow-xl backdrop-blur-sm mt-3 mb-4 shrink-0 mx-auto">
                     <div class="flex gap-4">
                         <button onclick="window.previewKittySkin('white')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='white'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">⚪</button>
                         <button onclick="window.previewKittySkin('black')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='black'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">⚫${!window.state.unlockedKittySkins.includes('black') ? '<span class="absolute -top-1 -right-2 bg-red-500 text-white text-[8px] px-1 rounded-full font-black shadow">🔒</span>' : ''}</button>
@@ -1396,7 +1426,7 @@
                 </div>
             `;
             
-            prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-start overflow-y-auto pb-4 custom-scrollbar">` + window.getKittySvg(true, activeSkin) + skinControls + `</div>`;
+            prev.innerHTML = smokeHtml + `<div class="w-full h-full flex flex-col items-center justify-start overflow-y-auto custom-scrollbar">` + window.getKittySvg(true, activeSkin) + skinControls + `</div>`;
         } else if (char === 'stitch') {
             let activeSkin = window.state.previewStitchSkin || 'white';
             let isUnlocked = window.state.unlockedStitchSkins.includes(activeSkin);
@@ -1428,7 +1458,7 @@
             }
 
             const skinControls = `
-                <div class="w-[200px] flex flex-col items-center gap-1.5 pointer-events-auto z-[200] bg-white/95 p-2 rounded-2xl border-2 border-pink-200 shadow-xl backdrop-blur-sm mt-3 shrink-0">
+                <div class="relative w-[90%] max-w-[240px] flex flex-col items-center gap-1.5 pointer-events-auto z-[200] bg-white/95 p-2 rounded-2xl border-2 border-pink-200 shadow-xl backdrop-blur-sm mt-3 mb-4 shrink-0 mx-auto">
                     <div class="flex gap-4">
                         <button onclick="window.previewStitchSkin('white')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='white'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">⚪</button>
                         <button onclick="window.previewStitchSkin('nerd')" class="text-2xl hover:scale-125 transition-transform ${activeSkin==='nerd'?'scale-125 drop-shadow-md opacity-100':'opacity-50 grayscale'} relative">🤓${!window.state.unlockedStitchSkins.includes('nerd') ? '<span class="absolute -top-1 -right-2 bg-red-500 text-white text-[8px] px-1 rounded-full font-black shadow">🔒</span>' : ''}</button>
@@ -1441,7 +1471,7 @@
                 </div>
             `;
             
-            prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-start overflow-y-auto pb-4 custom-scrollbar">` + window.getStitchSvg(true, activeSkin) + skinControls + `</div>`;
+            prev.innerHTML = smokeHtml + `<div class="w-full h-full flex flex-col items-center justify-start overflow-y-auto custom-scrollbar">` + window.getStitchSvg(true, activeSkin) + skinControls + `</div>`;
         } else {
             prev.innerHTML = smokeHtml + `<div class="relative w-full h-full flex flex-col items-center justify-center">` + window.getOtherSvg(char) + `</div>`;
             const svg = prev.querySelector('svg');
